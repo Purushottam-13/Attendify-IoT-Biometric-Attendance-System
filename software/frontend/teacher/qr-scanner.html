@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendify - QR Scanner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../style.css">
+    <!-- QR Code Scanner Library -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <style>
+        .scanner-page {
+            min-height: 100vh;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .scanner-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .scanner-header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .scanner-header h1 i {
+            color: var(--brand);
+        }
+
+        .back-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s;
+        }
+
+        .back-btn:hover {
+            background: var(--bg-hover);
+        }
+
+        /* Session Setup */
+        .session-setup {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .session-setup h2 {
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .form-group {
+            flex: 1;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-family: inherit;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--brand);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+        /* Scanner Area */
+        .scanner-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .scanner-controls {
+            padding: 16px;
+            display: flex;
+            gap: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .btn-scan {
+            background: var(--brand);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.15s;
+        }
+
+        .btn-scan:hover { background: var(--brand-dark); }
+        .btn-scan:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .btn-stop {
+            background: var(--error);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-submit {
+            background: #16a34a;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .btn-submit:hover { background: #15803d; }
+        .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        #qr-reader {
+            width: 100%;
+            max-height: 400px;
+        }
+
+        #qr-reader video {
+            border-radius: 0 !important;
+        }
+
+        /* Scanned Students List */
+        .scanned-list {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .scanned-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .scanned-header h3 {
+            font-size: 1rem;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .count-badge {
+            background: var(--brand);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .student-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border-color);
+            animation: slideIn 0.3s ease;
+        }
+
+        .student-item:last-child { border-bottom: none; }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .student-item .roll {
+            font-family: monospace;
+            font-weight: 700;
+            color: var(--brand);
+            min-width: 80px;
+        }
+
+        .student-item .name {
+            flex: 1;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .student-item .time {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .student-item .remove-btn {
+            background: none;
+            border: none;
+            color: var(--error);
+            cursor: pointer;
+            padding: 4px 8px;
+            margin-left: 8px;
+            font-size: 0.9rem;
+        }
+
+        .empty-state {
+            padding: 40px 20px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            color: var(--border-color);
+        }
+
+        /* Scan feedback flash */
+        .scan-flash {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--success);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            z-index: 999;
+            animation: flashIn 0.8s ease forwards;
+            pointer-events: none;
+        }
+
+        @keyframes flashIn {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+            40% { transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        /* Toast */
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; }
+    </style>
+</head>
+<body class="scanner-page">
+    <div id="toast-container"></div>
+
+    <div class="scanner-header">
+        <h1><i class="fas fa-qrcode"></i> QR Attendance Scanner</h1>
+        <a href="/teacher/dashboard" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+    </div>
+
+    <!-- Session Setup -->
+    <div class="session-setup" id="sessionSetup">
+        <h2><i class="fas fa-chalkboard-teacher" style="color:var(--brand);margin-right:8px;"></i> Session Details</h2>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Subject</label>
+                <input type="text" id="subjectInput" placeholder="e.g. Data Structures" />
+            </div>
+            <div class="form-group">
+                <label>Teacher Name</label>
+                <input type="text" id="teacherInput" placeholder="Auto-filled from login" readonly />
+            </div>
+        </div>
+    </div>
+
+    <!-- Scanner -->
+    <div class="scanner-container">
+        <div class="scanner-controls">
+            <button class="btn-scan" id="startBtn" onclick="startScanner()">
+                <i class="fas fa-camera"></i> Start Camera
+            </button>
+            <button class="btn-stop" id="stopBtn" onclick="stopScanner()" style="display:none;">
+                <i class="fas fa-stop"></i> Stop
+            </button>
+            <button class="btn-submit" id="submitBtn" onclick="submitAttendance()" disabled>
+                <i class="fas fa-cloud-upload-alt"></i> Submit Attendance
+            </button>
+        </div>
+        <div id="qr-reader"></div>
+    </div>
+
+    <!-- Scanned Students -->
+    <div class="scanned-list">
+        <div class="scanned-header">
+            <h3><i class="fas fa-users" style="margin-right:8px;color:var(--brand);"></i> Scanned Students</h3>
+            <span class="count-badge" id="countBadge">0</span>
+        </div>
+        <div id="studentList">
+            <div class="empty-state">
+                <i class="fas fa-qrcode"></i>
+                <p>No students scanned yet.<br>Start the camera and scan student QR codes.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyA5xTUSjlz0AUc3P2evFIwMIe6vQfS0Nl8",
+            authDomain: "newattendify.firebaseapp.com",
+            projectId: "newattendify",
+            storageBucket: "newattendify.firebasestorage.app",
+            messagingSenderId: "1087026675865",
+            appId: "1:1087026675865:web:796f43bc5249626a697808"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        let scannedStudents = []; // { roll, name, time }
+        let html5QrCode = null;
+        let allStudents = [];
+
+        async function getValidToken() {
+            const user = firebase.auth().currentUser;
+            if (user) {
+                const token = await user.getIdToken(true);
+                localStorage.setItem('attendify_token', token);
+                return token;
+            }
+            return null;
+        }
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            firebase.auth().onAuthStateChanged(async (user) => {
+                if (!user) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+                const token = await getValidToken();
+                if (!token) { window.location.href = '/login.html'; return; }
+
+                // Get user info
+                try {
+                    const res = await fetch('/api/auth/me', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const data = await res.json();
+                    if (data.user) {
+                        document.getElementById('teacherInput').value = data.user.displayName || data.user.email;
+                    }
+                } catch(e) { console.error(e); }
+
+                // Load student directory for name resolution
+                try {
+                    const res = await fetch('/api/students', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const data = await res.json();
+                    if (data.success) allStudents = data.students || [];
+                } catch(e) { console.error(e); }
+            });
+        });
+
+        // QR Scanner
+        function startScanner() {
+            const subject = document.getElementById('subjectInput').value.trim();
+            if (!subject) {
+                alert('Please enter the Subject name first.');
+                document.getElementById('subjectInput').focus();
+                return;
+            }
+
+            html5QrCode = new Html5Qrcode("qr-reader");
+            html5QrCode.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: { width: 250, height: 250 } },
+                onScanSuccess,
+                () => {} // Ignore scan errors
+            ).then(() => {
+                document.getElementById('startBtn').style.display = 'none';
+                document.getElementById('stopBtn').style.display = 'flex';
+            }).catch(err => {
+                console.error('Camera error:', err);
+                alert('Could not access camera. Please allow camera permissions.');
+            });
+        }
+
+        function stopScanner() {
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    html5QrCode.clear();
+                    document.getElementById('startBtn').style.display = 'flex';
+                    document.getElementById('stopBtn').style.display = 'none';
+                }).catch(console.error);
+            }
+        }
+
+        function onScanSuccess(decodedText) {
+            // QR code could contain roll number, or JSON like {"roll":"123","name":"John"}
+            let roll = '';
+            let name = '';
+
+            try {
+                const parsed = JSON.parse(decodedText);
+                roll = String(parsed.roll || parsed.id || '').trim();
+                name = parsed.name || '';
+            } catch(e) {
+                // Plain text — treat as roll number
+                roll = decodedText.trim();
+            }
+
+            if (!roll) return;
+
+            // Check for duplicates
+            if (scannedStudents.find(s => s.roll === roll)) {
+                showScanFlash(`#${roll} Already Scanned`, 'var(--warning)');
+                return;
+            }
+
+            // Resolve name from student directory
+            if (!name) {
+                const found = allStudents.find(s => String(s.roll) === roll || String(s.fingerprintId) === roll);
+                name = found ? found.name : `Student #${roll}`;
+            }
+
+            scannedStudents.push({
+                roll,
+                name,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+            });
+
+            showScanFlash(`✓ ${name}`, 'var(--success)');
+            renderStudentList();
+
+            // Beep feedback
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                osc.frequency.value = 800;
+                osc.connect(ctx.destination);
+                osc.start();
+                setTimeout(() => osc.stop(), 100);
+            } catch(e) {}
+        }
+
+        function showScanFlash(text, color) {
+            const flash = document.createElement('div');
+            flash.className = 'scan-flash';
+            flash.style.background = color || 'var(--success)';
+            flash.textContent = text;
+            document.body.appendChild(flash);
+            setTimeout(() => flash.remove(), 800);
+        }
+
+        function removeStudent(roll) {
+            scannedStudents = scannedStudents.filter(s => s.roll !== roll);
+            renderStudentList();
+        }
+
+        function renderStudentList() {
+            const container = document.getElementById('studentList');
+            document.getElementById('countBadge').textContent = scannedStudents.length;
+            document.getElementById('submitBtn').disabled = scannedStudents.length === 0;
+
+            if (scannedStudents.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-qrcode"></i>
+                        <p>No students scanned yet.<br>Start the camera and scan student QR codes.</p>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = scannedStudents.map(s => `
+                <div class="student-item">
+                    <span class="roll">#${s.roll}</span>
+                    <span class="name">${s.name}</span>
+                    <span class="time">${s.time}</span>
+                    <button class="remove-btn" onclick="removeStudent('${s.roll}')" title="Remove"><i class="fas fa-times"></i></button>
+                </div>
+            `).join('');
+        }
+
+        async function submitAttendance() {
+            if (scannedStudents.length === 0) return;
+
+            const subject = document.getElementById('subjectInput').value.trim();
+            const teacher = document.getElementById('teacherInput').value.trim();
+
+            if (!subject) {
+                alert('Subject is required');
+                return;
+            }
+
+            if (!confirm(`Submit attendance for ${scannedStudents.length} students in ${subject}?`)) return;
+
+            try {
+                const token = await getValidToken();
+                const sessionId = `QR-${Date.now()}`;
+
+                const res = await fetch('/api/teacher/mark-attendance', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        sessionId,
+                        teacher,
+                        subject,
+                        students: scannedStudents.map(s => s.roll)
+                    })
+                });
+
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    showToast(`${data.message || 'Attendance submitted!'} `, 'success');
+                    stopScanner();
+                    scannedStudents = [];
+                    renderStudentList();
+                } else {
+                    showToast(data.message || 'Submission failed', 'error');
+                }
+            } catch(e) {
+                console.error(e);
+                showToast('Server error', 'error');
+            }
+        }
+
+        // Toast
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                padding: 12px 20px; border-radius: 8px; margin-bottom: 8px; font-size: 0.9rem; font-weight: 500;
+                color: white; display: flex; align-items: center; gap: 8px; min-width: 280px;
+                animation: slideIn 0.3s ease;
+                background: ${type === 'success' ? '#16a34a' : type === 'error' ? '#dc2626' : '#2563eb'};
+            `;
+            const icon = type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle';
+            toast.innerHTML = `<i class="fas fa-${icon}"></i> ${message}`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+    </script>
+</body>
+</html>

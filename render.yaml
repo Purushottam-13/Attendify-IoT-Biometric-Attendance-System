@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: attendify-software2
+    runtime: node
+    rootDir: attendify-software2
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: STORAGE_MODE
+        value: CLOUD
+      - key: AUTH_MODE
+        value: FIREBASE
+      - key: FIREBASE_SERVICE_ACCOUNT
+        sync: false
+      - key: SMTP_EMAIL
+        sync: false
+      - key: SMTP_APP_PASSWORD
+        sync: false
+      - key: PUBLIC_BASE_URL
+        sync: false

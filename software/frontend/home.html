@@ -1,0 +1,2286 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendify - Next-Gen Biometric Attendance System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ========== CUSTOM VARIABLE DEFINITIONS & CSS SETUP ========== */
+        :root {
+            --primary: #0050FF;
+            --accent: #00D6FF;
+            --dark: #050505;
+            --text: #e2e8f0;
+            --card-bg: rgba(10, 10, 12, 0.65);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--dark);
+            color: var(--text);
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        /* Desktop Cursor styling override */
+        @media (min-width: 768px) {
+            body {
+                cursor: none;
+            }
+
+            a,
+            button,
+            [role="button"],
+            .interactive {
+                cursor: none;
+            }
+        }
+
+        /* Custom Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+
+        /* Custom Cursor Elements */
+        #cursor-outer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 20px;
+            height: 20px;
+            margin-top: -10px;
+            margin-left: -10px;
+            border: 1px solid rgba(0, 214, 255, 0.4);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate3d(0, 0, 0);
+            transition: transform 0.15s ease-out, border-color 0.3s, background-color 0.3s;
+            will-change: transform;
+            display: none;
+        }
+
+        #cursor-outer.hover {
+            transform: scale(1.5);
+            border-color: var(--primary);
+            background-color: rgba(0, 80, 255, 0.08);
+        }
+
+        #cursor-inner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 4px;
+            margin-top: -2px;
+            margin-left: -2px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate3d(0, 0, 0);
+            will-change: transform;
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+
+            #cursor-outer,
+            #cursor-inner {
+                display: block;
+            }
+        }
+
+        /* ========== NAVIGATION BAR STYLE ========== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 50;
+            border-bottom: 1px solid transparent;
+            padding: 20px 0;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .navbar.scrolled {
+            background-color: rgba(5, 5, 5, 0.75);
+            backdrop-filter: blur(12px);
+            border-color: rgba(255, 255, 255, 0.08);
+            padding: 12px 0;
+        }
+
+        .nav-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #fff;
+            text-decoration: none;
+            letter-spacing: -0.02em;
+            transition: opacity 0.3s;
+        }
+
+        .logo-icon {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%);
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 900;
+            box-shadow: 0 0 15px rgba(0, 214, 255, 0.4);
+        }
+
+        .nav-links {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .nav-links {
+                display: flex;
+                align-items: center;
+                gap: 32px;
+            }
+        }
+
+        .nav-links a {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            position: relative;
+            padding: 4px 0;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #fff;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--accent);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-cta button {
+            padding: 10px 22px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border: none;
+            color: #fff;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+            border-radius: 30px;
+            box-shadow: 0 0 15px rgba(0, 80, 255, 0.3);
+            transition: all 0.3s transform;
+        }
+
+        .nav-cta button:hover {
+            box-shadow: 0 0 25px rgba(0, 214, 255, 0.5);
+            transform: translateY(-1.5px);
+        }
+
+        /* ========== STORYTELLING & GL CANVAS LAYOUT ========== */
+        .scrollytelling-container {
+            position: relative;
+            width: 100%;
+            height: 500vh;
+            /* 5 stages of scroll narration */
+        }
+
+        .canvas-wrapper {
+            position: sticky;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .canvas-bg {
+            position: absolute;
+            inset: 0;
+            background-color: var(--dark);
+            z-index: -1;
+        }
+
+        .canvas-grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.012) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.012) 1px, transparent 1px);
+            background-size: 40px 40px;
+            opacity: 0.5;
+            z-index: 0;
+        }
+
+        .glow-sphere {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .glow-1 {
+            top: 15%;
+            left: 10%;
+            width: 400px;
+            height: 400px;
+            background-color: rgba(0, 80, 255, 0.12);
+        }
+
+        .glow-2 {
+            bottom: 15%;
+            right: 10%;
+            width: 450px;
+            height: 450px;
+            background-color: rgba(0, 214, 255, 0.08);
+        }
+
+        #webgl-canvas {
+            width: 100%;
+            height: 100%;
+            pointer-events: auto;
+        }
+
+        #webgl-canvas canvas {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        /* Story Overlay Sections */
+        .story-overlays {
+            position: relative;
+            z-index: 20;
+            pointer-events: none;
+            width: 100%;
+        }
+
+        .story-section {
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+        }
+
+        .story-content {
+            background-color: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            padding: 40px;
+            border-radius: 24px;
+            max-width: 450px;
+            pointer-events: auto;
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .story-content.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .story-tag {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            color: var(--accent);
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+
+        .story-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 16px;
+            line-height: 1.2;
+        }
+
+        .story-desc {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.65);
+        }
+
+        /* Alignments */
+        .story-section.center {
+            justify-content: center;
+            text-align: center;
+        }
+
+        .story-section.center .story-content {
+            max-width: 680px;
+        }
+
+        .story-section.left {
+            justify-content: flex-start;
+            padding-left: 10%;
+        }
+
+        .story-section.right {
+            justify-content: flex-end;
+            padding-right: 10%;
+        }
+
+        /* Bullet points for core details */
+        .spec-list {
+            margin-top: 20px;
+            text-align: left;
+            list-style: none;
+        }
+
+        .spec-list li {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            margin-bottom: 14px;
+            font-size: 0.9rem;
+        }
+
+        .spec-list li strong {
+            color: #fff;
+        }
+
+        .spec-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            margin-top: 7px;
+            flex-shrink: 0;
+        }
+
+        /* Buttons on CTA card */
+        .cta-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 28px;
+        }
+
+        .btn-gradient {
+            padding: 14px 28px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            border: none;
+            color: #fff;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+            border-radius: 30px;
+            box-shadow: 0 0 15px rgba(0, 80, 255, 0.3);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .btn-gradient:hover {
+            box-shadow: 0 0 25px rgba(0, 214, 255, 0.5);
+            transform: scale(1.03);
+        }
+
+        .btn-outline {
+            padding: 14px 28px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            background: transparent;
+            border-radius: 30px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: scale(1.03);
+        }
+
+        /* ========== SECONDARY SPECIFICATIONS SECTION ========== */
+        .specs-section {
+            background-color: #0A0A0C;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 120px 24px;
+            position: relative;
+            z-index: 30;
+        }
+
+        .section-separator {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0, 214, 255, 0.15), transparent);
+        }
+
+        .specs-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .section-tag {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            color: var(--accent);
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 850;
+            color: #fff;
+            margin-top: 10px;
+        }
+
+        .specs-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 48px;
+        }
+
+        @media (min-width: 768px) {
+            .specs-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .spec-box {
+            background-color: rgba(5, 5, 5, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .spec-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            background-color: rgba(0, 80, 255, 0.1);
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            margin-bottom: 24px;
+            box-shadow: 0 0 15px rgba(0, 80, 255, 0.15);
+        }
+
+        .spec-box h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 24px;
+        }
+
+        .spec-table {
+            width: 100%;
+        }
+
+        .spec-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 16px 0;
+        }
+
+        .spec-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .spec-lbl {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.45);
+        }
+
+        .spec-val {
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: #fff;
+        }
+
+        .spec-val.highlight {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* ========== RESILIENCE ARCHITECTURE SHOWCASE ========== */
+        .resilience-section {
+            background-color: var(--dark);
+            padding: 120px 24px;
+            position: relative;
+            z-index: 30;
+            overflow: hidden;
+        }
+
+        .resilience-glow {
+            position: absolute;
+            top: 30%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background-color: rgba(0, 80, 255, 0.04);
+            filter: blur(120px);
+            pointer-events: none;
+        }
+
+        .resilience-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 80px;
+            align-items: center;
+        }
+
+        @media (min-width: 1024px) {
+            .resilience-container {
+                grid-template-columns: 1.2fr 0.8fr;
+            }
+        }
+
+        .resilience-text h2 {
+            font-size: 2.5rem;
+            font-weight: 850;
+            color: #fff;
+            margin-top: 10px;
+            margin-bottom: 24px;
+            line-height: 1.2;
+        }
+
+        .resilience-text p {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 32px;
+        }
+
+        .feature-item {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            margin-bottom: 24px;
+        }
+
+        .item-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: rgba(0, 214, 255, 0.08);
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .item-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .item-desc {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.45);
+            margin-top: 4px;
+        }
+
+        .code-box {
+            background: linear-gradient(135deg, #0A0A0C 0%, #121216 100%);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .code-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 4rem;
+            color: rgba(0, 214, 255, 0.03);
+            pointer-events: none;
+        }
+
+        .code-box h3 {
+            font-size: 1.25rem;
+            color: #fff;
+            margin-bottom: 24px;
+        }
+
+        .code-snippet {
+            background-color: #050505;
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+
+        .code-footer {
+            margin-top: 28px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.35);
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #22c55e;
+            margin-right: 6px;
+        }
+
+        /* ========== FOOTER ========== */
+        .footer {
+            background-color: #0A0A0C;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 48px 24px;
+            position: relative;
+            z-index: 30;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+        }
+
+        @media (min-width: 768px) {
+            .footer-container {
+                flex-direction: row;
+            }
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .footer-copy {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.35);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 24px;
+        }
+
+        .footer-links a {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.35);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="debug-coords"
+        style="position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.85); color: #00d6ff; padding: 12px; z-index: 99999; font-family: monospace; font-size: 14px; border: 1px solid #00d6ff; border-radius: 4px; pointer-events: none; line-height: 1.4; display:none">
+        Debug Coords</div>
+
+    <!-- Smooth Double Cursor elements -->
+    <div id="cursor-outer"></div>
+    <div id="cursor-inner"></div>
+
+    <!-- Apple Blurred Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <span class="logo-icon">A</span>
+                Attendify
+            </a>
+            <div class="nav-links">
+                <a href="#overview">Overview</a>
+                <a href="#specs">Hardware</a>
+                <a href="#specs">Specs</a>
+                <a href="#resilience">Resilience</a>
+            </div>
+            <div class="nav-cta">
+                <a href="/login"><button>Launch Portal</button></a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Scrollytelling Space -->
+    <div class="scrollytelling-container" id="overview">
+
+        <!-- Pinned WebGL view -->
+        <div class="canvas-wrapper">
+            <div class="canvas-bg"></div>
+            <div class="canvas-grid"></div>
+            <div class="glow-sphere glow-1"></div>
+            <div class="glow-sphere glow-2"></div>
+            <div id="webgl-canvas" style="position:relative">
+                <div id="webgl-loader"
+                    style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:15;color:#00D6FF;font-family:'Outfit',sans-serif;font-size:0.8rem;letter-spacing:0.25em;text-transform:uppercase;font-weight:700;display:flex;align-items:center;gap:12px;transition:opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);pointer-events:none">
+                    <i class="fa-solid fa-circle-notch fa-spin"></i> Loading 3D Schematics...
+                </div>
+            </div>
+        </div>
+
+        <!-- Narrative scroll triggers -->
+        <div class="story-overlays">
+
+            <!-- Trigger 1: Intro/Hero (0% - 15%) -->
+            <section class="story-section center" data-index="0">
+                <div class="story-content active">
+                    <span class="story-tag">INTRODUCING</span>
+                    <h1 class="story-title">Attendify.</h1>
+                    <p class="story-desc"
+                        style="font-size:1.15rem;margin-bottom:10px;font-weight:500;color:rgba(255,255,255,0.85)">
+                        Seamless Biometric Attendance.
+                    </p>
+                    <p class="story-desc">
+                        Biometric authentication and IoT edge intelligence, re-engineered for a world that never stops.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Trigger 2: Hardware chassis (15% - 40%) -->
+            <section class="story-section left" data-index="1">
+                <div class="story-content">
+                    <span class="story-tag">01 • THE ENCLOSURE</span>
+                    <h2 class="story-title">Precision-engineered for reliability.</h2>
+                    <p class="story-desc">
+                        A custom 3D-printed enclosure, optimized internal spacing, and robust build quality ensuring
+                        accuracy and durability hour after hour. Simple, rugged, and ready for deployment.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Trigger 3: PCB & Logic core (40% - 65%) -->
+            <section class="story-section right" data-index="2">
+                <div class="story-content">
+                    <span class="story-tag">02 • BIOMETRIC CORE</span>
+                    <h2 class="story-title">Sensing meets on-device logic.</h2>
+                    <ul class="spec-list">
+                        <li>
+                            <div class="spec-dot"></div>
+                            <p><strong>High-accuracy R307:</strong> Biometric sensing ensures near-perfect fingerprint
+                                matching.</p>
+                        </li>
+                        <li>
+                            <div class="spec-dot"></div>
+                            <p><strong>Instant Processing:</strong> On-device ESP32 microcontroller logic validates
+                                cards/prints locally.</p>
+                        </li>
+                        <li>
+                            <div class="spec-dot"></div>
+                            <p><strong>UDP Auto-Discovery:</strong> Hardware broadcasts over network switches to
+                                automatically discover server IP.</p>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Trigger 4: Real-time cloud sync (65% - 85%) -->
+            <section class="story-section left" data-index="3">
+                <div class="story-content">
+                    <span class="story-tag">03 • CLOUD SYNC</span>
+                    <h2 class="story-title">Seamless Sync. Instant Analytics.</h2>
+                    <p class="story-desc">
+                        Every scan triggers a lightning-fast cloud log. The cloud-first data model handles Firebase
+                        limits gracefully, with automated local JSON mirroring to guarantee 100% uptime, even when the
+                        internet goes offline.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Trigger 5: Reassembled CTA (85% - 100%) -->
+            <section class="story-section center" data-index="4">
+                <div class="story-content">
+                    <span class="story-tag">EXPERIENCE ATTENDIFY</span>
+                    <h2 class="story-title" style="font-size:2.8rem">Effortless Attendance. Absolute Focus.</h2>
+                    <p class="story-desc">
+                        Attendify. Engineered for hardware reliability, built for modern web dashboards. Perfect for
+                        classrooms, labs, and institutions.
+                    </p>
+                    <div class="cta-buttons">
+                        <a href="/login" class="btn-gradient">Launch Live Portal</a>
+                        <a href="#specs" class="btn-outline">View Tech Specs</a>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- Tech Specs Section -->
+    <section class="specs-section" id="specs">
+        <div class="section-separator"></div>
+        <div class="specs-container">
+            <div class="section-header">
+                <span class="section-tag">SYSTEM ARCHITECTURE</span>
+                <h2 class="section-title">Hardware Meets Cloud.</h2>
+            </div>
+
+            <div class="specs-grid">
+                <!-- Hardware Card -->
+                <div class="spec-box">
+                    <div class="spec-icon"><i class="fa-solid fa-microchip"></i></div>
+                    <h3>Hardware Specifications</h3>
+                    <div class="spec-table">
+                        <div class="spec-row">
+                            <span class="spec-lbl">Microcontroller</span>
+                            <span class="spec-val">ESP32-WROOM-32D</span>
+                        </div>
+                        <div class="spec-row">
+                            <span class="spec-lbl">Biometric Sensor</span>
+                            <span class="spec-val">R307 Optical Fingerprint</span>
+                        </div>
+                        <div class="spec-row">
+                            <span class="spec-lbl">Display module</span>
+                            <span class="spec-val">1.3" OLED (128x64, SSD1306)</span>
+                        </div>
+                        <div class="spec-row">
+                            <span class="spec-lbl">Input Interface</span>
+                            <span class="spec-val">4 tactile push buttons</span>
+                        </div>
+                        <div class="spec-row">
+                            <span class="spec-lbl">Enclosure Material</span>
+                            <span class="spec-val">White PLA 3D-Printed Case</span>
+                        </div>
+                        <div class="spec-row">
+                            <span class="spec-lbl">Auto IP Discovery</span>
+                            <span class="spec-val highlight">UDP Broadcast (Port 4210)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Software Card -->
+                <div class="spec-box">
+                    <div class="spec-icon"><i class="fa-solid fa-server"></i></div>
+                    <h3>Software & Cloud Specs</h3>
+                    <div class="spec-table">
+                        <div class="spec-row">
+                            <span class="spec-lbl">Backend Engine</span>
+                            <span class="spec-val">Node.js / Express API</span>
+                        </div>
+                        <div class="spec-row">
+                            <span class="spec-lbl">Primary Database</span>
+                            <span class="spec-val">Firebase Firestore (Real-time)</span>
+                        </div>
+                        <div class="spec-row">
+                            <span class="spec-lbl">Mirror Storage</span>
+                            <span class="spec-val">Local mirror (database.json)</span>
+                        </div>
+                        <div class="spec-row">
+                            <span class="spec-lbl">Failover Mechanism</span>
+                            <span class="spec-val highlight">Auto Firestore Quota Fallback</span>
+                        </div>
+                        <div class="spec-row">
+                            <span class="spec-lbl">Auth Protocols</span>
+                            <span class="spec-val">JWT, Cookies & Header tokens</span>
+                        </div>
+                        <div class="spec-row">
+                            <span class="spec-lbl">Sync Mechanism</span>
+                            <span class="spec-val">Smart Visibility Polling</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Resilience Section -->
+    <section class="resilience-section" id="resilience">
+        <div class="resilience-glow"></div>
+        <div class="resilience-container">
+            <div class="resilience-text">
+                <span class="section-tag">RESILIENCE ARCHITECTURE</span>
+                <h2>Zero Outages. Zero Data Loss.</h2>
+                <p>
+                    Firebase Firestore has quota limits, but Attendify is built to handle constraints. In case of quota
+                    exhaustion or network dropouts, the backend seamlessly falls back to a locally cached mirror.
+                </p>
+
+                <div class="feature-item">
+                    <div class="item-icon"><i class="fa-solid fa-check"></i></div>
+                    <div>
+                        <h4 class="item-title">Dynamic Cloud Synchronization</h4>
+                        <p class="item-desc">Automatic sync resumes when database quota is restored.</p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="item-icon"><i class="fa-solid fa-check"></i></div>
+                    <div>
+                        <h4 class="item-title">Local JSON Mirror (Auto-write)</h4>
+                        <p class="item-desc">Writes instantly to disk when cloud storage triggers resource exhaustion.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-box">
+                <div class="code-icon"><i class="fa-solid fa-code"></i></div>
+                <h3>Local Sync Mirror Code</h3>
+                <div class="code-snippet">
+                    // storage.js
+                    if (firestoreFailed) {
+                    console.warn('[STORAGE] Falling back to local mirror');
+                    this.writeLocalMirrorFallback(localData);
+                    return localData;
+                    }
+                </div>
+                <div class="code-footer">
+                    <span>Status: <strong style="color:#22c55e"><span class="status-dot"></span>Online</strong></span>
+                    <span>Primary Engine: <strong>Cloud / Local Hybrid</strong></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-logo">
+                <span class="logo-icon">A</span>
+                Attendify
+            </div>
+            <div class="footer-copy">
+                &copy; 2026 Attendify &bull; Built with absolute precision for web and hardware systems.
+            </div>
+            <div class="footer-links">
+                <a href="/login">Admin Portal</a>
+                <a href="/login">Portal Login</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Three.js CDN and GLTFLoader -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script>
+        // ========== 1. NAVBAR SCROLL EFFECT ==========
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 20) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // ========== 2. SMOOTH DOUBLE CURSOR ==========
+        const cursorOuter = document.getElementById('cursor-outer');
+        const cursorInner = document.getElementById('cursor-inner');
+
+        let mouseX = 0, mouseY = 0;
+        let outerX = 0, outerY = 0;
+        let isVisible = false;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            if (!isVisible) {
+                cursorOuter.style.opacity = 1;
+                cursorInner.style.opacity = 1;
+                isVisible = true;
+            }
+            cursorInner.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0)`;
+        });
+
+        // Loop for the outer cursor's smooth interpolation lag
+        function updateOuterCursor() {
+            outerX += (mouseX - outerX) * 0.15;
+            outerY += (mouseY - outerY) * 0.15;
+            cursorOuter.style.transform = `translate3d(${outerX}px, ${outerY}px, 0)`;
+            requestAnimationFrame(updateOuterCursor);
+        }
+        updateOuterCursor();
+
+        // Hover reactive state
+        const interactives = document.querySelectorAll('a, button, [role="button"], .btn-gradient, .btn-outline');
+        interactives.forEach(el => {
+            el.addEventListener('mouseenter', () => cursorOuter.classList.add('hover'));
+            el.addEventListener('mouseleave', () => cursorOuter.classList.remove('hover'));
+        });
+
+        // ========== 3. TEXT FADE INTERACTION ==========
+        const sections = document.querySelectorAll('.story-section');
+
+        // Scroll listener to toggle active classes for narrative overlays
+        window.addEventListener('scroll', () => {
+            const height = window.innerHeight;
+            sections.forEach((sec) => {
+                const rect = sec.getBoundingClientRect();
+                const content = sec.querySelector('.story-content');
+                if (rect.top <= height * 0.4 && rect.bottom >= height * 0.4) {
+                    content.classList.add('active');
+                } else {
+                    content.classList.remove('active');
+                }
+            });
+        });
+
+        // ========== 4. THREE.JS EXPLODED DEVICE MODEL ==========
+        const canvasContainer = document.getElementById('webgl-canvas');
+        let scene, camera, renderer;
+        let deviceGroup;
+
+        // Dynamic arrays for GLB loading and animation
+        const loadedMeshes = [];
+        let layerAxis = 'z';
+        let dataPoints;
+
+        // === Smooth scroll-driven showcase rotation ===
+        let currentRotY = 0; // smoothly interpolated rotation target
+        let hardwareOverlayGroup;
+        function findFrontPlateMesh(model) {
+            let frontPlate = null;
+            model.traverse((child) => {
+                if (!child.isMesh) return;
+                const name = (child.name || '').toLowerCase();
+                if (name === 'empty_5') frontPlate = child;
+            });
+            return frontPlate;
+        }
+
+        // Insert OLED, fingerprint module, and buttons into existing cutouts only.
+        function addHardwareComponents(frontPlateMesh) {
+            hardwareOverlayGroup = new THREE.Group();
+
+            frontPlateMesh.geometry.computeBoundingBox();
+            const bb = frontPlateMesh.geometry.boundingBox;
+
+            // The front-most face of the cover empty_5 is at bb.min.z (Z = 0.0)
+            const FRONT_Z = bb.min.z;
+
+            // GLB cutout centers: OLED left (-1.0), fingerprint right (-51.0)
+            const OLED_X = -1.0;
+            const OLED_Y = 200.0;
+            const FP_X = -51.0;
+            const FP_Y = 200.0; // Centered vertically in the casing recess slot
+            const BTN_Y = 172.0;
+            const BTN_XS = [-44.0, -15.0, 15.0, 44.0];
+
+            // 1. OLED display (left rectangular cutout)
+            const oledCanvas = document.createElement('canvas');
+            oledCanvas.width = 512;
+            oledCanvas.height = 340;
+            const oledCtx = oledCanvas.getContext('2d');
+            oledCtx.fillStyle = '#020617';
+            oledCtx.fillRect(0, 0, 512, 340);
+            oledCtx.strokeStyle = '#00D6FF';
+            oledCtx.lineWidth = 5;
+            oledCtx.strokeRect(14, 14, 484, 312);
+            oledCtx.fillStyle = '#00D6FF';
+            oledCtx.font = 'bold 44px monospace';
+            oledCtx.textAlign = 'center';
+            oledCtx.fillText('ATTENDIFY', 256, 72);
+            oledCtx.fillStyle = '#cbd5e1';
+            oledCtx.font = '26px sans-serif';
+            oledCtx.fillText('Portable Biometric', 256, 140);
+            oledCtx.fillText('Cloud Sync Ready', 256, 192);
+
+            // WiFi symbol and status icons
+            oledCtx.strokeStyle = '#00D6FF';
+            oledCtx.lineWidth = 4;
+            oledCtx.beginPath();
+            oledCtx.arc(148, 262, 22, Math.PI * 1.25, Math.PI * 1.75);
+            oledCtx.stroke();
+            oledCtx.beginPath();
+            oledCtx.arc(148, 262, 12, Math.PI * 1.25, Math.PI * 1.75);
+            oledCtx.stroke();
+            oledCtx.fillStyle = '#00D6FF';
+            oledCtx.beginPath();
+            oledCtx.arc(148, 262, 4, 0, Math.PI * 2);
+            oledCtx.fill();
+            oledCtx.beginPath();
+            oledCtx.arc(234, 254, 5, 0, Math.PI * 2);
+            oledCtx.fill();
+            oledCtx.beginPath();
+            oledCtx.arc(256, 254, 5, 0, Math.PI * 2);
+            oledCtx.fill();
+            oledCtx.beginPath();
+            oledCtx.arc(278, 254, 5, 0, Math.PI * 2);
+            oledCtx.fill();
+
+            // Cloud symbol
+            oledCtx.fillStyle = '#00D6FF';
+            oledCtx.beginPath();
+            oledCtx.arc(358, 258, 9, 0, Math.PI * 2);
+            oledCtx.arc(374, 253, 13, 0, Math.PI * 2);
+            oledCtx.arc(388, 258, 8, 0, Math.PI * 2);
+            oledCtx.rect(358, 258, 30, 9);
+            oledCtx.fill();
+
+            const oledTex = new THREE.CanvasTexture(oledCanvas);
+            oledTex.encoding = THREE.sRGBEncoding;
+
+            const oledMat = new THREE.MeshStandardMaterial({
+                map: oledTex,
+                emissive: new THREE.Color(0x00D6FF),
+                emissiveMap: oledTex,
+                emissiveIntensity: 1.35, // Boosted display brightness while preserving black levels
+                roughness: 0.12,
+                metalness: 0.3,
+                polygonOffset: true,
+                polygonOffsetFactor: -2,
+                polygonOffsetUnits: -2
+            });
+            const oledMesh = new THREE.Mesh(new THREE.PlaneGeometry(40, 26), oledMat);
+            oledMesh.position.set(OLED_X, OLED_Y, -0.05); // slightly proud of FRONT_Z (Z = 0)
+            oledMesh.rotation.y = Math.PI; // Face the camera
+            hardwareOverlayGroup.add(oledMesh);
+
+            const glassMat = new THREE.MeshStandardMaterial({
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.13,
+                roughness: 0.02,
+                metalness: 0.15,
+                depthWrite: false,
+                envMapIntensity: 1.2 // Subtle surface reflection on display glass
+            });
+            const glassMesh = new THREE.Mesh(new THREE.PlaneGeometry(40, 26), glassMat);
+            glassMesh.position.set(OLED_X, OLED_Y, -0.08); // slightly in front of OLED screen
+            glassMesh.rotation.y = Math.PI;
+            hardwareOverlayGroup.add(glassMesh);
+
+            // 2. Fingerprint module (SSD307 scanner)
+            const fpGroup = new THREE.Group();
+            fpGroup.position.set(FP_X, FP_Y, -0.05);
+
+            const bezelMat = new THREE.MeshStandardMaterial({
+                color: 0x0a0a0a,
+                roughness: 0.88,
+                metalness: 0.12
+            });
+            const bezelMesh = new THREE.Mesh(new THREE.BoxGeometry(24, 42, 3.0), bezelMat);
+            bezelMesh.position.set(0, 0, 1.5); // Extend backwards into the casing
+            fpGroup.add(bezelMesh);
+
+            // Faint cyan edge reflection ring around scanner bezel
+            const bezelEdgeGlow = new THREE.Mesh(
+                new THREE.PlaneGeometry(25.5, 43.5),
+                new THREE.MeshStandardMaterial({
+                    color: 0x001a2a,
+                    emissive: new THREE.Color(0x005577),
+                    emissiveIntensity: 0.3,
+                    transparent: true,
+                    opacity: 0.15,
+                    depthWrite: false,
+                    side: THREE.DoubleSide
+                })
+            );
+            bezelEdgeGlow.position.set(0, 0, 0.01); // Behind bezel front face so it peeks around edges
+            bezelEdgeGlow.rotation.y = Math.PI;
+            fpGroup.add(bezelEdgeGlow);
+
+            // Draw a realistic fingerprint texture on Canvas matching the 20x34 aspect ratio to prevent stretching
+            const fpCanvas = document.createElement('canvas');
+            fpCanvas.width = 256;
+            fpCanvas.height = 435;
+            const fpCtx = fpCanvas.getContext('2d');
+
+            // Background gradient — deeper black for maximum cyan contrast
+            const fpGrad = fpCtx.createRadialGradient(128, 210, 8, 128, 210, 220);
+            fpGrad.addColorStop(0, '#010410'); // Near-black deep blue core
+            fpGrad.addColorStop(1, '#000000'); // Pure black outer
+            fpCtx.fillStyle = fpGrad;
+            fpCtx.fillRect(0, 0, 256, 435);
+
+            // Subtle dark blue scan-grid texture behind the fingerprint
+            fpCtx.shadowBlur = 0;
+            fpCtx.strokeStyle = 'rgba(0, 80, 160, 0.25)'; // Subtle dark blue grid
+            fpCtx.lineWidth = 1;
+            for (let y = 16; y < 435; y += 16) {
+                fpCtx.beginPath();
+                fpCtx.moveTo(0, y);
+                fpCtx.lineTo(256, y);
+                fpCtx.stroke();
+            }
+            for (let x = 16; x < 256; x += 16) {
+                fpCtx.beginPath();
+                fpCtx.moveTo(x, 0);
+                fpCtx.lineTo(x, 435);
+                fpCtx.stroke();
+            }
+
+            // Realistic fingerprint ridges — continuous U-shaped paths with smooth bottom taper
+            fpCtx.lineCap = 'round';
+            fpCtx.lineJoin = 'round';
+
+            const cx = 128;
+            const cy = 190; // Vertically centered with comfortable top padding
+
+            const ridgeCount = 14;
+            for (let i = 1; i <= ridgeCount; i++) {
+                const rx = i * 5.0;  // Horizontal radius per ridge
+                const ry = i * 7.2;  // Vertical radius per ridge
+
+                // Taper factor: bottom converges tightly for a natural teardrop
+                const taper = 0.12 + (i / ridgeCount) * 0.18;
+                const bottomRx = rx * taper;         // Bottom narrows inward
+                const bottomY = cy + ry * 0.85;      // Bottom Y position
+
+                // Subtle depth: inner ridges slightly dimmer, outer ridges full brightness
+                const alpha = 0.7 + (i / ridgeCount) * 0.3;
+                fpCtx.strokeStyle = `rgba(0, 214, 255, ${alpha.toFixed(2)})`;
+                fpCtx.lineWidth = 1.8; // Thinner for clean modern detail
+                fpCtx.shadowColor = `rgba(0, 214, 255, ${(alpha * 0.25).toFixed(2)})`;
+                fpCtx.shadowBlur = 2; // Very subtle glow for realism
+
+                fpCtx.beginPath();
+
+                // 1. Start at bottom-left taper point
+                fpCtx.moveTo(cx - bottomRx, bottomY);
+
+                // 2. Curve up the left side — hugs close to the arch edge
+                fpCtx.bezierCurveTo(
+                    cx - rx * 0.75, bottomY - ry * 0.1,  // cp1: inward, gentle pull up
+                    cx - rx, cy + ry * 0.45,       // cp2: arrive along arch side
+                    cx - rx, cy                     // end: left edge of arch
+                );
+
+                // 3. Smooth arch over the top (ellipse from PI to 0, left-to-right)
+                fpCtx.ellipse(cx, cy, rx, ry, 0, Math.PI, 0, false);
+
+                // 4. Curve down the right side — mirrors left side exactly
+                fpCtx.bezierCurveTo(
+                    cx + rx, cy + ry * 0.45,       // cp1: depart along arch side
+                    cx + rx * 0.75, bottomY - ry * 0.1,   // cp2: inward, gentle pull down
+                    cx + bottomRx, bottomY                // end: bottom-right taper point
+                );
+
+                fpCtx.stroke();
+            }
+
+            const fpTex = new THREE.CanvasTexture(fpCanvas);
+            fpTex.encoding = THREE.sRGBEncoding;
+
+            const scanMat = new THREE.MeshStandardMaterial({
+                map: fpTex,
+                emissive: new THREE.Color(0x006699),
+                emissiveMap: fpTex,
+                emissiveIntensity: 0.55, // Subtle emissive for realistic scanner look
+                roughness: 0.15,
+                metalness: 0.6,
+                polygonOffset: true,
+                polygonOffsetFactor: -1,
+                polygonOffsetUnits: -1
+            });
+
+            // Active scanner area scaled to 20x34 centered inside the bezel
+            const scannerWindow = new THREE.Mesh(new THREE.PlaneGeometry(20, 34), scanMat);
+            scannerWindow.position.set(0, 0, -0.01);
+            scannerWindow.rotation.y = Math.PI; // Face camera
+            fpGroup.add(scannerWindow);
+
+            // Reflective glass layer over the scanner for premium realism
+            const fpGlassMat = new THREE.MeshStandardMaterial({
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.03, // Very subtle — just enough for faint specular highlights
+                roughness: 0.01,
+                metalness: 0.15,
+                depthWrite: false,
+                envMapIntensity: 1.2
+            });
+            const fpGlass = new THREE.Mesh(new THREE.PlaneGeometry(20, 34), fpGlassMat);
+            fpGlass.position.set(0, 0, -0.015);
+            fpGlass.rotation.y = Math.PI;
+            fpGroup.add(fpGlass);
+
+            const scanGlow = new THREE.Mesh(
+                new THREE.PlaneGeometry(18, 1.4),
+                new THREE.MeshStandardMaterial({
+                    color: 0x0ea5e9,
+                    emissive: 0x00d6ff,
+                    emissiveIntensity: 0.9,
+                    transparent: true,
+                    opacity: 0.55,
+                    depthWrite: false
+                })
+            );
+            scanGlow.name = 'scanGlowLine';
+            scanGlow.position.set(0, 13, -0.02);
+            scanGlow.rotation.y = Math.PI;
+            fpGroup.add(scanGlow);
+
+            hardwareOverlayGroup.add(fpGroup);
+
+            // 3. Industrial tactile push buttons — fitted to actual GLB cutout geometry
+            // Cutout measurements: radius 5.75, centers at Y=171, Z=0 (front face)
+            const HOLE_RADIUS = 5.75;
+            const BTN_CENTERS = [-50.0, -26.0, 26.0, 50.0];
+            const BTN_CENTER_Y = 171.0;
+
+            // Brushed stainless steel outer ring material
+            const matBrushedSteel = new THREE.MeshStandardMaterial({
+                color: 0xc8ccd0,       // Cool silver
+                roughness: 0.28,       // Brushed finish, not mirror
+                metalness: 0.92,       // Highly metallic
+                envMapIntensity: 0.8
+            });
+
+            // Darker chrome for mounting flange (simulates AO/shadow behind ring)
+            const matMountFlange = new THREE.MeshStandardMaterial({
+                color: 0x8a9099,
+                roughness: 0.45,
+                metalness: 0.85
+            });
+
+            // Glossy deep red push cap material
+            const matRedCap = new THREE.MeshStandardMaterial({
+                color: 0xbb1a1a,       // Deep red
+                roughness: 0.08,       // Glossy plastic
+                metalness: 0.05,       // Non-metallic plastic
+                envMapIntensity: 0.6
+            });
+
+            BTN_CENTERS.forEach((btnX) => {
+                const btnGroup = new THREE.Group();
+                btnGroup.position.set(btnX, BTN_CENTER_Y, 0.0);
+
+                // Layer 1: Mounting flange — anchors behind the panel hole
+                const flange = new THREE.Mesh(
+                    new THREE.CylinderGeometry(HOLE_RADIUS + 0.6, HOLE_RADIUS + 0.6, 0.8, 32),
+                    matMountFlange
+                );
+                flange.rotation.x = Math.PI / 2;
+                flange.position.set(0, 0, 0.4); // Behind front face
+                btnGroup.add(flange);
+
+                // Layer 2: Chrome outer ring — fills the hole, slightly proud
+                const outerRing = new THREE.Mesh(
+                    new THREE.CylinderGeometry(HOLE_RADIUS - 0.2, HOLE_RADIUS - 0.2, 1.0, 32),
+                    matBrushedSteel
+                );
+                outerRing.rotation.x = Math.PI / 2;
+                outerRing.position.set(0, 0, -0.3); // Straddles front face
+                btnGroup.add(outerRing);
+
+                // Layer 3: Ring bevel face — tapered cylinder creating a visible chrome lip
+                const ringFace = new THREE.Mesh(
+                    new THREE.CylinderGeometry(HOLE_RADIUS - 0.2, HOLE_RADIUS - 0.6, 0.3, 32),
+                    matBrushedSteel
+                );
+                ringFace.rotation.x = Math.PI / 2;
+                ringFace.position.set(0, 0, -0.95);
+                btnGroup.add(ringFace);
+
+                // Layer 4: Chrome neck — narrow transition between ring and red cap
+                const neckRadius = HOLE_RADIUS * 0.65;
+                const neck = new THREE.Mesh(
+                    new THREE.CylinderGeometry(neckRadius, neckRadius + 0.3, 0.3, 32),
+                    matBrushedSteel
+                );
+                neck.rotation.x = Math.PI / 2;
+                neck.position.set(0, 0, -1.15);
+                btnGroup.add(neck);
+
+                // Layer 5: Red cap stem — glossy red plastic
+                const redCapRadius = HOLE_RADIUS * 0.55; // ~55% of ring diameter
+                const capStem = new THREE.Mesh(
+                    new THREE.CylinderGeometry(redCapRadius, redCapRadius, 0.4, 32),
+                    matRedCap
+                );
+                capStem.rotation.x = Math.PI / 2;
+                capStem.position.set(0, 0, -1.35);
+                btnGroup.add(capStem);
+
+                // Layer 6: Red cap dome — gently rounded top
+                const capDome = new THREE.Mesh(
+                    new THREE.SphereGeometry(redCapRadius, 32, 16, 0, Math.PI * 2, 0, Math.PI * 0.3),
+                    matRedCap
+                );
+                capDome.rotation.x = -Math.PI / 2;
+                capDome.position.set(0, 0, -1.55);
+                btnGroup.add(capDome);
+
+                hardwareOverlayGroup.add(btnGroup);
+            });
+
+            // 4. Precision-machined countersunk enclosure screws
+            const screwCanvas = document.createElement('canvas');
+            screwCanvas.width = 256;
+            screwCanvas.height = 256;
+            const screwCtx = screwCanvas.getContext('2d');
+
+            const normalCanvas = document.createElement('canvas');
+            normalCanvas.width = 256;
+            normalCanvas.height = 256;
+            const normalCtx = normalCanvas.getContext('2d');
+
+            const size = 256;
+            const center = 128;
+            const hData = new Float32Array(size * size);
+
+            // Generate heightmap for Phillips machine screw
+            for (let y = 0; y < size; y++) {
+                for (let x = 0; x < size; x++) {
+                    const dx = x - center;
+                    const dy = y - center;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    let h = 1.0;
+
+                    // Outer chamfer/bevel
+                    if (dist > 116) {
+                        h = Math.max(0.0, 1.0 - (dist - 116) / 12);
+                    } else if (dist < 116) {
+                        // Phillips cross drive slots (tapered)
+                        const inHoriz = Math.abs(dy) < 14 && Math.abs(dx) < 80;
+                        const inVert = Math.abs(dx) < 14 && Math.abs(dy) < 80;
+
+                        if (inHoriz || inVert) {
+                            const distToEdge = inHoriz ? 14 - Math.abs(dy) : 14 - Math.abs(dx);
+                            const slotFactor = distToEdge / 14;
+                            h = 0.12 + slotFactor * 0.88; // Sloped walls inside the slot
+                        } else if (dist < 36) {
+                            // Central circular recess
+                            h = 0.45 + (dist / 36) * 0.55;
+                        }
+                    }
+                    hData[y * size + x] = h;
+                }
+            }
+
+            // Smooth heightmap with a box blur to soften edges for better specular highlights
+            const blurredData = new Float32Array(size * size);
+            const r_blur = 3; // slightly larger blur for smoother bevel highlights
+            for (let y = 0; y < size; y++) {
+                for (let x = 0; x < size; x++) {
+                    let sum = 0;
+                    let count = 0;
+                    for (let ky = -r_blur; ky <= r_blur; ky++) {
+                        for (let kx = -r_blur; kx <= r_blur; kx++) {
+                            const px = x + kx;
+                            const py = y + ky;
+                            if (px >= 0 && px < size && py >= 0 && py < size) {
+                                sum += hData[py * size + px];
+                                count++;
+                            }
+                        }
+                    }
+                    blurredData[y * size + x] = sum / count;
+                }
+            }
+
+            // Compute Sobel-filtered normal map and matte black diffuse texture
+            const normImg = normalCtx.createImageData(size, size);
+            const diffImg = screwCtx.createImageData(size, size);
+            const strength = 26.0; // Higher strength for deeper recesses
+
+            for (let y = 0; y < size; y++) {
+                for (let x = 0; x < size; x++) {
+                    const xL = x > 0 ? blurredData[y * size + (x - 1)] : blurredData[y * size + x];
+                    const xR = x < size - 1 ? blurredData[y * size + (x + 1)] : blurredData[y * size + x];
+                    const yU = y > 0 ? blurredData[(y - 1) * size + x] : blurredData[y * size + x];
+                    const yD = y < size - 1 ? blurredData[(y + 1) * size + x] : blurredData[y * size + x];
+
+                    const dx = (xR - xL) * 0.5;
+                    const dy = (yD - yU) * 0.5;
+
+                    const nx = -dx * strength;
+                    const ny = -dy * strength;
+                    const nz = 1.0;
+
+                    const len = Math.sqrt(nx * nx + ny * ny + nz * nz);
+                    const r = (nx / len * 0.5 + 0.5) * 255;
+                    const g = (ny / len * 0.5 + 0.5) * 255;
+                    const b = (nz / len * 0.5 + 0.5) * 255;
+
+                    const idx = (y * size + x) * 4;
+                    normImg.data[idx] = r;
+                    normImg.data[idx + 1] = g;
+                    normImg.data[idx + 2] = b;
+                    normImg.data[idx + 3] = 255;
+
+                    // Matte black/dark gunmetal diffuse (val ranges 42 to 84)
+                    const hVal = blurredData[y * size + x];
+                    const baseBrightness = 42;
+                    const val = baseBrightness + hVal * 42;
+
+                    diffImg.data[idx] = val;
+                    diffImg.data[idx + 1] = val;
+                    diffImg.data[idx + 2] = val;
+                    diffImg.data[idx + 3] = 255;
+                }
+            }
+
+            normalCtx.putImageData(normImg, 0, 0);
+            screwCtx.putImageData(diffImg, 0, 0);
+
+            const screwTex = new THREE.CanvasTexture(screwCanvas);
+            screwTex.encoding = THREE.sRGBEncoding;
+            const screwNormalTex = new THREE.CanvasTexture(normalCanvas);
+
+            // Shading settings optimized for scene lights to prevent blackness
+            const matScrewFace = new THREE.MeshStandardMaterial({
+                map: screwTex,
+                normalMap: screwNormalTex,
+                normalScale: new THREE.Vector2(1.5, 1.5),
+                roughness: 0.38,
+                metalness: 0.35, // lower metalness so diffuse color works well without envMap
+                envMapIntensity: 0.6
+            });
+
+            const matScrewBody = new THREE.MeshStandardMaterial({
+                color: 0x2a2c30, // matching gunmetal gray
+                roughness: 0.38,
+                metalness: 0.35,
+                envMapIntensity: 0.6
+            });
+
+            // Contact shadow lining the hole walls to simulate AO inside the countersunk recess
+            const matScrewShadow = new THREE.MeshBasicMaterial({
+                color: 0x000000,
+                transparent: true,
+                opacity: 0.68,
+                depthWrite: false
+            });
+
+            const SCREW_COORDS = [
+                { name: 'TL', x: -72.5, y: 243.0 },
+                { name: 'TR', x: 72.5, y: 243.0 },
+                { name: 'BL', x: -72.5, y: 157.0 },
+                { name: 'BR', x: 72.5, y: 157.0 }
+            ];
+
+            SCREW_COORDS.forEach((coord) => {
+                const screwGroup = new THREE.Group();
+                screwGroup.position.set(coord.x, coord.y, 0.0);
+
+                // 1. Screw head cylinder (R = 2.8, sitting recessed at Z = 0.5)
+                const screwHead = new THREE.Mesh(
+                    new THREE.CylinderGeometry(2.8, 2.8, 0.5, 32),
+                    matScrewBody
+                );
+                screwHead.rotation.x = Math.PI / 2;
+                screwHead.position.set(0, 0, 0.5); // Recessed into the casing front face
+                screwGroup.add(screwHead);
+
+                // 2. Screw top face with Phillips cross texture (Z = 0.24)
+                const screwFace = new THREE.Mesh(
+                    new THREE.CircleGeometry(2.8, 32),
+                    matScrewFace
+                );
+                screwFace.rotation.y = Math.PI; // Face the camera
+                screwFace.position.set(0, 0, 0.24); // Flush on the front edge of the cylinder
+                screwGroup.add(screwFace);
+
+                // 3. Shadow ring inside the hole (simulates AO around screw head)
+                const shadowRing = new THREE.Mesh(
+                    new THREE.CylinderGeometry(3.05, 3.05, 0.25, 32, 1, true),
+                    matScrewShadow
+                );
+                shadowRing.rotation.x = Math.PI / 2;
+                shadowRing.position.set(0, 0, 0.125);
+                screwGroup.add(shadowRing);
+
+                hardwareOverlayGroup.add(screwGroup);
+            });
+
+            // 5. CNC-Engraved & Metal-Filled ATTENDIFY Logo
+            // Recreates the premium brand visualization from the reference image.
+            // Uses a multi-channel canvas texture set (diffuse, normal, roughness, and metalness maps)
+            // to render a physical, paint-filled CNC engraving: dark metallic letters with
+            // chamfered bevels recessed into the matte white polymer enclosure.
+            (function addEngravedLogo() {
+                const LOGO_TEXT = 'ATTENDIFY';
+                const LOGO_Y = OLED_Y + 28.0; // Shifted down to align vertically with the native carving channels
+                const LOGO_X = -11.5;          // Centered precisely on the native GLB logo carving
+                const LOGO_W = 82;             // Matches the wide physical footprint of the native engraving
+                const LOGO_H = 16;
+
+                const RES_W = 2048;
+                const RES_H = 512;
+                const cx = RES_W / 2;
+                const cy = RES_H / 2;
+
+                const fontSize = Math.round(RES_H * 0.31); // Matching the height/thickness of the native letters
+                const fontStr = `500 ${fontSize}px 'Outfit', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif`;
+
+                // Helper to draw wide-tracked characters identically across all map canvases
+                const drawLogoText = (ctx, fillStyle, startIdx = 0) => {
+                    ctx.font = fontStr;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillStyle = fillStyle;
+
+                    const chars = LOGO_TEXT.split('');
+                    const letterSpacing = 180; // Mathematically calculated spacing to match GLB carved text tracking
+                    const totalWidth = (chars.length - 1) * letterSpacing;
+                    const startX = cx - totalWidth / 2;
+                    chars.forEach((char, idx) => {
+                        if (idx < startIdx) return;
+                        const x = startX + idx * letterSpacing;
+                        ctx.fillText(char, x, cy);
+                    });
+                };
+
+                // ─── 1. Diffuse Map (Transparent background, dark gunmetal text) ───
+                const diffCanvas = document.createElement('canvas');
+                diffCanvas.width = RES_W;
+                diffCanvas.height = RES_H;
+                const dCtx = diffCanvas.getContext('2d');
+                dCtx.clearRect(0, 0, RES_W, RES_H);
+                drawLogoText(dCtx, '#2b2e33', 1); // Only draw index 1 onwards ('TTENDIFY')
+                const diffTex = new THREE.CanvasTexture(diffCanvas);
+                diffTex.encoding = THREE.sRGBEncoding;
+
+                // ─── 2. Roughness Map (Matte casing vs glossy paint inside grooves) ───
+                const roughCanvas = document.createElement('canvas');
+                roughCanvas.width = RES_W;
+                roughCanvas.height = RES_H;
+                const rCtx = roughCanvas.getContext('2d');
+                rCtx.fillStyle = '#ffffff'; // 1.0 roughness for the surrounding matte casing
+                rCtx.fillRect(0, 0, RES_W, RES_H);
+                drawLogoText(rCtx, '#404040', 1); // Only draw index 1 onwards
+                const roughTex = new THREE.CanvasTexture(roughCanvas);
+
+                // ─── 3. Metalness Map (Non-metallic casing vs metallic fill paint) ───
+                const metalCanvas = document.createElement('canvas');
+                metalCanvas.width = RES_W;
+                metalCanvas.height = RES_H;
+                const mCtx = metalCanvas.getContext('2d');
+                mCtx.fillStyle = '#000000'; // 0.0 metalness for polymer casing
+                mCtx.fillRect(0, 0, RES_W, RES_H);
+                drawLogoText(mCtx, '#b3b3b3', 1); // Only draw index 1 onwards
+                const metalTex = new THREE.CanvasTexture(metalCanvas);
+
+                // ─── 4. Normal Map (Recessed engraving heightfield) ───
+                const heightCanvas = document.createElement('canvas');
+                heightCanvas.width = RES_W;
+                heightCanvas.height = RES_H;
+                const hCtx = heightCanvas.getContext('2d');
+
+                // Heightmap: white (1.0) = flat casing surface, black (0.0) = recessed groove floor
+                hCtx.fillStyle = '#ffffff';
+                hCtx.fillRect(0, 0, RES_W, RES_H);
+
+                // Blur pass to generate smooth beveled slopes for the engraving walls of 'TTENDIFY'
+                hCtx.shadowColor = 'rgba(0, 0, 0, 1.0)';
+                hCtx.shadowBlur = 10;
+                drawLogoText(hCtx, '#000000', 1);
+                hCtx.shadowColor = 'transparent';
+                hCtx.shadowBlur = 0;
+                drawLogoText(hCtx, '#000000', 1);
+
+                // ─── Draw First Letter "A" using High-Precision Beveled Distance-Field ───
+                (function drawFirstLetterA() {
+                    const maskCanvas = document.createElement('canvas');
+                    maskCanvas.width = 300;
+                    maskCanvas.height = 300;
+                    const maskCtx = maskCanvas.getContext('2d');
+                    maskCtx.fillStyle = '#ffffff';
+                    maskCtx.fillRect(0, 0, 300, 300);
+
+                    maskCtx.font = fontStr;
+                    maskCtx.textAlign = 'center';
+                    maskCtx.textBaseline = 'middle';
+                    maskCtx.fillStyle = '#000000';
+                    maskCtx.fillText('A', 150, 150);
+
+                    const maskData = maskCtx.getImageData(0, 0, 300, 300);
+                    const maskPixels = maskData.data;
+
+                    const boxX = 154;
+                    const boxY = 106;
+                    const boxW = 300;
+                    const boxH = 300;
+
+                    const hData = hCtx.getImageData(boxX, boxY, boxW, boxH);
+                    const dData = dCtx.getImageData(boxX, boxY, boxW, boxH);
+                    const rData = rCtx.getImageData(boxX, boxY, boxW, boxH);
+                    const mData = mCtx.getImageData(boxX, boxY, boxW, boxH);
+
+                    const W_b = 6.0; // Bevel width in pixels
+                    const R = 10;    // Search radius
+                    const offsets = [];
+                    for (let dy = -R; dy <= R; dy++) {
+                        for (let dx = -R; dx <= R; dx++) {
+                            const d = Math.sqrt(dx * dx + dy * dy);
+                            if (d <= R) {
+                                offsets.push({ dx, dy, d });
+                            }
+                        }
+                    }
+                    offsets.sort((a, b) => a.d - b.d);
+
+                    for (let py = 0; py < boxH; py++) {
+                        for (let px = 0; px < boxW; px++) {
+                            const idx = (py * boxW + px) * 4;
+                            const V = maskPixels[idx];
+
+                            if (V === 255) {
+                                // Outside letter: flat casing surface
+                                hData.data[idx] = 255;
+                                hData.data[idx + 1] = 255;
+                                hData.data[idx + 2] = 255;
+                                hData.data[idx + 3] = 255;
+
+                                dData.data[idx + 3] = 0; // Transparent
+
+                                rData.data[idx] = 184; // Casing roughness (0.72)
+                                rData.data[idx + 1] = 184;
+                                rData.data[idx + 2] = 184;
+                                rData.data[idx + 3] = 255;
+
+                                mData.data[idx] = 15;  // Casing metalness (0.06)
+                                mData.data[idx + 1] = 15;
+                                mData.data[idx + 2] = 15;
+                                mData.data[idx + 3] = 255;
+                            } else {
+                                // Inside or boundary: search nearest outside pixel
+                                let d = R;
+                                for (let i = 0; i < offsets.length; i++) {
+                                    const nx = px + offsets[i].dx;
+                                    const ny = py + offsets[i].dy;
+                                    if (nx >= 0 && nx < boxW && ny >= 0 && ny < boxH) {
+                                        const nIdx = (ny * boxW + nx) * 4;
+                                        if (maskPixels[nIdx] === 255) {
+                                            d = offsets[i].d;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                const t = Math.min(1.0, d / W_b);
+                                const h = 1.0 - t * (1.0 - V / 255);
+                                const depth = 1.0 - h;
+
+                                const hByte = Math.round(h * 255);
+                                hData.data[idx] = hByte;
+                                hData.data[idx + 1] = hByte;
+                                hData.data[idx + 2] = hByte;
+                                hData.data[idx + 3] = 255;
+
+                                // Diffuse (paint color #1b1d20 = 27, 29, 32)
+                                dData.data[idx] = 27;
+                                dData.data[idx + 1] = 29;
+                                dData.data[idx + 2] = 32;
+                                dData.data[idx + 3] = Math.round(depth * 255);
+
+                                // Roughness (interpolate between casing 0.72 and paint 0.25)
+                                const rVal = Math.round((0.72 * (1.0 - depth) + 0.25 * depth) * 255);
+                                rData.data[idx] = rVal;
+                                rData.data[idx + 1] = rVal;
+                                rData.data[idx + 2] = rVal;
+                                rData.data[idx + 3] = 255;
+
+                                // Metalness (interpolate between casing 0.06 and paint 0.75)
+                                const mVal = Math.round((0.06 * (1.0 - depth) + 0.75 * depth) * 255);
+                                mData.data[idx] = mVal;
+                                mData.data[idx + 1] = mVal;
+                                mData.data[idx + 2] = mVal;
+                                mData.data[idx + 3] = 255;
+                            }
+                        }
+                    }
+
+                    hCtx.putImageData(hData, boxX, boxY);
+                    dCtx.putImageData(dData, boxX, boxY);
+                    rCtx.putImageData(rData, boxX, boxY);
+                    mCtx.putImageData(mData, boxX, boxY);
+                })();
+
+                // Compute normals via Sobel filter
+                const hImg = hCtx.getImageData(0, 0, RES_W, RES_H);
+                const normCanvas = document.createElement('canvas');
+                normCanvas.width = RES_W;
+                normCanvas.height = RES_H;
+                const nCtx = normCanvas.getContext('2d');
+                const normImg = nCtx.createImageData(RES_W, RES_H);
+                const embossStrength = 3.5;
+
+                for (let y = 0; y < RES_H; y++) {
+                    for (let x = 0; x < RES_W; x++) {
+                        const idx = (y * RES_W + x) * 4;
+                        const getH = (px, py) => {
+                            const cx2 = Math.max(0, Math.min(RES_W - 1, px));
+                            const cy2 = Math.max(0, Math.min(RES_H - 1, py));
+                            return hImg.data[(cy2 * RES_W + cx2) * 4] / 255.0;
+                        };
+                        const dx = (getH(x + 1, y) - getH(x - 1, y)) * embossStrength;
+                        const dy = (getH(x, y + 1) - getH(x, y - 1)) * embossStrength;
+                        const nz = 1.0;
+                        const len = Math.sqrt(dx * dx + dy * dy + nz * nz);
+
+                        normImg.data[idx] = ((-dx / len) * 0.5 + 0.5) * 255;
+                        normImg.data[idx + 1] = ((-dy / len) * 0.5 + 0.5) * 255;
+                        normImg.data[idx + 2] = ((nz / len) * 0.5 + 0.5) * 255;
+                        normImg.data[idx + 3] = 255;
+                    }
+                }
+                nCtx.putImageData(normImg, 0, 0);
+                const normalTex = new THREE.CanvasTexture(normCanvas);
+
+                // ─── Create Mesh with Material Blend ───
+                const logoMat = new THREE.MeshStandardMaterial({
+                    map: diffTex,
+                    normalMap: normalTex,
+                    normalScale: new THREE.Vector2(2.2, 2.2),
+                    roughnessMap: roughTex,
+                    metalnessMap: metalTex,
+                    transparent: true,
+                    opacity: 1.0,
+                    depthWrite: false,
+                    polygonOffset: true,
+                    polygonOffsetFactor: -4,
+                    polygonOffsetUnits: -4
+                });
+
+                const logoMesh = new THREE.Mesh(
+                    new THREE.PlaneGeometry(LOGO_W, LOGO_H),
+                    logoMat
+                );
+                // Positioned flush with the front cover mesh (slightly recessed into native geometry)
+                logoMesh.position.set(LOGO_X, LOGO_Y, -0.06);
+                logoMesh.rotation.y = Math.PI; // Face the camera
+                logoMesh.name = 'attendifyLogoOverlay';
+                hardwareOverlayGroup.add(logoMesh);
+
+                console.log('[3D MODEL] CNC-engraved, metal-filled ATTENDIFY logo overlay loaded.');
+            })();
+
+            // Add overlays group to empty_5
+            frontPlateMesh.add(hardwareOverlayGroup);
+
+            const debugDiv = document.getElementById('debug-coords');
+            if (debugDiv) {
+                const model = frontPlateMesh.parent;
+                const empty6 = model.getObjectByName('empty_6');
+                const empty5 = model.getObjectByName('empty_5');
+                const empty4 = model.getObjectByName('empty_4');
+
+                const e5_bb = new THREE.Vector3();
+                empty5.geometry.boundingBox.getCenter(e5_bb);
+                const e6_bb = new THREE.Vector3();
+                empty6.geometry.boundingBox.getCenter(e6_bb);
+                const e4_bb = new THREE.Vector3();
+                empty4.geometry.boundingBox.getCenter(e4_bb);
+
+                debugDiv.innerHTML = `
+                    e5 pos: [${empty5.position.toArray().map(v => v.toFixed(1)).join(', ')}] | geom: [${e5_bb.toArray().map(v => v.toFixed(1)).join(', ')}] | rot: [${empty5.rotation.toArray().slice(0, 3).map(v => (v * 180 / Math.PI).toFixed(0)).join(', ')}]<br/>
+                    e6 pos: [${empty6.position.toArray().map(v => v.toFixed(1)).join(', ')}] | geom: [${e6_bb.toArray().map(v => v.toFixed(1)).join(', ')}] | rot: [${empty6.rotation.toArray().slice(0, 3).map(v => (v * 180 / Math.PI).toFixed(0)).join(', ')}]<br/>
+                    e4 pos: [${empty4.position.toArray().map(v => v.toFixed(1)).join(', ')}] | geom: [${e4_bb.toArray().map(v => v.toFixed(1)).join(', ')}] | rot: [${empty4.rotation.toArray().slice(0, 3).map(v => (v * 180 / Math.PI).toFixed(0)).join(', ')}]<br/>
+                `;
+            }
+
+            console.log('[3D MODEL] Hardware overlays on', frontPlateMesh.name, {
+                FRONT_Z, OLED_X, FP_X, BTN_XS
+            });
+        }
+
+        function initThree() {
+            // Set up scene
+            scene = new THREE.Scene();
+
+            // Set up camera
+            const aspect = canvasContainer.clientWidth / canvasContainer.clientHeight;
+            camera = new THREE.PerspectiveCamera(45, aspect, 0.1, 100);
+            camera.position.set(0, 0, 5.2);
+
+            // Set up renderer — premium cinematic quality
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 0.92; // Slightly brighter exposure for studio look
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            renderer.physicallyCorrectLights = true;
+            canvasContainer.appendChild(renderer.domElement);
+
+            // === Premium 5-light studio rig ===
+
+            // Ambient fill — subtle warm wash to lift shadows without flattening
+            const ambientLight = new THREE.AmbientLight(0xfff8f0, 0.35);
+            scene.add(ambientLight);
+
+            // Key light — main illumination from top-right-front
+            const keyLight = new THREE.DirectionalLight(0xffffff, 1.1);
+            keyLight.position.set(4, 6, 8);
+            keyLight.castShadow = true;
+            keyLight.shadow.mapSize.width = 2048; // Higher-res shadows
+            keyLight.shadow.mapSize.height = 2048;
+            keyLight.shadow.camera.near = 0.1;
+            keyLight.shadow.camera.far = 30;
+            keyLight.shadow.bias = -0.0008; // Reduce shadow acne
+            keyLight.shadow.normalBias = 0.02;
+            scene.add(keyLight);
+
+            // Fill light — cool blue from left to add dimension
+            const fillLight = new THREE.DirectionalLight(0xb8e6ff, 0.5);
+            fillLight.position.set(-5, 2, 6);
+            scene.add(fillLight);
+
+            // Bottom fill — lifts underside shadows for layer separation
+            const bottomFill = new THREE.DirectionalLight(0xf0f4ff, 0.2);
+            bottomFill.position.set(0, -4, 3);
+            scene.add(bottomFill);
+
+            // Rim light — back edge highlight for cinematic depth separation
+            const rimLight = new THREE.DirectionalLight(0xddeeff, 0.55);
+            rimLight.position.set(-2, 3, -6);
+            scene.add(rimLight);
+
+            // Accent spot — faint warm top-down to bring out panel edge bevels
+            const accentLight = new THREE.DirectionalLight(0xfff0e0, 0.18);
+            accentLight.position.set(1, 8, 2);
+            scene.add(accentLight);
+
+            // Logo raking light — sharp angle from upper-left to maximize shadow
+            // definition inside the physically carved ATTENDIFY text on the enclosure
+            const logoRakeLight = new THREE.DirectionalLight(0xffffff, 0.45);
+            logoRakeLight.position.set(-3, 5, 3);
+            scene.add(logoRakeLight);
+
+            // Secondary logo fill from top-right for bevel highlights on carved edges
+            const logoBevelLight = new THREE.DirectionalLight(0xf0f4ff, 0.25);
+            logoBevelLight.position.set(4, 4, 4);
+            scene.add(logoBevelLight);
+
+            // Create main group
+            deviceGroup = new THREE.Group();
+            scene.add(deviceGroup);
+
+            // Load the custom GLB model
+            const loader = new THREE.GLTFLoader();
+            const glbUrl = new URL('Attendify.glb', window.location.href).href;
+            loader.load(glbUrl, (gltf) => {
+                const model = gltf.scene;
+
+                // Compute bounding box to center and scale normalize
+                const box = new THREE.Box3().setFromObject(model);
+                const size = new THREE.Vector3();
+                box.getSize(size);
+
+                const maxDim = Math.max(size.x, size.y, size.z);
+                const scale = 3.6 / maxDim; // Normalize scale size
+                model.scale.set(scale, scale, scale);
+
+                // Center the pivot position
+                const center = new THREE.Vector3();
+                box.getCenter(center);
+                model.position.copy(center).multiplyScalar(-scale);
+                // Rotate model so front plate empty_5 (Z = 0) faces camera with a slight angle
+                model.rotation.y = Math.PI - 0.45;
+                model.rotation.x = 0.22;
+
+                deviceGroup.add(model);
+
+                // Define premium realistic materials for the physical Attendify casing
+                const casingMaterial = new THREE.MeshStandardMaterial({
+                    color: 0xf2efe8, // Warm off-white matte polymer (slightly creamy, not pure white)
+                    roughness: 0.72, // Slightly smoother to increase specular contrast at carved edges
+                    metalness: 0.06, // Slight metalness for better highlight pickup
+                    envMapIntensity: 0.4 // Increased reflections to reveal carved depth
+                });
+
+                const pcbMaterial = new THREE.MeshStandardMaterial({
+                    color: 0x14532d, // Deep green industrial PCB board
+                    roughness: 0.55,
+                    metalness: 0.25
+                });
+
+                const darkBezelMaterial = new THREE.MeshStandardMaterial({
+                    color: 0x161e2e, // Deeper dark bezel for enhanced shadow separation
+                    roughness: 0.68,
+                    metalness: 0.18,
+                    envMapIntensity: 0.2
+                });
+
+                // Traverse meshes and enhance materials with AO-like darkening
+                model.traverse((child) => {
+                    if (child.isMesh) {
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+
+                        const name = (child.name || '').toLowerCase();
+                        if (name === 'empty_5' || name === 'empty_2' || name === 'empty_3') {
+                            child.material = casingMaterial;
+                        } else if (name === 'empty_4') {
+                            child.material = pcbMaterial;
+                        } else if (name === 'empty_6') {
+                            child.material = darkBezelMaterial;
+                        } else if (child.material) {
+                            // Screws, ports, and small parts get a slightly darker metallic finish
+                            // to simulate ambient occlusion around hardware details
+                            child.material.roughness = 0.4;
+                            child.material.metalness = 0.45;
+                            child.material.envMapIntensity = 0.5;
+                        }
+
+                        // Compute local geometry bounding center
+                        child.geometry.computeBoundingBox();
+                        const localCenter = new THREE.Vector3();
+                        child.geometry.boundingBox.getCenter(localCenter);
+
+                        loadedMeshes.push({
+                            mesh: child,
+                            name: child.name || child.parent.name,
+                            center: localCenter.clone(),
+                            initialPosition: child.position.clone(),
+                            initialRotation: child.rotation.clone()
+                        });
+                    }
+                });
+                // Auto-detect layering axis based on coordinate span and log diagnostics
+                if (loadedMeshes.length >= 2) {
+                    const rangeX = Math.max(...loadedMeshes.map(m => m.center.x)) - Math.min(...loadedMeshes.map(m => m.center.x));
+                    const rangeY = Math.max(...loadedMeshes.map(m => m.center.y)) - Math.min(...loadedMeshes.map(m => m.center.y));
+                    const rangeZ = Math.max(...loadedMeshes.map(m => m.center.z)) - Math.min(...loadedMeshes.map(m => m.center.z));
+
+                    if (rangeX > rangeY && rangeX > rangeZ) layerAxis = 'x';
+                    else if (rangeY > rangeX && rangeY > rangeZ) layerAxis = 'y';
+                    else layerAxis = 'z';
+
+                    // Sort along detected axis ascending (front panel empty_4 is Z ~ 8, back panel empty_2 is Z ~ 52.6)
+                    loadedMeshes.sort((a, b) => a.center[layerAxis] - b.center[layerAxis]);
+                    console.log(`[3D MODEL] Sorted ${loadedMeshes.length} meshes along ${layerAxis.toUpperCase()} axis:`);
+                    loadedMeshes.forEach((item, idx) => {
+                        const bbox = item.mesh.geometry.boundingBox;
+                        const sizeX = bbox.max.x - bbox.min.x;
+                        const sizeY = bbox.max.y - bbox.min.y;
+                        const sizeZ = bbox.max.z - bbox.min.z;
+                        console.log(` - Mesh ${idx}: "${item.name}" | Center: [${item.center.x.toFixed(3)}, ${item.center.y.toFixed(3)}, ${item.center.z.toFixed(3)}] | Size: [${sizeX.toFixed(3)}, ${sizeY.toFixed(3)}, ${sizeZ.toFixed(3)}]`);
+                    });
+
+                    const frontPlateMesh = findFrontPlateMesh(model);
+                    if (frontPlateMesh) {
+                        addHardwareComponents(frontPlateMesh);
+                    } else {
+                        console.warn('[3D MODEL] empty_4 front plate not found; hardware overlays skipped.');
+                    }
+                }
+                // Fade out loader
+                const loaderEl = document.getElementById('webgl-loader');
+                if (loaderEl) loaderEl.style.opacity = 0;
+
+            }, undefined, (err) => {
+                console.error('Error loading Attendify 3D model:', err);
+            });
+
+            // Create background data flow particles
+            const particleGeo = new THREE.BufferGeometry();
+            const particleCount = 100;
+            const positions = new Float32Array(particleCount * 3);
+            for (let i = 0; i < particleCount; i++) {
+                const angle = (i / particleCount) * Math.PI * 2;
+                const radius = 1.9 + Math.random() * 0.7;
+                positions[i * 3] = Math.cos(angle) * radius;
+                positions[i * 3 + 1] = Math.sin(angle) * radius;
+                positions[i * 3 + 2] = (Math.random() - 0.5) * 0.6;
+            }
+            particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+            const particleMat = new THREE.PointsMaterial({
+                color: 0x00D6FF,
+                size: 0.035,
+                transparent: true,
+                opacity: 0.55
+            });
+            dataPoints = new THREE.Points(particleGeo, particleMat);
+            deviceGroup.add(dataPoints);
+
+            // Start animation loop
+            animate();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const time = performance.now() * 0.001;
+
+            // Recalculate scroll progress
+            const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = scrollHeight > 0 ? window.scrollY / scrollHeight : 0;
+
+            // Scale model progress from scroll (0 to ~0.8 maps to 0 to 1)
+            const modelProgress = Math.min(1.0, progress / 0.8);
+
+            // === Premium showcase horizontal rotation (Y-axis only) ===
+            // Maps scroll progress to a smooth left-to-right sweep:
+            //   0% scroll  → slight left angle  (-30°)
+            //   50% scroll → front-facing center (0°)
+            //   100% scroll → slight right angle (+30°)
+            if (deviceGroup) {
+                const MAX_ANGLE = Math.PI / 6; // ±30 degrees
+                const targetRotY = (progress - 0.5) * 2.0 * MAX_ANGLE;
+                // Smooth interpolation for cinematic easing
+                currentRotY += (targetRotY - currentRotY) * 0.08;
+                deviceGroup.rotation.y = currentRotY;
+                deviceGroup.rotation.x = 0; // Always upright — no vertical tilt
+
+                // Dynamic parallax compensation for the recessed ATTENDIFY logo overlay
+                const logoMesh = scene.getObjectByName('attendifyLogoOverlay');
+                if (logoMesh) {
+                    const relRotY = currentRotY - (-0.459628); // Angle relative to straight-on front view
+                    logoMesh.position.x = -11.5 + 0.24 * Math.sin(relRotY);
+                }
+            }
+
+            // Animate disassembly of loaded meshes
+            if (loadedMeshes.length > 0) {
+                loadedMeshes.forEach((item) => {
+                    const meshName = (item.name || '').toLowerCase();
+                    let dispZ = 0;
+                    let dispY = 0;
+                    let rotY = 0;
+
+                    if (meshName === 'empty_5') { // Front cover
+                        dispZ = -4.5 * modelProgress;
+                    } else if (meshName === 'empty_4') { // PCB mounting board
+                        dispZ = -2.0 * modelProgress;
+                    } else if (meshName === 'empty_3') { // Middle Bezel frame
+                        dispZ = 0;
+                    } else if (meshName === 'empty_6') { // Screen module backing
+                        dispZ = 1.0 * modelProgress;
+                    } else if (meshName === 'empty_2') { // Back cover
+                        dispZ = 3.5 * modelProgress;
+                    }
+
+                    item.mesh.position.z = item.initialPosition.z + dispZ;
+                    item.mesh.position.y = item.initialPosition.y + dispY;
+                    item.mesh.rotation.x = item.initialRotation.x;
+                    item.mesh.rotation.y = item.initialRotation.y + rotY;
+                    item.mesh.rotation.z = item.initialRotation.z;
+                });
+            }
+
+            // Rotate background data rings
+            if (dataPoints) {
+                dataPoints.rotation.z = time * 0.3;
+                const scaleVal = modelProgress > 0.35 ? (modelProgress - 0.35) * 2.2 : 0;
+                dataPoints.scale.set(scaleVal, scaleVal, scaleVal);
+            }
+
+            // Animate fingerprint scan line sweep
+            const glowLine = scene ? scene.getObjectByName('scanGlowLine') : null;
+            if (glowLine) {
+                if (glowLine.userData.direction === undefined) {
+                    glowLine.userData.direction = -1;
+                    glowLine.userData.speed = 0.15;
+                }
+                glowLine.position.y += glowLine.userData.direction * glowLine.userData.speed;
+                if (glowLine.position.y > 13.0) {
+                    glowLine.position.y = 13.0;
+                    glowLine.userData.direction = -1;
+                } else if (glowLine.position.y < -13.0) {
+                    glowLine.position.y = -13.0;
+                    glowLine.userData.direction = 1;
+                }
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        // Resize handler
+        window.addEventListener('resize', () => {
+            if (!camera || !renderer) return;
+            const w = canvasContainer.clientWidth;
+            const h = canvasContainer.clientHeight;
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+            renderer.setSize(w, h);
+        });
+
+        // Initialize Three on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            initThree();
+        });
+    </script>
+</body>
+
+</html>

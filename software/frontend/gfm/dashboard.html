@@ -1,0 +1,1807 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendify - GFM Dashboard</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../style.css">
+
+    <style>
+        .gfm-page {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 36px;
+            color: var(--text-primary);
+        }
+
+        .logo i {
+            color: var(--brand);
+            font-size: 1.6rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.15s ease;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: var(--brand-bg);
+            color: var(--brand);
+            border-left-color: var(--brand);
+            font-weight: 600;
+        }
+
+        .nav-item i {
+            width: 18px;
+            text-align: center;
+        }
+
+        .user-profile {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            background: var(--brand);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+            font-size: 0.85rem;
+        }
+
+        .user-info div {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-info span {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: block;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 28px 36px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .mode-badge {
+            display: inline-flex;
+            align-items: center;
+            min-height: 34px;
+            padding: 0 12px;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            white-space: nowrap;
+        }
+
+        .mode-badge.local {
+            border-color: #fed7aa;
+            background: #fff7ed;
+            color: #c2410c;
+        }
+
+        .page-title h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .page-title p {
+            color: var(--text-muted);
+            margin-top: 4px;
+            font-size: 0.9rem;
+        }
+
+        .action-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .action-btn:hover {
+            background: var(--bg-hover);
+            border-color: var(--border-hover);
+        }
+
+        .logout-btn {
+            color: var(--error);
+            border-color: var(--error-border);
+        }
+
+        .logout-btn:hover {
+            background: var(--error-bg);
+        }
+
+        /* Views */
+        .view-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-left: 3px solid var(--brand);
+            border-radius: 12px;
+            padding: 20px 24px;
+            transition: box-shadow 0.25s ease, transform 0.25s ease;
+            animation: slideUp 0.4s ease both;
+        }
+
+        .stat-card:nth-child(1) {
+            border-left-color: #2563eb;
+            animation-delay: 0s;
+        }
+
+        .stat-card:nth-child(2) {
+            border-left-color: #16a34a;
+            animation-delay: 0.07s;
+        }
+
+        .stat-card:nth-child(3) {
+            border-left-color: #d97706;
+            animation-delay: 0.14s;
+        }
+
+        .stat-card:nth-child(4) {
+            border-left-color: #dc2626;
+            animation-delay: 0.21s;
+        }
+
+        .stat-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-value {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 6px 0;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 20px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            background: var(--bg-secondary);
+        }
+
+        td {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: var(--bg-hover);
+        }
+
+        .btn-primary {
+            background: var(--brand);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s, transform 0.15s;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary:hover {
+            background: var(--brand-dark);
+            transform: translateY(-1px);
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: var(--warning-bg);
+            color: var(--warning);
+        }
+
+        .status-authorized {
+            background: var(--info-bg);
+            color: var(--info);
+        }
+
+        .status-completed {
+            background: var(--success-bg);
+            color: var(--success);
+        }
+
+        .status-failed {
+            background: var(--error-bg);
+            color: var(--error);
+        }
+
+        /* CARD HOVER & SHADOWS */
+        .stat-card, .card {
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
+                        box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                        border-color 0.25s ease !important;
+        }
+        .stat-card:hover, .card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(37, 99, 235, 0.25) !important;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 
+                        0 10px 10px -5px rgba(0, 0, 0, 0.02) !important;
+        }
+
+        /* CRISP PASTEL BADGES */
+        .status-success, .status-completed {
+            background-color: #ecfdf5 !important;
+            color: #047857 !important;
+            border: 1px solid #a7f3d0 !important;
+        }
+        .status-warning, .status-pending {
+            background-color: #fffbeb !important;
+            color: #b45309 !important;
+            border: 1px solid #fde68a !important;
+        }
+        .status-danger, .status-failed {
+            background-color: #fef2f2 !important;
+            color: #b91c1c !important;
+            border: 1px solid #fecaca !important;
+        }
+
+        /* SOFT GLOW FOCUS */
+        input:focus, textarea:focus, select:focus {
+            outline: none !important;
+            border-color: var(--brand) !important;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15) !important;
+        }
+
+        /* SKELETON LOADERS */
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .skeleton {
+            background: linear-gradient(90deg, rgba(0,0,0,0.03) 25%, rgba(0,0,0,0.08) 50%, rgba(0,0,0,0.03) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite linear;
+            border-radius: 8px;
+            display: inline-block;
+        }
+        .skeleton-text {
+            height: 14px;
+            width: 80%;
+        }
+        .skeleton-title {
+            height: 24px;
+            width: 40%;
+        }
+
+        /* MODERN EMPTY STATES */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.3);
+            border: 1px dashed rgba(0, 0, 0, 0.08);
+            border-radius: 16px;
+            margin: 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .empty-state-icon {
+            font-size: 2.2rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+        .empty-state h3 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+        .empty-state p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            max-width: 280px;
+            margin: 0 auto;
+            line-height: 1.4;
+        }
+
+</style>
+</head>
+
+<body class="gfm-page">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo">
+            <i class="fas fa-shield-alt"></i>
+            <span>Attendify</span>
+        </div>
+
+        <nav class="nav-menu">
+            <div
+                style="margin: 16px 0 8px 12px; font-size: 0.75rem; color: var(--text-muted); font-weight: 700; letter-spacing: 0.05em;">
+                GFM CONTROLS</div>
+            <a class="nav-item active" onclick="switchTab('global-stats')">
+                <i class="fas fa-globe"></i> Global Analytics
+            </a>
+            <a class="nav-item" onclick="switchTab('enrollment')">
+                <i class="fas fa-user-plus"></i> Enrollment Queue
+            </a>
+            <a class="nav-item" onclick="switchTab('students')">
+                <i class="fas fa-users"></i> Enrolled Students
+            </a>
+            <a class="nav-item" onclick="switchTab('csv-history')">
+                <i class="fas fa-file-csv"></i> Offline Uploads
+            </a>
+            <a class="nav-item" onclick="switchTab('timetable')">
+                <i class="fas fa-calendar-check"></i> Master Timetable
+            </a>
+            <a class="nav-item" onclick="switchTab('announcements')">
+                <i class="fas fa-bullhorn"></i> Division Bulletins
+            </a>
+            <a class="nav-item" onclick="switchTab('devices')">
+                <i class="fas fa-server"></i> Device Status
+            </a>
+            <a class="nav-item" onclick="switchTab('leaves')">
+                <i class="fas fa-file-medical"></i> Leave Requests
+            </a>
+        </nav>
+
+        <div class="user-profile">
+            <div class="avatar" id="userInitials">G</div>
+            <div class="user-info">
+                <div id="userName">Loading...</div>
+                <span id="userRole">GFM ADMIN</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <header class="header">
+            <div class="page-title">
+                <h1 id="pageTitle">Global Analytics</h1>
+                <p id="currentDate">Loading date...</p>
+            </div>
+            <div class="header-actions">
+                <span class="mode-badge" id="modeBadge">MODE</span>
+                <button class="action-btn logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </header>
+
+        <!-- Toast Container -->
+        <div id="toast-container"></div>
+
+        <!-- VIEWS -->
+
+        <!-- 1. GLOBAL ANALYTICS -->
+        <section id="global-stats-view" class="view-section active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label"><i class="fas fa-users"></i> Total Students</div>
+                    <div class="stat-value" id="statsTotalStudents">--</div>
+                    <div class="stat-label" style="font-size:0.8rem; color:var(--text-muted);">Registered in API</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label"><i class="fas fa-clipboard-check"></i> Today's Attendance</div>
+                    <div class="stat-value" id="statsTodayAttendance">--%</div>
+                    <div class="stat-label" style="font-size:0.8rem; color:var(--success);">Present Overall</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label"><i class="fas fa-chalkboard-teacher"></i> Active Lectures</div>
+                    <div class="stat-value" id="statsTotalSessions">--</div>
+                    <div class="stat-label" style="font-size:0.8rem; color:var(--text-muted);">Recorded Today</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label"><i class="fas fa-wifi"></i> Active Devices</div>
+                    <div class="stat-value" id="statsActiveDevices">--</div>
+                    <div class="stat-label" style="font-size:0.8rem; color:var(--success);">Online ESP32s</div>
+                </div>
+            </div>
+
+            <!-- Attendance Warnings Action Card -->
+            <div class="card" style="padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; border-left: 4px solid #dc2626; gap: 16px;">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <div style="background: #fef2f2; border-radius: 10px; padding: 10px 12px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-exclamation-triangle" style="color: #dc2626; font-size: 1.2rem;"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-primary);">Low Attendance Warnings</div>
+                        <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 2px;">Send email alerts to students below 75% attendance threshold</div>
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="sendAttendanceWarnings()" id="warningBtn" style="white-space: nowrap; padding: 10px 20px;">
+                    <i class="fas fa-envelope-open-text"></i> Send Warnings
+                </button>
+            </div>
+
+            <h2 style="margin-bottom: 20px; font-size: 1.25rem;">Recent System Activity</h2>
+            <div class="table-container">
+                <table id="recentActivityTable">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Event</th>
+                            <th>Device</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="4" style="text-align:center;">Loading activity...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 2. ENROLLMENT QUEUE -->
+        <section id="enrollment-view" class="view-section">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                <h2 style="font-size: 1.25rem;">Hardware Sync Queue</h2>
+                <button class="action-btn" onclick="loadEnrollmentQueue()"><i class="fas fa-sync"></i> Refresh
+                    Queue</button>
+            </div>
+
+            <div style="margin-bottom: 20px; display:flex; gap: 20px;">
+                <div class="card" style="flex: 1; text-align:center;">
+                    <i class="fas fa-qrcode" style="font-size: 2rem; color: var(--brand); margin-bottom: 10px;"></i>
+                    <h3 style="margin-bottom: 8px;">1. Student Scans QR</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">Student fills out web form to register.</p>
+                </div>
+                <div class="card" style="flex: 1; text-align:center;">
+                    <i class="fas fa-check-circle"
+                        style="font-size: 2rem; color: var(--info); margin-bottom: 10px;"></i>
+                    <h3 style="margin-bottom: 8px;">2. GFM Authorizes</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">You click Authorize in the queue below.</p>
+                </div>
+                <div class="card" style="flex: 1; text-align:center;">
+                    <i class="fas fa-fingerprint"
+                        style="font-size: 2rem; color: var(--success); margin-bottom: 10px;"></i>
+                    <h3 style="margin-bottom: 8px;">3. ESP32 Captures</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">Hardware polls server and reads
+                        fingerprint.</p>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table id="enrollmentTable">
+                    <thead>
+                        <tr>
+                            <th>Requested At</th>
+                            <th>Roll No (Slot ID)</th>
+                            <th>Student Name</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="enrollmentTableBody">
+                        <tr>
+                            <td colspan="5" style="text-align:center;">Loading queue...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Enrolled Students View -->
+        <section id="students-view" class="view-section">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                <h2 style="font-size: 1.25rem;">Verified Students (Fingerprint Enrolled)</h2>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="studentSearchInput" placeholder="Search by name or roll..." oninput="filterEnrolledStudents()" style="padding:8px 12px; border-radius:8px; border:1px solid var(--border-color); font-size:0.85rem; width:220px; background:var(--bg-card); color:var(--text-primary);">
+                    <button class="action-btn" onclick="loadEnrolledStudents()"><i class="fas fa-sync"></i> Refresh List</button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student Details</th>
+                            <th>Roll Number</th>
+                            <th>Fingerprint ID</th>
+                            <th>Enrolled At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="enrolledStudentsTableBody">
+                        <tr>
+                            <td colspan="5" style="text-align:center;">Loading students...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 3. CSV HISTORY -->
+        <section id="csv-history-view" class="view-section">
+            <h2 style="margin-bottom: 20px; font-size: 1.25rem;">Offline CSV Uploads (SD Card)</h2>
+            <p style="margin-bottom: 20px; color: var(--text-muted);">This list shows raw attendance batches uploaded by
+                ESP32 devices when they finally connect to WiFi.</p>
+            <div class="table-container">
+                <table id="csvTable">
+                    <thead>
+                        <tr>
+                            <th>Upload Time</th>
+                            <th>Device ID</th>
+                            <th>Session / Subject</th>
+                            <th>Records Synced</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="csvTableBody">
+                        <tr>
+                            <td colspan="5" style="text-align:center;">No CSV uploads recorded yet.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 4. MASTER TIMETABLE -->
+        <section id="timetable-view" class="view-section">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+                <div>
+                    <h2 style="font-size: 1.25rem; margin-bottom: 5px;">Division Master Timetable</h2>
+                    <p style="color:var(--text-muted); font-size:0.85rem;">Manage day-wise lectures, subjects, faculty and classroom assignments.</p>
+                </div>
+                <div style="display:flex; gap: 12px; align-items: center;">
+                    <label for="editorClassSelect" style="font-weight: 600; font-size: 0.9rem;">Class:</label>
+                    <select id="editorClassSelect" onchange="loadEditorTimetable()" style="padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary); font-weight: 600;">
+                        <option value="TY-CO-A">TY-CO-A</option>
+                        <option value="TY-CO-B">TY-CO-B</option>
+                        <option value="SY-CO-A">SY-CO-A</option>
+                        <option value="SY-CO-B">SY-CO-B</option>
+                    </select>
+                    <button class="btn-primary" onclick="saveEditorTimetable()"><i class="fas fa-save"></i> Save Changes</button>
+                </div>
+            </div>
+
+            <!-- Day Selector Tabs -->
+            <div style="display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; overflow-x: auto;">
+                <button onclick="switchEditorDay('Monday')" class="action-btn day-tab-btn" id="edit-day-Monday">Monday</button>
+                <button onclick="switchEditorDay('Tuesday')" class="action-btn day-tab-btn" id="edit-day-Tuesday">Tuesday</button>
+                <button onclick="switchEditorDay('Wednesday')" class="action-btn day-tab-btn" id="edit-day-Wednesday">Wednesday</button>
+                <button onclick="switchEditorDay('Thursday')" class="action-btn day-tab-btn" id="edit-day-Thursday">Thursday</button>
+                <button onclick="switchEditorDay('Friday')" class="action-btn day-tab-btn" id="edit-day-Friday">Friday</button>
+            </div>
+
+            <!-- Slots Editor -->
+            <div class="card" style="padding: 24px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
+                    <h3 style="font-size:1.05rem;" id="editorDayTitle">Monday Schedule</h3>
+                    <button class="action-btn" onclick="addNewTimetableSlot()"><i class="fas fa-plus"></i> Add New Slot</button>
+                </div>
+
+                <div class="table-container" style="border: 1px solid var(--border-color); border-radius: 8px;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 180px;">Time Slot (e.g. 09:00 - 10:00)</th>
+                                <th>Subject Code / Name</th>
+                                <th>Teacher Name</th>
+                                <th>Classroom</th>
+                                <th style="width: 180px;">Practical Batches (optional)</th>
+                                <th style="width: 80px; text-align: center;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="timetableSlotsTableBody">
+                            <tr>
+                                <td colspan="6" style="text-align: center; color: var(--text-muted);">No slots defined for this day.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. DIVISION BULLETINS (ANNOUNCEMENTS) -->
+        <section id="announcements-view" class="view-section">
+            <div style="display:grid; grid-template-columns: 1fr 1.5fr; gap: 24px;">
+                <!-- Post Announcement Form -->
+                <div>
+                    <h2 style="font-size: 1.25rem; margin-bottom: 16px;"><i class="fas fa-bullhorn" style="color:var(--brand);"></i> Post New Bulletin</h2>
+                    <form id="announcementPostForm" onsubmit="postNewAnnouncement(event)" class="card" style="padding: 24px; display:flex; flex-direction:column; gap: 16px;">
+                        <div style="display:flex; gap: 12px;">
+                            <div style="flex:1;">
+                                <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); display:block; margin-bottom: 6px;">Target Class</label>
+                                <select id="postTargetClass" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-primary);" required>
+                                    <option value="ALL">All Classes</option>
+                                    <option value="TY-CO-A">TY-CO-A</option>
+                                    <option value="TY-CO-B">TY-CO-B</option>
+                                    <option value="SY-CO-A">SY-CO-A</option>
+                                    <option value="SY-CO-B">SY-CO-B</option>
+                                </select>
+                            </div>
+                            <div style="flex:1;">
+                                <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); display:block; margin-bottom: 6px;">Category</label>
+                                <select id="postCategory" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-primary);" required>
+                                    <option value="INFO">General Info</option>
+                                    <option value="ACADEMICS">Academics</option>
+                                    <option value="URGENT">Urgent Warning</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); display:block; margin-bottom: 6px;">Title</label>
+                            <input type="text" id="postTitle" placeholder="e.g. Mid-Term exam schedule" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-primary); box-sizing:border-box;" required>
+                        </div>
+
+                        <div>
+                            <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); display:block; margin-bottom: 6px;">Notice Content</label>
+                            <textarea id="postContent" rows="5" placeholder="Write bulletin message here..." style="width:100%; padding:12px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-primary); font-family:inherit; box-sizing:border-box;" required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-primary" style="justify-content:center; padding:12px;"><i class="fas fa-paper-plane"></i> Publish Bulletin</button>
+                    </form>
+                </div>
+
+                <!-- Bulletin Board Feed -->
+                <div>
+                    <h2 style="font-size: 1.25rem; margin-bottom: 16px;"><i class="fas fa-history"></i> Published Bulletins</h2>
+                    <div style="display:flex; flex-direction:column; gap:16px;" id="bulletinFeedContainer">
+                        <p style="color:var(--text-muted); text-align:center;">Loading bulletins feed...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <section id="devices-view" class="view-section">
+            <h2 style="margin-bottom: 20px; font-size: 1.25rem;">Device Fleet Status</h2>
+            <div class="card">
+                <p>Real-time device tracking coming soon.</p>
+            </div>
+        </section>
+
+        <!-- 6. LEAVE APPLICATIONS MANAGEMENT -->
+        <section id="leaves-view" class="view-section">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                <h2 style="font-size: 1.25rem;">Absenteeism & Medical Leaves</h2>
+                <button class="action-btn" onclick="loadLeaveApplications()"><i class="fas fa-sync"></i> Refresh List</button>
+            </div>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student Details</th>
+                            <th>Reason</th>
+                            <th>Leave Period</th>
+                            <th>Certificate</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gfmLeavesTableBody">
+                        <tr>
+                            <td colspan="6" style="text-align:center; padding: 30px;">Loading applications...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Review Application Modal -->
+    <div id="reviewModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div class="card" style="width: 500px; max-width: 90%; background: var(--bg-card); border-radius: 12px; padding: 24px; box-shadow: var(--shadow-lg); border: 1px solid var(--border-color);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+                <h3 style="font-size: 1.2rem; font-weight: 600; color: var(--text-primary);">Review Leave Request</h3>
+                <button onclick="closeReviewModal()" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color: var(--text-muted);">&times;</button>
+            </div>
+            <div style="margin-bottom: 16px; font-size: 0.95rem; line-height: 1.5; color: var(--text-primary);">
+                <p style="margin-bottom: 6px;"><strong>Student:</strong> <span id="reviewStudentName">--</span> (<span id="reviewStudentRoll">--</span>)</p>
+                <p style="margin-bottom: 6px;"><strong>Dates:</strong> <span id="reviewDates">--</span></p>
+                <p style="margin-bottom: 6px;"><strong>Reason:</strong> <span id="reviewReason">--</span></p>
+            </div>
+            <div style="margin-bottom: 16px;">
+                <label style="display:block; font-weight:600; margin-bottom:6px; font-size:0.9rem; color: var(--text-secondary);">GFM Remarks / Comments</label>
+                <textarea id="reviewComments" style="width:100%; min-height:80px; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:rgba(255,255,255,0.5); font-family:inherit; color: var(--text-primary);" placeholder="Add remarks or justification..."></textarea>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:20px;">
+                <button onclick="closeReviewModal()" class="action-btn">Cancel</button>
+                <button onclick="submitReview('REJECTED')" class="action-btn logout-btn" style="background:#fef2f2; color:#dc2626; border-color:#fecaca;"><i class="fas fa-times"></i> Reject</button>
+                <button onclick="submitReview('APPROVED')" class="btn-primary"><i class="fas fa-check"></i> Approve</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+
+    <script>
+        // Set Date
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', options);
+
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyA5xTUSjlz0AUc3P2evFIwMIe6vQfS0Nl8",
+            authDomain: "newattendify.firebaseapp.com",
+            projectId: "newattendify",
+            storageBucket: "newattendify.firebasestorage.app",
+            messagingSenderId: "1087026675865",
+            appId: "1:1087026675865:web:796f43bc5249626a697808"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        let currentUser = null;
+
+        async function loadModeBadge() {
+            try {
+                const res = await fetch('/api/server-info');
+                const data = await res.json();
+                const badge = document.getElementById('modeBadge');
+                const mode = data.mode || {};
+                const isLocal = mode.storageMode === 'LOCAL' && mode.authMode === 'LOCAL';
+                badge.textContent = mode.modeLabel || (isLocal ? 'LOCAL DEV MODE' : 'CLOUD MODE');
+                badge.classList.toggle('local', isLocal);
+                badge.title = `Storage: ${mode.storageMode || 'UNKNOWN'} | Auth: ${mode.authMode || 'UNKNOWN'}`;
+            } catch (error) {
+                console.warn('Failed to load mode badge:', error);
+            }
+        }
+
+        // Auto-refresh token helper
+        async function getValidToken() {
+            const storedToken = localStorage.getItem('attendify_token');
+            if (storedToken && storedToken.startsWith('LOCAL_TOKEN_')) {
+                return storedToken;
+            }
+            const user = firebase.auth().currentUser;
+            if (user) {
+                const token = await user.getIdToken(true);
+                localStorage.setItem('attendify_token', token);
+                return token;
+            }
+            return null;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            loadModeBadge();
+            const storedToken = localStorage.getItem('attendify_token');
+            if (storedToken && storedToken.startsWith('LOCAL_TOKEN_')) {
+                await checkAuth(storedToken);
+                loadGlobalStats();
+                loadEnrollmentQueue();
+                return;
+            }
+
+            firebase.auth().onAuthStateChanged(async (user) => {
+                if (!user) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+                const token = await getValidToken();
+                if (!token) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+                await checkAuth(token);
+                loadGlobalStats();
+                loadEnrollmentQueue();
+            });
+        });
+
+        async function checkAuth(token) {
+            try {
+                const res = await fetch('/api/auth/me', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!res.ok) throw new Error('Auth failed');
+
+                const data = await res.json();
+                currentUser = data.user;
+
+                if (currentUser.role !== 'GFM' && currentUser.role !== 'ADMIN') {
+                    alert('Access denied. GFM or Admin only.');
+                    window.location.href = '/';
+                    return;
+                }
+
+                document.getElementById('userName').textContent = currentUser.displayName || currentUser.email;
+                document.getElementById('userInitials').textContent = (currentUser.displayName || currentUser.email).charAt(0).toUpperCase();
+
+            } catch (error) {
+                console.error('Auth error:', error);
+                logout();
+            }
+        }
+
+        let queueInterval = null;
+        let currentPollRate = 3000;
+
+        function startQueuePolling(rate) {
+            if (queueInterval) clearInterval(queueInterval);
+            currentPollRate = rate;
+            queueInterval = setInterval(async () => {
+                if (document.visibilityState === 'visible' && document.getElementById('enrollment-view').classList.contains('active')) {
+                    await loadEnrollmentQueue();
+                }
+            }, rate);
+        }
+
+        function switchTab(tabId) {
+            let targetItem = null;
+            document.querySelectorAll('.nav-item').forEach(item => {
+                if (item.getAttribute('onclick') && item.getAttribute('onclick').includes(`'${tabId}'`)) {
+                    targetItem = item;
+                }
+            });
+
+            document.querySelectorAll('.nav-item').forEach(t => t.classList.remove('active'));
+            if (targetItem) {
+                targetItem.classList.add('active');
+                const pageTitle = document.getElementById('pageTitle');
+                if (pageTitle) {
+                    pageTitle.textContent = targetItem.innerText.trim();
+                }
+            }
+
+            document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+            const viewSection = document.getElementById(tabId + '-view');
+            if (viewSection) {
+                viewSection.classList.add('active');
+            }
+
+            if (queueInterval) {
+                clearInterval(queueInterval);
+                queueInterval = null;
+            }
+
+            if (tabId === 'enrollment') {
+                loadEnrollmentQueue();
+                startQueuePolling(3000);
+            } else if (tabId === 'students') {
+                loadEnrolledStudents();
+            } else if (tabId === 'global-stats') {
+                loadGlobalStats();
+            } else if (tabId === 'leaves') {
+                loadLeaveApplications();
+            } else if (tabId === 'timetable') {
+                loadEditorTimetable();
+            } else if (tabId === 'announcements') {
+                loadAnnouncementsList();
+            }
+        }
+
+        async function logout() {
+            console.log('Logging out...');
+            try {
+                if (firebase.auth().currentUser) {
+                    await firebase.auth().signOut();
+                }
+            } catch (error) {
+                console.error('SignOut error (ignoring):', error);
+            }
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = '/login?logout=true';
+        }
+
+        // Toast Notification System
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+
+            let icon = 'info-circle';
+            if (type === 'success') icon = 'check-circle';
+            if (type === 'error') icon = 'exclamation-circle';
+            if (type === 'warning') icon = 'exclamation-triangle';
+
+            toast.innerHTML = `
+                <i class="fas fa-${icon} toast-icon"></i>
+                <div class="toast-content">
+                    <div class="toast-title">${type.charAt(0).toUpperCase() + type.slice(1)}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.classList.replace('show', 'hiding'); setTimeout(() => this.parentElement.remove(), 400);"><i class="fas fa-times"></i></button>
+            `;
+
+            container.appendChild(toast);
+
+            // Trigger reflow and show animation
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            // Auto hide
+            setTimeout(() => {
+                toast.classList.replace('show', 'hiding');
+                setTimeout(() => toast.remove(), 400);
+            }, 3000);
+        }
+
+        // Enrollment Queue Logic
+        async function loadEnrollmentQueue() {
+            try {
+                const token = await getValidToken();
+                // We will build this API on the backend next!
+                const res = await fetch('/api/gfm/enrollment-queue', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!res.ok) {
+                    document.getElementById('enrollmentTableBody').innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--error);">Failed to load queue.</td></tr>`;
+                    return;
+                }
+
+                const data = await res.json();
+                const tbody = document.getElementById('enrollmentTableBody');
+
+                if (data.queue.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No pending enrollments. The queue is clear!</td></tr>`;
+                    if (currentPollRate !== 3000) {
+                        startQueuePolling(3000);
+                    }
+                    return;
+                }
+
+                tbody.innerHTML = '';
+                data.queue.forEach(item => {
+                    const status = item.status || 'PENDING';
+                    const statusClass = status === 'FAILED' ? 'status-failed' :
+                        (status === 'AUTHORIZED' || status === 'IN_PROGRESS' ? 'status-authorized' :
+                            (status === 'PENDING' || status === 'WAITING' ? 'status-pending' : 'status-completed'));
+
+                    let actionHtml = '';
+                    if (status === 'PENDING' || status === 'WAITING') {
+                        actionHtml = `
+                            <button class="btn-primary" onclick="authorizeEnrollment('${item.roll}')"><i class="fas fa-check"></i> Authorize</button>
+                            <button class="btn-secondary" onclick="createStudentFromQueue('${item.roll}')"><i class="fas fa-user-plus"></i> Approve & Create Account</button>
+                        `;
+                    } else if (status === 'AUTHORIZED') {
+                        actionHtml = `<span style="font-size:0.8rem; color:var(--text-muted);"><i class="fas fa-spinner fa-spin"></i> Waiting for hardware...</span>`;
+                    } else if (status === 'IN_PROGRESS') {
+                        actionHtml = `<span style="font-size:0.8rem; color:var(--text-muted);"><i class="fas fa-fingerprint"></i> Scanning on hardware...</span>`;
+                    } else if (status === 'FAILED') {
+                        actionHtml = `
+                            <button class="btn-primary" onclick="authorizeEnrollment('${item.roll}')"><i class="fas fa-redo"></i> Retry</button>
+                            <span style="font-size:0.8rem; color:var(--text-muted);">${item.failReason || 'Enrollment failed'}</span>
+                        `;
+                    } else {
+                        actionHtml = `<span style="color:var(--success);"><i class="fas fa-check-double"></i> Synced</span>`;
+                    }
+
+                    const row = `
+                        <tr>
+                            <td>${new Date(item.requestedAt || item.createdAt).toLocaleString()}</td>
+                            <td style="font-family:monospace; font-weight:700; color:var(--brand);">${item.roll}</td>
+                            <td style="font-weight:600;">${item.name}</td>
+                            <td><span class="status-badge ${statusClass}">${status}</span></td>
+                            <td>${actionHtml}</td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+
+                // Smart Adaptive Polling rate adjust
+                const hasActive = data.queue.some(item => 
+                    item.status === 'AUTHORIZED' || item.status === 'IN_PROGRESS'
+                );
+                const desiredRate = hasActive ? 1500 : 3000;
+                if (desiredRate !== currentPollRate) {
+                    startQueuePolling(desiredRate);
+                }
+            } catch (error) {
+                console.error(error);
+                showToast('Failed to connect to server', 'error');
+            }
+        }
+
+        async function createStudentFromQueue(id) {
+            const password = prompt('Enter a custom password for the student account (or leave blank to auto-generate a secure password):');
+            if (password === null) return; // User cancelled prompt
+
+            try {
+                const token = await getValidToken();
+                const res = await fetch(`/api/gfm/enrollment-queue/${id}/create-account`, {
+                    method: 'POST',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ password })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    showToast('Student account created!', 'success');
+                    loadEnrollmentQueue();
+                    
+                    const displayPassword = data.localPassword || 'Auto-generated';
+                    alert(`Student Account Created Successfully!\n\nEmail: ${data.studentEmail || id}\nPassword: ${displayPassword}\n\nA welcome email containing these credentials has been sent to the student.`);
+                } else {
+                    showToast(data.message || 'Account creation failed', 'error');
+                }
+            } catch (error) {
+                showToast('Server error', 'error');
+            }
+        }
+
+        function showResetLinkModal(name, email, link) {
+            // Remove existing modal if any
+            const existing = document.getElementById('resetLinkModal');
+            if (existing) existing.remove();
+
+            const modal = document.createElement('div');
+            modal.id = 'resetLinkModal';
+            modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999;';
+            const whatsappMsg = encodeURIComponent(`Hi ${name}, your Attendify account has been created.\nEmail: ${email}\nSet your password here: ${link}`);
+            modal.innerHTML = `
+                <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:16px;padding:28px;max-width:480px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+                    <h3 style="margin:0 0 8px;color:var(--text-primary);"><i class="fas fa-user-check" style="color:var(--success);margin-right:8px;"></i>Account Created</h3>
+                    <p style="margin:0 0 16px;color:var(--text-muted);font-size:0.9rem;">${name} (${email})</p>
+                    <label style="font-size:0.8rem;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:6px;">PASSWORD RESET LINK</label>
+                    <input id="resetLinkInput" type="text" value="${link}" readonly style="width:100%;padding:10px 12px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-secondary);color:var(--text-primary);font-size:0.85rem;margin-bottom:16px;box-sizing:border-box;"/>
+                    <div style="display:flex;gap:10px;">
+                        <button onclick="navigator.clipboard.writeText(document.getElementById('resetLinkInput').value);showToast('Link copied!','success');" class="btn-primary" style="flex:1;"><i class="fas fa-copy"></i> Copy Link</button>
+                        <a href="https://wa.me/?text=${whatsappMsg}" target="_blank" class="btn-primary" style="flex:1;text-decoration:none;text-align:center;background:#25D366;"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                        <button onclick="document.getElementById('resetLinkModal').remove();" class="action-btn" style="flex:0.6;">Close</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+        }
+
+        async function authorizeEnrollment(id) {
+            try {
+                const token = await getValidToken();
+                const res = await fetch(`/api/gfm/enrollment-queue/${id}/authorize`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    showToast('Student Authorized! ESP32 will pick this up.', 'success');
+                    loadEnrollmentQueue();
+                } else {
+                    const data = await res.json();
+                    showToast(data.message || data.error || 'Authorization failed', 'error');
+                }
+            } catch (error) {
+                showToast('Server error', 'error');
+            }
+        }
+
+        // --- Leave Applications Logic ---
+        let activeReviewAppId = null;
+
+        async function loadLeaveApplications() {
+            try {
+                const token = await getValidToken();
+                const res = await fetch('/api/gfm/applications', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (!res.ok || !data.success) {
+                    showToast(data.message || 'Failed to fetch leave applications', 'error');
+                    return;
+                }
+
+                const tbody = document.getElementById('gfmLeavesTableBody');
+                const apps = data.applications || [];
+                if (apps.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--text-muted);">No leave applications found.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = apps.map(app => {
+                    let statusBadgeClass = 'status-pending';
+                    if (app.status === 'APPROVED') statusBadgeClass = 'status-completed';
+                    if (app.status === 'REJECTED') statusBadgeClass = 'status-failed';
+
+                    const duration = `${formatDateShort(app.startDate)} to ${formatDateShort(app.endDate)}`;
+                    const certDisplay = app.certificateUrl.startsWith('http')
+                        ? `<a href="${app.certificateUrl}" target="_blank" style="color: var(--brand); text-decoration: none; font-weight: 600;"><i class="fas fa-external-link-alt"></i> View</a>`
+                        : `<span title="${app.certificateUrl}">${app.certificateUrl.length > 20 ? app.certificateUrl.substring(0, 18) + '...' : app.certificateUrl}</span>`;
+
+                    const appJson = JSON.stringify(app).replace(/'/g, "&#39;");
+                    const actionBtn = app.status === 'PENDING'
+                        ? `<button onclick='openReviewModal(${appJson})' class="btn-primary" style="padding: 4px 10px; font-size: 0.8rem;"><i class="fas fa-edit"></i> Review</button>`
+                        : `<span style="font-size:0.85rem; color:var(--text-muted);">Reviewed by ${app.reviewedBy.split('@')[0]}</span>`;
+
+                    return `
+                        <tr>
+                            <td>
+                                <strong>${app.studentName}</strong><br>
+                                <small style="color:var(--text-muted);">${app.studentRoll} • ${app.studentEmail}</small>
+                            </td>
+                            <td>${app.reason}</td>
+                            <td>${duration}</td>
+                            <td>${certDisplay}</td>
+                            <td><span class="status-badge ${statusBadgeClass}">${app.status}</span></td>
+                            <td>${actionBtn}</td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error(err);
+                showToast(err.message, 'error');
+            }
+        }
+
+        function openReviewModal(app) {
+            activeReviewAppId = app.id;
+            document.getElementById('reviewStudentName').textContent = app.studentName;
+            document.getElementById('reviewStudentRoll').textContent = app.studentRoll;
+            document.getElementById('reviewDates').textContent = `${formatDateShort(app.startDate)} to ${formatDateShort(app.endDate)}`;
+            document.getElementById('reviewReason').textContent = app.reason;
+            document.getElementById('reviewComments').value = app.gfmComments || '';
+            document.getElementById('reviewModal').style.display = 'flex';
+        }
+
+        function closeReviewModal() {
+            document.getElementById('reviewModal').style.display = 'none';
+            activeReviewAppId = null;
+        }
+
+        async function submitReview(status) {
+            if (!activeReviewAppId) return;
+            const comments = document.getElementById('reviewComments').value;
+
+            try {
+                const token = await getValidToken();
+                const res = await fetch(`/api/gfm/applications/${activeReviewAppId}/review`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ status, comments })
+                });
+
+                const data = await res.json();
+                if (!res.ok || !data.success) {
+                    showToast(data.message || 'Failed to submit review', 'error');
+                    return;
+                }
+
+                showToast(`Application successfully ${status.toLowerCase()}!`, 'success');
+                closeReviewModal();
+                loadLeaveApplications();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        // --- Date Formatter ---
+        function formatDateShort(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return dateString;
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' });
+        }
+
+        // --- Global Stats Loader ---
+        async function loadGlobalStats() {
+            try {
+                const token = await getValidToken();
+                const res = await fetch('/api/dashboard-data', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!res.ok) return;
+                const data = await res.json();
+                
+                // Update stats cards
+                document.getElementById('statsTotalStudents').textContent = data.stats.studentCount || 0;
+                document.getElementById('statsTotalSessions').textContent = data.stats.attendanceCount || 0;
+                
+                // Today's attendance percentage
+                const attendance = data.attendance || [];
+                const uniquePresent = new Set(attendance.map(a => a.roll)).size;
+                const totalStudents = data.students ? data.students.length : 0;
+                const percentage = totalStudents > 0 ? Math.round((uniquePresent / totalStudents) * 100) : 0;
+                document.getElementById('statsTodayAttendance').textContent = percentage + '%';
+
+                // Load active devices
+                const devicesRes = await fetch('/api/devices/overview', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (devicesRes.ok) {
+                    const devicesData = await devicesRes.json();
+                    const onlineCount = (devicesData.devices || []).filter(d => d.status === 'ONLINE').length;
+                    document.getElementById('statsActiveDevices').textContent = onlineCount;
+                }
+
+                // Recent activity from attendance list (last 5 records)
+                const tbody = document.querySelector('#recentActivityTable tbody');
+                if (tbody) {
+                    const sortedAttendance = attendance.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 5);
+                    if (sortedAttendance.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding: 20px;">No attendance activity today.</td></tr>`;
+                    } else {
+                        tbody.innerHTML = sortedAttendance.map(a => `
+                            <tr>
+                                <td>${new Date(a.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+                                <td><strong>${a.name || 'Student'}</strong> marked present</td>
+                                <td style="font-family:monospace;">${a.deviceId || 'ESP32_DEV'}</td>
+                                <td><span class="status-badge status-completed">PRESENT</span></td>
+                            </tr>
+                        `).join('');
+                    }
+                }
+            } catch (error) {
+                console.warn('Failed to load global stats:', error);
+            }
+        }
+
+        // --- Enrolled Students Management ---
+        let allEnrolledStudents = [];
+
+        async function loadEnrolledStudents() {
+            try {
+                const token = await getValidToken();
+                const res = await fetch('/api/dashboard-data', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!res.ok) {
+                    document.getElementById('enrolledStudentsTableBody').innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--error);">Failed to load students.</td></tr>`;
+                    return;
+                }
+                const data = await res.json();
+                allEnrolledStudents = data.students || [];
+                renderEnrolledStudents(allEnrolledStudents);
+            } catch (error) {
+                console.error(error);
+                showToast('Failed to connect to server', 'error');
+            }
+        }
+
+        function renderEnrolledStudents(studentsList) {
+            const tbody = document.getElementById('enrolledStudentsTableBody');
+            if (studentsList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding: 30px;">No enrolled students found.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = studentsList.map(s => {
+                const enrolledDate = s.enrolledAt ? new Date(s.enrolledAt).toLocaleString() : 'N/A';
+                return `
+                    <tr>
+                        <td style="font-weight:600;">${s.name}</td>
+                        <td style="font-family:monospace; font-weight:700; color:var(--brand);">${s.roll}</td>
+                        <td><span class="status-badge status-completed"><i class="fas fa-fingerprint"></i> ID: ${s.fingerprintId}</span></td>
+                        <td>${enrolledDate}</td>
+                        <td>
+                            <button onclick="deleteStudent('${s.roll}')" class="action-btn logout-btn" style="padding:4px 8px; font-size:0.8rem;"><i class="fas fa-trash-alt"></i> Delete</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filterEnrolledStudents() {
+            const q = document.getElementById('studentSearchInput').value.toLowerCase().trim();
+            if (!q) {
+                renderEnrolledStudents(allEnrolledStudents);
+                return;
+            }
+            const filtered = allEnrolledStudents.filter(s => 
+                s.name.toLowerCase().includes(q) || String(s.roll).toLowerCase().includes(q)
+            );
+            renderEnrolledStudents(filtered);
+        }
+
+        async function deleteStudent(roll) {
+            if (!confirm(`Are you sure you want to delete student with Roll Number ${roll}? This will also delete their fingerprint record.`)) return;
+            try {
+                const token = await getValidToken();
+                const res = await fetch(`/api/students/${roll}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    showToast('Student deleted successfully', 'success');
+                    loadEnrolledStudents();
+                } else {
+                    showToast(data.message || 'Delete failed', 'error');
+                }
+            } catch (error) {
+                showToast('Server error', 'error');
+            }
+        }
+
+        // --- Master Timetable Controller ---
+        let currentEditorDay = 'Monday';
+        let editorScheduleData = {
+            Monday: [],
+            Tuesday: [],
+            Wednesday: [],
+            Thursday: [],
+            Friday: []
+        };
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return String(text)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        async function loadEditorTimetable() {
+            const className = document.getElementById('editorClassSelect').value;
+            try {
+                const token = await getValidToken();
+                const res = await fetch(`/api/admin/timetable/${className}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                
+                // Initialize clean default schedule if none exists
+                if (data.success && data.timetable && data.timetable.schedule) {
+                    editorScheduleData = data.timetable.schedule;
+                } else {
+                    editorScheduleData = {
+                        Monday: [],
+                        Tuesday: [],
+                        Wednesday: [],
+                        Thursday: [],
+                        Friday: []
+                    };
+                }
+
+                // Render current day
+                switchEditorDay(currentEditorDay);
+            } catch (error) {
+                console.error(error);
+                showToast('Failed to load timetable', 'error');
+            }
+        }
+
+        function switchEditorDay(day) {
+            currentEditorDay = day;
+            document.getElementById('editorDayTitle').textContent = `${day} Schedule`;
+            
+            // Toggle active styling on day tab buttons
+            document.querySelectorAll('.day-tab-btn').forEach(btn => {
+                btn.style.background = 'transparent';
+                btn.style.color = 'var(--text-secondary)';
+                btn.style.borderColor = 'transparent';
+            });
+            
+            const activeBtn = document.getElementById(`edit-day-${day}`);
+            if (activeBtn) {
+                activeBtn.style.background = 'var(--brand)';
+                activeBtn.style.color = '#ffffff';
+                activeBtn.style.borderColor = 'var(--brand)';
+            }
+
+            renderEditorDay(day);
+        }
+
+        function renderEditorDay(day) {
+            const tbody = document.getElementById('timetableSlotsTableBody');
+            const slots = editorScheduleData[day] || [];
+
+            if (slots.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                            No slots defined for ${day}. Click "Add New Slot" to begin.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = slots.map((s, idx) => {
+                const batchesStr = Array.isArray(s.batches) ? s.batches.join(', ') : (s.batches || '');
+                return `
+                    <tr data-index="${idx}">
+                        <td><input type="text" value="${escapeHtml(s.slot || '')}" placeholder="e.g. 09:00 - 10:00" style="width:100%; padding:6px; border:1px solid var(--border-color); border-radius:4px; box-sizing:border-box;"></td>
+                        <td><input type="text" value="${escapeHtml(s.subject || '')}" placeholder="e.g. CS-301" style="width:100%; padding:6px; border:1px solid var(--border-color); border-radius:4px; box-sizing:border-box;"></td>
+                        <td><input type="text" value="${escapeHtml(s.teacher || '')}" placeholder="e.g. Prof. Patil" style="width:100%; padding:6px; border:1px solid var(--border-color); border-radius:4px; box-sizing:border-box;"></td>
+                        <td><input type="text" value="${escapeHtml(s.classroom || '')}" placeholder="e.g. Lab 3 / L-2" style="width:100%; padding:6px; border:1px solid var(--border-color); border-radius:4px; box-sizing:border-box;"></td>
+                        <td><input type="text" value="${escapeHtml(batchesStr)}" placeholder="e.g. B1, B2 (or leave empty)" style="width:100%; padding:6px; border:1px solid var(--border-color); border-radius:4px; box-sizing:border-box;"></td>
+                        <td style="text-align:center;">
+                            <button onclick="removeEditorSlot(${idx})" class="action-btn logout-btn" style="padding:4px 8px; font-size:0.85rem;"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function addNewTimetableSlot() {
+            if (!editorScheduleData[currentEditorDay]) {
+                editorScheduleData[currentEditorDay] = [];
+            }
+            editorScheduleData[currentEditorDay].push({
+                slot: '',
+                subject: '',
+                teacher: '',
+                classroom: '',
+                batches: []
+            });
+            renderEditorDay(currentEditorDay);
+        }
+
+        function removeEditorSlot(index) {
+            editorScheduleData[currentEditorDay].splice(index, 1);
+            renderEditorDay(currentEditorDay);
+        }
+
+        async function saveEditorTimetable() {
+            const className = document.getElementById('editorClassSelect').value;
+            const rows = document.querySelectorAll('#timetableSlotsTableBody tr');
+            const updatedSlots = [];
+
+            rows.forEach(row => {
+                const idx = row.getAttribute('data-index');
+                if (idx === null) return; // Empty stub row
+                
+                const inputs = row.querySelectorAll('input');
+                if (inputs.length < 5) return;
+
+                const slotVal = inputs[0].value.trim();
+                const subjectVal = inputs[1].value.trim();
+                const teacherVal = inputs[2].value.trim();
+                const classroomVal = inputs[3].value.trim();
+                const batchesVal = inputs[4].value.trim();
+
+                if (!slotVal || !subjectVal) return; // Skip completely empty inputs
+
+                const batchesArr = batchesVal ? batchesVal.split(',').map(b => b.trim()).filter(b => b) : [];
+
+                updatedSlots.push({
+                    slot: slotVal,
+                    subject: subjectVal,
+                    teacher: teacherVal,
+                    classroom: classroomVal,
+                    batches: batchesArr
+                });
+            });
+
+            // Update local memory
+            editorScheduleData[currentEditorDay] = updatedSlots;
+
+            // Submit
+            try {
+                const token = await getValidToken();
+                const res = await fetch('/api/admin/timetable', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}` 
+                    },
+                    body: JSON.stringify({
+                        studentClass: className,
+                        className,
+                        timetableData: { schedule: editorScheduleData }
+                    })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    showToast('Timetable saved successfully!', 'success');
+                    loadEditorTimetable();
+                } else {
+                    showToast(data.message || 'Failed to save timetable', 'error');
+                }
+            } catch (error) {
+                console.error(error);
+                showToast('Server error', 'error');
+            }
+        }
+
+        // --- Bulletins/Announcements Feed Controller ---
+        async function loadAnnouncementsList() {
+            const container = document.getElementById('bulletinFeedContainer');
+            try {
+                const token = await getValidToken();
+                const res = await fetch('/api/admin/announcements', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (!res.ok || !data.success) {
+                    container.innerHTML = `<p style="color:var(--error); text-align:center;">Failed to load announcements feed.</p>`;
+                    return;
+                }
+
+                const list = data.announcements || [];
+                if (list.length === 0) {
+                    container.innerHTML = `
+                        <div class="card" style="padding:30px; text-align:center; color:var(--text-muted);">
+                            <i class="fas fa-bullhorn" style="font-size:2rem; margin-bottom:12px; opacity:0.5;"></i>
+                            <p>No announcements published yet.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = list.map(a => {
+                    const dateStr = new Date(a.postedAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+                    let categoryBadge = '';
+                    if (a.category === 'URGENT') {
+                        categoryBadge = `<span style="background:#7f1d1d; color:#fff; font-size:0.75rem; padding:2px 8px; border-radius:4px; font-weight:700;">URGENT</span>`;
+                    } else if (a.category === 'ACADEMICS') {
+                        categoryBadge = `<span style="background:var(--brand-bg); color:var(--brand); font-size:0.75rem; padding:2px 8px; border-radius:4px; font-weight:700;">ACADEMICS</span>`;
+                    } else {
+                        categoryBadge = `<span style="background:var(--bg-hover); color:var(--text-secondary); font-size:0.75rem; padding:2px 8px; border-radius:4px; font-weight:700;">INFO</span>`;
+                    }
+
+                    return `
+                        <div class="card" style="padding:20px; display:flex; flex-direction:column; gap:8px; border-left: 4px solid ${a.category === 'URGENT' ? '#ef4444' : 'var(--brand)'};">
+                            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px;">
+                                <div style="display:flex; flex-direction:column; gap:4px;">
+                                    <h3 style="font-size:1.05rem; font-weight:700; margin:0;">${escapeHtml(a.title)}</h3>
+                                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:0.8rem; color:var(--text-muted);">
+                                        ${categoryBadge}
+                                        <span>Target: <strong>${escapeHtml(a.targetClass)}</strong></span>
+                                        <span>•</span>
+                                        <span>${dateStr}</span>
+                                    </div>
+                                </div>
+                                <button onclick="deleteAnnouncement('${a.id}')" class="action-btn logout-btn" style="padding:4px 8px; font-size:0.8rem;" title="Delete Bulletin"><i class="fas fa-trash-alt"></i></button>
+                            </div>
+                            <p style="margin: 8px 0 0 0; line-height: 1.5; font-size: 0.95rem; white-space: pre-wrap;">${escapeHtml(a.content)}</p>
+                            <div style="font-size:0.8rem; color:var(--text-muted); margin-top:6px; border-top:1px solid var(--border-color); padding-top:8px; text-align:right;">
+                                Posted by: <strong>${escapeHtml(a.postedBy || a.postedByEmail)}</strong>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error(error);
+                container.innerHTML = `<p style="color:var(--error); text-align:center;">Server error loading bulletins.</p>`;
+            }
+        }
+
+        async function postNewAnnouncement(e) {
+            e.preventDefault();
+            const targetClass = document.getElementById('postTargetClass').value;
+            const category = document.getElementById('postCategory').value;
+            const title = document.getElementById('postTitle').value.trim();
+            const content = document.getElementById('postContent').value.trim();
+
+            try {
+                const token = await getValidToken();
+                const res = await fetch('/api/admin/announcements', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ title, content, targetClass, category })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    showToast('Bulletin published successfully!', 'success');
+                    document.getElementById('announcementPostForm').reset();
+                    loadAnnouncementsList();
+                } else {
+                    showToast(data.message || 'Failed to publish bulletin', 'error');
+                }
+            } catch (error) {
+                console.error(error);
+                showToast('Server error', 'error');
+            }
+        }
+
+        async function deleteAnnouncement(id) {
+            if (!confirm('Are you sure you want to permanently delete this bulletin notice?')) return;
+            try {
+                const token = await getValidToken();
+                const res = await fetch(`/api/admin/announcements/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    showToast('Bulletin deleted successfully', 'success');
+                    loadAnnouncementsList();
+                } else {
+                    showToast(data.message || 'Delete failed', 'error');
+                }
+            } catch (error) {
+                console.error(error);
+                showToast('Server error', 'error');
+            }
+        }
+
+        async function sendAttendanceWarnings() {
+            if (!confirm('Are you sure you want to trigger low-attendance warnings to all students below 75%?')) return;
+            const btn = document.getElementById('warningBtn');
+            const originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            try {
+                const token = await getValidToken();
+                const res = await fetch('/api/gfm/send-attendance-warnings', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    showToast(data.message || 'Low-attendance warnings sent successfully!', 'success');
+                } else {
+                    showToast(data.message || 'Failed to send low-attendance warnings', 'error');
+                }
+            } catch (error) {
+                console.error(error);
+                showToast('Server error', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            }
+        }
+    </script>
+</body>
+
+</html>

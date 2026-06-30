@@ -1,0 +1,3630 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendify - Teacher Portal</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #16a34a;
+            --accent: #d97706;
+            --danger: #dc2626;
+            --dark: #0f172a;
+            --card-bg: #ffffff;
+            --border: #e2e8f0;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --bg-body: #f8fafc;
+            --sidebar-bg: #ffffff;
+            --sidebar-hover: #f1f5f9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+            overflow-y: auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 40px;
+            color: var(--text-main);
+        }
+
+        .logo i {
+            color: var(--primary);
+            font-size: 1.8rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: var(--sidebar-hover);
+            color: var(--text-main);
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+        }
+
+        .user-profile {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background: #eff6ff;
+            color: var(--primary);
+            border: 1px solid #bfdbfe;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .user-info div {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .user-info span {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: block;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 32px 40px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .mode-badge {
+            display: inline-flex;
+            align-items: center;
+            min-height: 34px;
+            padding: 0 12px;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            white-space: nowrap;
+        }
+
+        .mode-badge.local {
+            border-color: #fed7aa;
+            background: #fff7ed;
+            color: #c2410c;
+        }
+
+        .page-title h1 {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .page-title p {
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .action-btn {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .action-btn:hover {
+            background: var(--sidebar-hover);
+        }
+
+        .logout-btn {
+            color: var(--danger);
+            border-color: #fca5a5;
+            background: #fef2f2;
+        }
+
+        .logout-btn:hover {
+            background: #fee2e2;
+        }
+
+        /* TABS & VIEWS */
+        .view-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* CARDS & GRID */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--primary);
+        }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin: 8px 0;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-main);
+        }
+
+        /* TABLES */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 16px;
+            color: var(--text-muted);
+            font-weight: 600;
+            border-bottom: 2px solid var(--border);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: #f8fafc;
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background-color: #f8fafc;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-success {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .status-warning {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .status-danger {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .status-neutral {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        /* FORMS */
+        .form-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        input {
+            flex: 1;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 10px 16px;
+            border-radius: 6px;
+            outline: none;
+            transition: 0.2s;
+            font-size: 0.95rem;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        input::placeholder {
+            color: #94a3b8;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            border: none;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        .gfm-badge {
+            background: #fef3c7;
+            border: 1px solid #fde68a;
+            color: #d97706;
+            font-size: 0.65rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-left: 8px;
+            vertical-align: middle;
+            font-weight: 600;
+        }
+    
+        /* Profile Dropdown */
+        .profile-dropdown-container {
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .profile-dropdown-container:hover {
+            background-color: rgba(0,0,0,0.03);
+            border-radius: 8px;
+        }
+        
+        .profile-dropdown-menu {
+            display: none;
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            margin-bottom: 10px;
+            background: #ffffff;
+            border: 1px solid var(--border-color, #e2e8f0);
+            border-radius: var(--radius-md, 8px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            min-width: 200px;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .profile-dropdown-menu.active {
+            display: block;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .profile-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--text-primary, #1e293b);
+            text-decoration: none;
+            transition: background 0.2s;
+            border-bottom: 1px solid var(--border-color, #f1f5f9);
+            font-size: 0.95rem;
+        }
+
+        .profile-dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .profile-dropdown-item:hover {
+            background: var(--bg-hover, #f8fafc);
+        }
+
+        .profile-dropdown-item i {
+            color: var(--brand, #3b82f6);
+            width: 16px;
+            text-align: center;
+        }
+        
+        .profile-dropdown-item.danger-item i {
+            color: var(--error, #dc2626);
+        }
+
+        /* Modal Base CSS (Teacher fix) */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-content {
+            background: #ffffff;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transform: translateY(20px);
+            animation: slideUp 0.3s ease-out forwards;
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color, #e2e8f0);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary, #1e293b);
+            margin:0;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-secondary, #64748b);
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: #e2e8f0;
+            color: var(--text-primary, #1e293b);
+        }
+        
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* CARD HOVER & SHADOWS */
+        .stat-card, .card {
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
+                        box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                        border-color 0.25s ease !important;
+        }
+        .stat-card:hover, .card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(37, 99, 235, 0.25) !important;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 
+                        0 10px 10px -5px rgba(0, 0, 0, 0.02) !important;
+        }
+
+        /* CRISP PASTEL BADGES */
+        .status-success {
+            background-color: #ecfdf5 !important;
+            color: #047857 !important;
+            border: 1px solid #a7f3d0 !important;
+        }
+        .status-warning {
+            background-color: #fffbeb !important;
+            color: #b45309 !important;
+            border: 1px solid #fde68a !important;
+        }
+        .status-danger {
+            background-color: #fef2f2 !important;
+            color: #b91c1c !important;
+            border: 1px solid #fecaca !important;
+        }
+
+        /* SOFT GLOW FOCUS */
+        input:focus, textarea:focus, select:focus {
+            outline: none !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15) !important;
+        }
+
+        /* SKELETON LOADERS */
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .skeleton {
+            background: linear-gradient(90deg, rgba(0,0,0,0.03) 25%, rgba(0,0,0,0.08) 50%, rgba(0,0,0,0.03) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite linear;
+            border-radius: 8px;
+            display: inline-block;
+        }
+        .skeleton-text {
+            height: 14px;
+            width: 80%;
+        }
+        .skeleton-title {
+            height: 24px;
+            width: 40%;
+        }
+
+        /* MODERN EMPTY STATES */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.3);
+            border: 1px dashed rgba(0, 0, 0, 0.08);
+            border-radius: 16px;
+            margin: 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .empty-state-icon {
+            font-size: 2.2rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+        .empty-state h3 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+        .empty-state p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            max-width: 280px;
+            margin: 0 auto;
+            line-height: 1.4;
+        }
+
+        /* ============================================================
+           PREMIUM UX ANIMATIONS & TRANSITIONS
+           ============================================================ */
+
+        /* Smooth fade-in slide-up animation */
+        @keyframes premiumFadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tab-content, .card, .stat-card, .metric-card, .data-table tbody tr {
+            animation: premiumFadeInUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Glassmorphism Header */
+        .header {
+            background: rgba(255, 255, 255, 0.8) !important;
+            backdrop-filter: blur(12px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
+        }
+
+        /* Interactive Card Elevate Hover */
+        .card, .stat-card, .metric-card {
+            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                        box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                        border-color 0.3s ease !important;
+        }
+
+        .card:hover, .stat-card:hover, .metric-card:hover {
+            transform: translateY(-4px) scale(1.005) !important;
+            box-shadow: 0 12px 24px -10px rgba(37, 99, 235, 0.12), 0 4px 12px -5px rgba(0, 0, 0, 0.05) !important;
+            border-color: rgba(37, 99, 235, 0.35) !important;
+        }
+
+        /* Micro-animations for button active/hover states */
+        .btn-primary, .btn-action, .btn-secondary, button {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+
+        .btn-primary:hover, .btn-action:hover, .btn-secondary:hover, button:hover:not(:disabled) {
+            transform: translateY(-1px) scale(1.02) !important;
+        }
+
+        .btn-primary:active, .btn-action:active, button:active:not(:disabled) {
+            transform: translateY(0) scale(0.98) !important;
+        }
+
+        /* Crisp Input Focus Rings */
+        input:focus, select:focus, textarea:focus {
+            outline: none !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15) !important;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        /* Table Hover Row Glow */
+        .data-table tbody tr {
+            transition: background-color 0.15s ease, transform 0.15s ease !important;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: var(--sidebar-hover) !important;
+        }
+
+</style>
+</head>
+
+<body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo">
+            <i class="fas fa-fingerprint"></i>
+            <span>Attendify</span>
+        </div>
+
+        <nav class="nav-menu">
+            <a class="nav-item active" onclick="switchTab('dashboard')">
+                <i class="fas fa-th-large"></i> Dashboard
+            </a>
+            <a class="nav-item" onclick="switchTab('my-classes')" id="my-classes-nav">
+                <i class="fas fa-chalkboard-teacher"></i> My Classes
+            </a>
+            <a class="nav-item" onclick="switchTab('reports')">
+                <i class="fas fa-file-download"></i> Reports
+            </a>
+            <!-- GFM ONLY NAV ITEMS -->
+            <div id="gfm-nav" style="display:none; flex-direction:column; gap:8px;">
+                <div
+                    style="margin: 16px 0 8px 12px; font-size: 0.75rem; color: var(--text-muted); font-weight: 700; letter-spacing: 0.05em;">
+                    GFM CONTROLS</div>
+                <a class="nav-item" onclick="switchTab('status')">
+                    <i class="fas fa-calendar-check"></i> Daily Status
+                </a>
+                <a class="nav-item" onclick="switchTab('timetable')">
+                    <i class="fas fa-edit"></i> Timetable
+                </a>
+                <a class="nav-item" onclick="switchTab('enrollment')">
+                    <i class="fas fa-user-plus"></i> Enrollment Queue
+                </a>
+                <a class="nav-item" onclick="switchTab('devices')">
+                    <i class="fas fa-microchip"></i> Device Status
+                </a>
+                <a class="nav-item" onclick="switchTab('global-stats')">
+                    <i class="fas fa-globe"></i> Global Analytics
+                </a>
+                <a class="nav-item" onclick="switchTab('student-directory')">
+                    <i class="fas fa-users-cog"></i> Student Directory
+                </a>
+                <a class="nav-item" onclick="switchTab('leaves')">
+                    <i class="fas fa-file-medical"></i> Leave Requests
+                </a>
+                <a class="nav-item" onclick="switchTab('wifi-settings')">
+                    <i class="fas fa-wifi"></i> Wi-Fi Settings
+                </a>
+            </div>
+        </nav>
+
+                <div class="user-profile profile-dropdown-container" onclick="toggleProfileDropdown(event)" style="display:flex; align-items:center; padding: 12px; border-top: 1px solid var(--border); margin-top: auto;">
+            <div class="avatar" id="userInitials" style="flex-shrink:0;">U</div>
+            <div class="user-info" style="flex-grow:1; overflow:hidden;">
+                <div id="userName" style="white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">Loading...</div>
+                <span id="userRole">Guest</span>
+            </div>
+            <i class="fas fa-chevron-up" style="color: var(--text-secondary); font-size: 0.8rem; margin-left:8px;"></i>
+            
+            <div class="profile-dropdown-menu" id="profileDropdown" style="width:100%;">
+                <a href="#" class="profile-dropdown-item" onclick="openChangePasswordModal(); return false;">
+                    <i class="fas fa-key"></i> Change Password
+                </a>
+                <a href="#" class="profile-dropdown-item danger-item" onclick="logout(); return false;">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <!-- HEADER -->
+        <header class="header">
+            <div class="page-title">
+                <h1 id="pageTitle">Overview</h1>
+                <p id="currentDate">Monday, 24 October 2024</p>
+            </div>
+            <div class="header-actions">
+                <span class="mode-badge" id="modeBadge">MODE</span>
+
+            </div>
+        </header>
+
+        <!-- DASHBOARD VIEW -->
+        <section id="dashboard-view" class="view-section active">
+            <!-- (Existing Dashboard Content...) -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label"><i class="fas fa-user-graduate"></i> Students Present</div>
+                    <div class="stat-value">--</div> <!-- Placeholder -->
+                    <div class="stat-label" style="font-size:0.8rem; color:var(--success);"> Today</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label"><i class="fas fa-chalkboard"></i> My Classes</div>
+                    <div class="stat-value" id="statsClassCount">0</div>
+                </div>
+                <!-- GFM Stats -->
+                <div class="stat-card gfm-only" style="display:none;">
+                    <div class="stat-label"><i class="fas fa-clock"></i> Queue</div>
+                    <div class="stat-value" id="statsQueueCount">0</div>
+                    <div class="stat-label">Pending Enrollments</div>
+                </div>
+                <div class="stat-card gfm-only" style="display:none;">
+                    <div class="stat-label"><i class="fas fa-server"></i> Devices</div>
+                    <div class="stat-value" id="statsDeviceCount">0</div>
+                    <div class="stat-label">Active Units</div>
+                </div>
+                <!-- Quick Action -->
+                <div class="stat-card" style="border-left-color:var(--secondary); cursor:pointer;"
+                    onclick="switchTab('reports')">
+                    <div class="stat-label"><i class="fas fa-file-excel"></i> Quick Report</div>
+                    <div class="stat-value" style="font-size:1.2rem; margin-top:15px;">Open Excel Hub</div>
+                    <div class="stat-label" style="font-size:0.8rem; color:var(--text-muted);">Download Matrix</div>
+                </div>
+            </div> <!-- End stats-grid -->
+
+            <div class="dashboard-grid">
+                <!-- Visual Analytics Chart (NEW) -->
+                <div class="card" style="grid-column: span 1;">
+                    <div class="card-header">
+                        <div class="card-title"><i class="fas fa-chart-line"></i> Attendance Trends</div>
+                    </div>
+                    <div style="height: 300px; width: 100%;">
+                        <canvas id="attendanceChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Sessions -->
+                <div class="card" style="grid-column: span 1;">
+                    <div class="card-header">
+                        <div class="card-title"><i class="fas fa-history"></i> Recent Sessions</div>
+                        <button class="action-btn" onclick="loadMySessions()"><i class="fas fa-sync-alt"></i></button>
+                    </div>
+                    <div class="table-container" style="max-height: 300px; overflow-y: auto;">
+                        <table id="sessionsTable">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Subject</th>
+                                    <th>Student</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="3" style="text-align:center;">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- DAILY STATUS VIEW (NEW) -->
+        <section id="status-view" class="view-section">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Daily Lecture Status</div>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <label>Select Date:</label>
+                        <input type="date" id="statusDate" style="background:rgba(255,255,255,0.1); color:white;">
+                    </div>
+                </div>
+                <div id="dailySummary" style="margin-bottom:20px; font-weight:bold; color:var(--text-muted);"></div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Subject</th>
+                                <th>Expected Teacher</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="statusTableBody">
+                            <tr>
+                                <td colspan="5">Select a date to view status</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TIMETABLE EDITOR VIEW (NEW) -->
+        <section id="timetable-view" class="view-section">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Weekly Timetable Editor</div>
+                    <button class="action-btn" onclick="saveTimetable()"
+                        style="background:var(--secondary); border:none;">💾 Save Changes</button>
+                </div>
+
+                <div class="day-selector" style="display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap;">
+                    <button class="action-btn day-btn active" onclick="loadEditorDay('Monday')">Mon</button>
+                    <button class="action-btn day-btn" onclick="loadEditorDay('Tuesday')">Tue</button>
+                    <button class="action-btn day-btn" onclick="loadEditorDay('Wednesday')">Wed</button>
+                    <button class="action-btn day-btn" onclick="loadEditorDay('Thursday')">Thu</button>
+                    <button class="action-btn day-btn" onclick="loadEditorDay('Friday')">Fri</button>
+                    <button class="action-btn day-btn" onclick="loadEditorDay('Saturday')">Sat</button>
+                </div>
+
+                <h3 id="editorDayTitle"
+                    style="margin-bottom:15px; border-bottom:1px solid var(--border); padding-bottom:5px;">Monday</h3>
+                <div id="editorRows">
+                    <!-- Dynamic Rows -->
+                </div>
+                <button onclick="addEditorRow()" class="action-btn"
+                    style="width:100%; margin-top:15px; justify-content:center;">+ Add Lecture Slot</button>
+            </div>
+        </section>
+
+        <!-- MY CLASSES VIEW -->
+        <section id="my-classes-view" class="view-section">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+                <h2 id="myClassesTitle">My Personal Classes</h2>
+                <div id="gfm-scope-toggle"
+                    style="display:none; background:var(--sidebar-bg); padding:4px; border-radius:10px; border:1px solid var(--border);">
+                    <button id="btnScopeMine" class="btn-primary" onclick="setGfmScope('mine')"
+                        style="padding:6px 15px; font-size:0.85rem;">My Classes</button>
+                    <button id="btnScopeAll" class="action-btn" onclick="setGfmScope('global')"
+                        style="border:none; padding:6px 15px; font-size:0.85rem;">Today's Schedule</button>
+                </div>
+            </div>
+            <div id="myClassesList" class="dashboard-grid">
+                <!-- Injected via JS -->
+            </div>
+        </section>
+
+        <!-- REPORTS VIEW (NEW) -->
+        <section id="reports-view" class="view-section">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-file-excel"></i> Daily Attendance Reports</div>
+                </div>
+
+                <div style="display:flex; gap:15px; align-items:flex-end; margin-bottom:20px; flex-wrap:wrap;">
+                    <div style="flex-grow:1;">
+                        <label style="display:block; color:var(--text-muted); margin-bottom:5px;">Select Date</label>
+                        <input type="date" id="reportDate" onchange="filterReports()"
+                            style="width:100%; background:rgba(255,255,255,0.05); color:white; border:1px solid var(--border); padding:10px; border-radius:8px;">
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn-primary" onclick="downloadReportCsv()"
+                            style="display:flex; align-items:center; gap:8px;">
+                            <i class="fas fa-download"></i> Flat List (CSV)
+                        </button>
+                        <button class="action-btn" onclick="downloadDailyMatrixCsv()"
+                            style="display:flex; align-items:center; gap:8px; border-color:var(--secondary); color:var(--secondary);">
+                            <i class="fas fa-table"></i> Daily Matrix (Excel)
+                        </button>
+                    </div>
+                    <button class="action-btn" onclick="loadReports()" title="Refresh Data">
+                        <i class="fas fa-sync"></i>
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table id="reportsTable">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Subject</th>
+                                <th>Student Name</th>
+                                <th>Roll No</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reportsTableBody">
+                            <tr>
+                                <td colspan="5" style="text-align:center;">Select a date to view report</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div id="reportSummary"
+                    style="margin-top:15px; color:var(--text-muted); font-size:0.9rem; text-align:right;"></div>
+            </div>
+        </section>
+
+        <!-- GFM: ENROLLMENT VIEW -->
+        <section id="enrollment-view" class="view-section">
+            <div class="dashboard-grid">
+                <!-- REGISTER QR CARD -->
+                <div class="card" style="text-align:center;">
+                    <div class="card-header">
+                        <div class="card-title"><i class="fas fa-qrcode"></i> Student Registration</div>
+                    </div>
+                    <p style="color:var(--text-muted); margin-bottom:12px; font-size:0.9rem;">
+                        Scan to open Registration Form
+                    </p>
+
+                    <!-- IP hidden, only used internally -->
+                    <input type="hidden" id="serverIpInput" value="">
+                    <span id="serverIpDisplay" style="display:none;"></span>
+
+                    <img id="registerQrParams" src="" alt="Registration QR"
+                        style="border-radius:12px; border: 4px solid white; max-width: 180px;">
+
+                    <div style="margin-top:15px;">
+                        <a id="registerLink" href="#" target="_blank"
+                            style="color:var(--primary); text-decoration:none; font-size:0.9rem;">Open Link</a>
+                    </div>
+                </div>
+
+                <!-- QUEUE MANAGEMENT CARD -->
+                <div class="card" style="grid-column: span 2;">
+                    <div class="card-header">
+                        <div class="card-title"><i class="fas fa-tasks"></i> Enrollment Queue</div>
+                        <span class="status-badge status-warning"><i class="fas fa-sync fa-spin"></i> Live Sync</span>
+                    </div>
+
+                    <div class="form-row">
+                        <input type="text" id="newStudentName" placeholder="Student Name (Manual)">
+                        <input type="text" id="newStudentRoll" placeholder="Roll Number (Manual)">
+                        <input type="email" id="newStudentEmail" placeholder="Email (Manual)">
+                        <button class="btn-primary" onclick="addToQueue()"><i class="fas fa-plus"></i> Add</button>
+                        <button class="action-btn logout-btn" onclick="clearQueue()"><i class="fas fa-trash"></i>
+                            Clear</button>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Roll</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="queueTable">
+                                <!-- JS Injected -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top:24px;">
+                <div class="card-title" style="margin-bottom:16px;">Verified Students (Fingerprint Enrolled)</div>
+                <div id="studentListQr" class="dashboard-grid"
+                    style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
+                    <!-- Minimal Cards -->
+                </div>
+            </div>
+        </section>
+
+        <!-- GFM: DEVICES VIEW -->
+        <section id="devices-view" class="view-section">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-network-wired"></i> Hardware Network Status</div>
+                    <button class="action-btn" onclick="loadDevices()"><i class="fas fa-sync"></i> Refresh</button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Device ID</th>
+                                <th>Version</th>
+                                <th>Admins</th>
+                                <th>Teachers</th>
+                                <th>Last Heartbeat</th>
+                            </tr>
+                        </thead>
+                        <tbody id="deviceTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- GFM: GLOBAL STATS VIEW -->
+        <section id="global-stats-view" class="view-section">
+            <!-- Analytics Stats Row -->
+            <div class="stats-grid" style="margin-bottom: 20px;">
+                <div class="stat-card">
+                    <div class="stat-label">Total Logs</div>
+                    <div class="stat-value" id="statsTotalLogs">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Unique Students</div>
+                    <div class="stat-value" id="statsUniqueStudents">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Sessions Conducted</div>
+                    <div class="stat-value" id="statsTotalSessions">0</div>
+                </div>
+            </div>
+
+            <!-- Advanced Analytics Grid -->
+            <div class="dashboard-grid"
+                style="margin-bottom: 24px; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
+                <!-- 1. Individual Performance Search -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><i class="fas fa-search"></i> Student Performance Search</div>
+                    </div>
+                    <div class="form-row">
+                        <input type="text" id="perfSearchRoll" placeholder="Enter Roll Number (e.g. 101)">
+                        <button class="btn-primary" onclick="searchStudentPerformance()">
+                            <i class="fas fa-microscope"></i> Analyze
+                        </button>
+                    </div>
+                    <div id="perfResults"
+                        style="margin-top: 15px; display: none; background: rgba(37, 99, 235, 0.05); padding: 15px; border-radius: 8px;">
+                        <h4 id="perfStudentName"
+                            style="color: var(--primary); margin-bottom: 10px; display: flex; justify-content: space-between;">
+                            <span>Student Results</span>
+                            <span id="perfOverall"
+                                style="font-size: 0.9rem; background: var(--primary); color: white; padding: 2px 8px; border-radius: 4px;">--%</span>
+                        </h4>
+                        <div class="table-container" style="max-height: 250px; overflow-y: auto;">
+                            <table style="font-size: 0.85rem;">
+                                <thead>
+                                    <tr>
+                                        <th>Subject</th>
+                                        <th>Total</th>
+                                        <th>Attended</th>
+                                        <th>%</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="perfTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Defaulter List Tool -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><i class="fas fa-user-slash"></i> Defaulter List Generator</div>
+                    </div>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">
+                        Generate a college-wide report for students below a specific attendance threshold.
+                    </p>
+                    <div class="form-row" style="align-items: center; gap: 15px;">
+                        <div style="flex-grow: 1;">
+                            <label
+                                style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 5px;">Min
+                                Threshold %</label>
+                            <input type="number" id="defaulterThreshold" value="75" min="0" max="100"
+                                style="width: 100%;">
+                        </div>
+                        <button class="btn-primary" onclick="downloadDefaulterList()"
+                            style="background: var(--danger); height: 45px; align-self: flex-end;">
+                            <i class="fas fa-file-csv"></i> Download Defaulters
+                        </button>
+                    </div>
+                    <div style="margin-top: 15px; font-size: 0.8rem; color: var(--text-muted); font-style: italic;">
+                        * Includes all uploaded attendance data platform-wide.
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header" style="flex-wrap: wrap; gap: 15px;">
+                    <div class="card-title">
+                        <i class="fas fa-chart-line"></i> Global Analytics
+                        <div class="view-toggle"
+                            style="display:inline-flex; margin-left:15px; background:rgba(255,255,255,0.05); padding:4px; border-radius:6px; font-size:0.75rem;">
+                            <button id="btnGrouped" class="active" onclick="setAnalyticsMode('grouped')"
+                                style="background:var(--secondary); border:none; color:white; padding:4px 10px; border-radius:4px; cursor:pointer;">Sessions</button>
+                            <button id="btnRaw" onclick="setAnalyticsMode('raw')"
+                                style="background:transparent; border:none; color:var(--text-muted); padding:4px 10px; border-radius:4px; cursor:pointer;">Raw
+                                Logs</button>
+                        </div>
+                    </div>
+
+                    <!-- Filters -->
+                    <div style="display:flex; gap:10px; align-items:center; flex-grow:1; min-width:300px;">
+                        <input type="text" id="globalSearch" placeholder="🔍 Search Subject, Student, or Teacher..."
+                            oninput="filterGlobalTable()"
+                            style="flex-grow:1; background:rgba(255,255,255,0.05); color:white; border:1px solid var(--border); padding:8px 12px; border-radius:6px;">
+
+                        <div style="display:flex; gap:5px; align-items:center;">
+                            <input type="date" id="globalDateStart" onchange="filterGlobalTable()"
+                                style="background:rgba(255,255,255,0.05); color:white; border:1px solid var(--border); padding:5px; border-radius:4px; font-size:0.8rem;">
+                            <span style="color:var(--text-muted)">to</span>
+                            <input type="date" id="globalDateEnd" onchange="filterGlobalTable()"
+                                style="background:rgba(255,255,255,0.05); color:white; border:1px solid var(--border); padding:5px; border-radius:4px; font-size:0.8rem;">
+                        </div>
+
+                        <button class="action-btn" onclick="loadGlobalAttendance()"><i class="fas fa-sync"></i></button>
+                    </div>
+                </div>
+
+                <!-- Session Detail View Container (Hidden by default) -->
+                <div id="sessionDetailView"
+                    style="display:none; background:rgba(255,255,255,0.03); border-bottom:1px solid var(--border); padding:15px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                        <h4 id="detailTitle" style="color:var(--secondary);">Session Attendance List</h4>
+                        <button onclick="closeSessionDetail()"
+                            style="background:transparent; border:none; color:var(--text-muted); cursor:pointer;"><i
+                                class="fas fa-times"></i> Close</button>
+                    </div>
+                    <div class="table-container" style="max-height:300px; overflow-y:auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Roll No</th>
+                                    <th>Student Name</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detailTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table id="globalSessionsTable">
+                        <thead id="globalTableHeader">
+                            <!-- Dynamic Header -->
+                            </tr>
+                        </thead>
+                        <tbody id="globalTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+        <tbody id="globalTable"></tbody>
+        </table>
+        </div>
+        </div>
+        </section>
+
+    
+        <!-- STUDENT DIRECTORY VIEW (NEW) -->
+        <section id="student-directory-view" class="view-section">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-users-cog"></i> Student Directory</div>
+                    <button class="action-btn" onclick="loadStudentDirectory()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                </div>
+                
+                <!-- Filters -->
+                <div style="display:flex; gap:15px; margin-bottom: 20px;">
+                    <input type="text" id="dirFilterRoll" placeholder="Search by Roll No..." style="flex:1;">
+                    <input type="text" id="dirFilterClass" placeholder="Search by Class..." style="flex:1;">
+                    <input type="text" id="dirFilterBatch" placeholder="Search by Batch..." style="flex:1;">
+                    <button class="btn-primary" onclick="loadStudentDirectory()">Search</button>
+                </div>
+
+                <div class="table-container" style="max-height: 500px; overflow-y: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Roll No</th>
+                                <th>Class</th>
+                                <th>Batch</th>
+                                <th>Electives</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentDirectoryBody">
+                            <tr><td colspan="5" style="text-align:center;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    
+        <!-- MY ROSTER VIEW (TEACHER) -->
+        <section id="roster-view" class="view-section">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-users"></i> My Subject Roster</div>
+                    <button class="action-btn" onclick="loadMyRoster()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                </div>
+                
+                <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:20px;">
+                    View students enrolled in your elective subjects or specific practical batches.
+                </p>
+
+                <!-- Filters -->
+                <div style="display:flex; gap:15px; margin-bottom: 20px;">
+                    <input type="text" id="rosterFilterSubject" placeholder="Enter Subject/Elective Name..." style="flex:1;">
+                    <input type="text" id="rosterFilterBatch" placeholder="Enter Practical Batch (e.g. B1)..." style="flex:1;">
+                    <button class="btn-primary" onclick="loadMyRoster()">Filter Roster</button>
+                </div>
+
+                <div class="table-container" style="max-height: 500px; overflow-y: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Roll No</th>
+                                <th>Class</th>
+                                <th>Batch</th>
+                                <th>Enrolled Electives</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rosterTableBody">
+                            <tr><td colspan="4" style="text-align:center;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- GFM: LEAVE APPLICATIONS MANAGEMENT -->
+        <section id="leaves-view" class="view-section">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-file-medical"></i> Absenteeism & Medical Leaves</div>
+                    <button class="action-btn" onclick="loadLeaveApplications()"><i class="fas fa-sync"></i> Refresh List</button>
+                </div>
+                
+                <div class="table-container" style="margin-top: 15px;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Student Details</th>
+                                <th>Reason</th>
+                                <th>Leave Period</th>
+                                <th>Certificate</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gfmLeavesTableBody">
+                            <tr>
+                                <td colspan="6" style="text-align:center; padding: 30px;">Loading applications...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Review Application Modal -->
+    <div id="reviewModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 10000; align-items: center; justify-content: center;">
+        <div class="card" style="width: 500px; max-width: 90%; background: var(--card-bg); border-radius: 12px; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); border: 1px solid var(--border);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 12px;">
+                <h3 style="font-size: 1.2rem; font-weight: 600; color: var(--text-main);">Review Leave Request</h3>
+                <button onclick="closeReviewModal()" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color: var(--text-muted);">&times;</button>
+            </div>
+            <div style="margin-bottom: 16px; font-size: 0.95rem; line-height: 1.5; color: var(--text-main);">
+                <p style="margin-bottom: 6px;"><strong>Student:</strong> <span id="reviewStudentName">--</span> (<span id="reviewStudentRoll">--</span>)</p>
+                <p style="margin-bottom: 6px;"><strong>Dates:</strong> <span id="reviewDates">--</span></p>
+                <p style="margin-bottom: 6px;"><strong>Reason:</strong> <span id="reviewReason">--</span></p>
+            </div>
+            <div style="margin-bottom: 16px;">
+                <label style="display:block; font-weight:600; margin-bottom:6px; font-size:0.9rem; color: var(--text-muted);">GFM Remarks / Comments</label>
+                <textarea id="reviewComments" style="width:100%; min-height:80px; padding:10px; border-radius:8px; border:1px solid var(--border); background:#ffffff; font-family:inherit; color: var(--text-main);" placeholder="Add remarks or justification..."></textarea>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:20px;">
+                <button onclick="closeReviewModal()" class="action-btn">Cancel</button>
+                <button onclick="submitReview('REJECTED')" class="action-btn logout-btn" style="background:#fef2f2; color:#dc2626; border-color:#fca5a5;"><i class="fas fa-times"></i> Reject</button>
+                <button onclick="submitReview('APPROVED')" class="btn-primary"><i class="fas fa-check"></i> Approve</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wi-Fi Settings Section -->
+    <section id="wifi-settings-view" class="view-section">
+        <div class="section-card" style="padding: 24px;">
+            <div class="card-title" style="margin-bottom: 20px;"><i class="fas fa-wifi"></i> Device Wi-Fi Settings</div>
+            <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 0.9rem;">Push your classroom iPad hotspot or Wi-Fi credentials to the Attendify device. The device will automatically connect when in range.</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; align-items: end; margin-bottom: 20px;">
+                <div>
+                    <label style="display:block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom:6px;">Network Name (SSID)</label>
+                    <input type="text" id="wifiSsidInput" placeholder="e.g. My_iPad_Hotspot" style="width:100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.9rem;">
+                </div>
+                <div>
+                    <label style="display:block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom:6px;">Password</label>
+                    <input type="password" id="wifiPasswordInput" placeholder="Network password" style="width:100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-secondary); color: var(--text-primary); font-size: 0.9rem;">
+                </div>
+                <button onclick="pushWifiConfig()" class="btn-primary" style="height:42px; white-space:nowrap;"><i class="fas fa-paper-plane"></i> Push to Device</button>
+            </div>
+            <div id="wifiPushStatus" style="display:none; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 0.85rem;"></div>
+            <div id="wifiProfilesList" style="margin-top: 16px;"></div>
+        </div>
+    </section>
+
+    <!-- FIREBASE & LOGIC -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+
+    <script>
+        // CONFIG
+        const firebaseConfig = {
+            apiKey: "AIzaSyA5xTUSjlz0AUc3P2evFIwMIe6vQfS0Nl8",
+            authDomain: "newattendify.firebaseapp.com",
+            projectId: "newattendify",
+            storageBucket: "newattendify.firebasestorage.app",
+            messagingSenderId: "1087026675865",
+            appId: "1:1087026675865:web:796f43bc5249626a697808"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        // Migration helper: if an existing ID token was issued by a different
+        // Firebase project (old instance), clear it and force re-authentication.
+        function decodeJwt(token) {
+            try {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+                return JSON.parse(jsonPayload);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        (async () => {
+            const stored = localStorage.getItem('attendify_token');
+            if (stored) {
+                const d = decodeJwt(stored);
+                if (d && d.aud && d.aud !== firebaseConfig.projectId) {
+                    console.log('[MIGRATE] Clearing token issued by', d.aud);
+                    try { await firebase.auth().signOut(); } catch (e) { }
+                    localStorage.removeItem('attendify_token');
+                    localStorage.removeItem('attendify_email');
+                    alert('Attendify upgraded — please sign in again to continue.');
+                    location.reload();
+                }
+            }
+        })();
+
+        // STATE
+        let currentUser = null;
+        let isGFM = false;
+        const PREFERRED_SUBJECT_ORDER = ['DM', 'ELEC-6'];
+
+        async function loadModeBadge() {
+            try {
+                const res = await fetch('/api/server-info');
+                const data = await res.json();
+                const badge = document.getElementById('modeBadge');
+                const mode = data.mode || {};
+                const isLocal = mode.storageMode === 'LOCAL' && mode.authMode === 'LOCAL';
+                badge.textContent = mode.modeLabel || (isLocal ? 'LOCAL DEV MODE' : 'CLOUD MODE');
+                badge.classList.toggle('local', isLocal);
+                badge.title = `Storage: ${mode.storageMode || 'UNKNOWN'} | Auth: ${mode.authMode || 'UNKNOWN'}`;
+            } catch (error) {
+                console.warn('Failed to load mode badge:', error);
+            }
+        }
+
+        // INIT
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set Date
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', options);
+
+            loadModeBadge();
+            checkAuth();
+        });
+
+        async function checkAuth() {
+            const token = localStorage.getItem('attendify_token');
+            if (!token) return window.location.href = '/login';
+
+            try {
+                const res = await fetch('/api/auth/me', { headers: { 'Authorization': `Bearer ${localStorage.getItem('attendify_token')}` } });
+                const data = await res.json();
+
+                if (!data.success) throw new Error('Auth failed');
+
+                currentUser = data.user;
+
+                // DETECT GFM (Use is_gfm flag - supports dual-role teacher+GFM)
+                isGFM = (currentUser.is_gfm === true);
+
+                // Setup UI based on role
+                setupUserUI();
+
+                // Load Initial Data
+                loadMyClasses();
+                loadMySessions();
+
+                if (isGFM) {
+                    // Start Pollers for GFM
+                    
+                    // Start Smart Adaptive Polling
+                    window.startTeacherSmartPolling(12000);
+
+                    loadQueue();
+                    loadDevices();
+                    loadQr(); // Generate QR
+
+                    // GFM New Features Init
+                    await loadTimetable();
+                    const today = new Date().toISOString().split('T')[0];
+                    const datePicker = document.getElementById('statusDate');
+                    if (datePicker) {
+                        datePicker.value = today;
+                        // Add change listener here or in HTML (HTML has it now?)
+                        // No, let's add it dynamically to be safe
+                        datePicker.addEventListener('change', loadDailyStatus);
+                        loadDailyStatus();
+                    }
+                    loadEditorDay('Monday');
+                }
+
+            } catch (error) {
+                console.error(error);
+                window.location.href = '/login';
+            }
+        }
+
+        // ... (Existing Functions) ...
+
+        // --- TIMETABLE & STATUS LOGIC (Merged from GFM Dashboard) ---
+        let currentTimetable = {};
+
+        async function loadTimetable() {
+            const token = localStorage.getItem('attendify_token'); // Use stored token
+            try {
+                // CACHE BUSTING: Add timestamp to prevent browser from caching old empty data
+                const res = await fetch('/api/gfm/timetable?t=' + Date.now(), { headers: { 'Authorization': `Bearer ${localStorage.getItem('attendify_token')}` } });
+                const data = await res.json();
+                if (data.success) {
+                    currentTimetable = data.timetable;
+                }
+            } catch (e) {
+                console.error("Failed to load timetable", e);
+            }
+        }
+
+        let editorCurrentDay = 'Monday';
+
+        function loadEditorDay(day) {
+            editorCurrentDay = day;
+            document.querySelectorAll('.day-btn').forEach(b => {
+                b.classList.toggle('active', b.textContent === day.substring(0, 3) || b.textContent === day);
+            });
+            document.getElementById('editorDayTitle').textContent = day;
+            renderEditorRows();
+        }
+
+        function calculateEndTime(startTime) {
+            if (!startTime) return '';
+            // Basic heuristic: Add 1 hour if it looks like HH:MM
+            // Since it is text input now, parsing is harder, but for pre-filled data (HH:MM) it works.
+            // If user types random text, we just return empty string or rely on them to type End.
+            if (startTime.includes(':')) {
+                const [h, m] = startTime.split(':').map(Number);
+                if (!isNaN(h)) {
+                    const date = new Date();
+                    date.setHours(h, m + 60);
+                    return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+                }
+            }
+            return '';
+        }
+
+        function renderEditorRows() {
+            const container = document.getElementById('editorRows');
+            const slots = currentTimetable[editorCurrentDay] || [];
+
+            if (slots.length === 0) {
+                container.innerHTML = '<div style="color:#aaa; text-align:center; padding:10px;">No lectures scheduled</div>';
+                return;
+            }
+
+            container.innerHTML = slots.map((slot, index) => {
+                const sTime = slot.startTime || slot.time || "";
+                const eTime = slot.endTime || calculateEndTime(sTime);
+
+                return `
+                <div style="display:flex; gap:10px; margin-bottom:10px; align-items:center; background:rgba(255,255,255,0.05); padding:10px; border-radius:4px;">
+                    <div style="display:flex; gap:5px; width:140px;">
+                        <input type="text" value="${sTime}" class="edit-time-start" placeholder="From (09:30)" style="width:50%; text-align:center;">
+                        <input type="text" value="${eTime}" class="edit-time-end" placeholder="To (10:30)" style="width:50%; text-align:center;">
+                    </div>
+                    <input type="text" value="${slot.subject}" class="edit-subject" placeholder="Subject">
+                    <input type="text" value="${slot.teacher}" class="edit-teacher" placeholder="Teacher">
+                    <button onclick="removeEditorRow(${index})" style="background:#ef4444; border:none; color:white; width:30px; height:30px; border-radius:4px; cursor:pointer;">&times;</button>
+                </div>
+            `}).join('');
+        }
+
+        window.addEditorRow = function () {
+            if (!currentTimetable[editorCurrentDay]) currentTimetable[editorCurrentDay] = [];
+            currentTimetable[editorCurrentDay].push({ startTime: "", endTime: "", time: "", subject: "", teacher: "" });
+            renderEditorRows();
+        };
+
+        window.removeEditorRow = function (index) {
+            currentTimetable[editorCurrentDay].splice(index, 1);
+            renderEditorRows();
+        };
+
+        async function refreshStats() {
+            const btn = document.querySelector('.btn-refresh');
+            if (btn) btn.classList.add('loading');
+
+            await Promise.all([
+                // Assuming loadStats() and loadReports() exist elsewhere or are placeholders
+                // loadStats(), 
+                loadMyClasses(), // Added this
+                // loadReports()    // Added this
+            ]);
+
+            if (btn) btn.classList.remove('loading');
+        }
+
+        window.saveTimetable = async function () {
+            const newSlots = [];
+            document.querySelectorAll('#editorRows > div').forEach(div => {
+                const inputs = div.querySelectorAll('input');
+                if (inputs.length >= 4) {
+                    const startVal = inputs[0].value;
+                    const endVal = inputs[1].value;
+                    newSlots.push({
+                        time: startVal,
+                        startTime: startVal,
+                        endTime: endVal,
+                        subject: inputs[2].value,
+                        teacher: inputs[3].value
+                    });
+                }
+            });
+            currentTimetable[editorCurrentDay] = newSlots;
+
+            const token = localStorage.getItem('attendify_token');
+            await fetch('/api/gfm/timetable', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ timetable: currentTimetable })
+            });
+
+            alert('Timetable Saved!');
+            if (document.getElementById('statusDate').value) {
+                loadDailyStatus();
+            }
+        };
+
+        async function loadDailyStatus() {
+            const dateStr = document.getElementById('statusDate').value;
+            if (!dateStr) return;
+
+            const dateObj = new Date(dateStr);
+            const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+
+            const scheduled = currentTimetable[dayName] || [];
+            document.getElementById('dailySummary').textContent = `${dayName} - ${scheduled.length} Lectures Scheduled`;
+
+            // 2. Get Actuals (Fetch All Attendance)
+            const token = localStorage.getItem('attendify_token');
+            // Using existing session API with global scope
+            const res = await fetch('/api/teacher/sessions?scope=global', { headers: { 'Authorization': `Bearer ${token}` } });
+            const data = await res.json();
+            const allLogs = data.sessions || [];
+
+            // Filter logs for this specific date
+            const daysLogs = allLogs.filter(log => {
+                return log.timestamp.startsWith(dateStr);
+            });
+
+            // 3. Match & Render
+            const tbody = document.getElementById('statusTableBody');
+
+            if (scheduled.length === 0) {
+                tbody.innerHTML = '<tr class="empty-row"><td colspan="5">No lectures scheduled for this day.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = scheduled.map(slot => {
+                // Fuzzy match
+                const matches = daysLogs.filter(log =>
+                    (log.subject && slot.subject && log.subject.toLowerCase().includes(slot.subject.toLowerCase())) &&
+                    (log.teacher && slot.teacher && (log.teacher.toLowerCase().includes(slot.teacher.toLowerCase()) || slot.teacher.toLowerCase().includes(log.teacher.toLowerCase())))
+                );
+
+                const isConducted = matches.length > 0;
+                const statusHtml = isConducted
+                    ? '<span class="status-badge status-success">✅ Conducted</span>'
+                    : '<span class="status-badge status-danger">❌ Pending</span>';
+
+                const recordsJson = JSON.stringify(matches).replace(/"/g, '&quot;');
+                const filename = `${slot.subject}_${dateStr}`;
+
+                const btnHtml = isConducted
+                    ? `<button onclick="downloadSessionCsv(${recordsJson}, '${filename}')" class="action-btn" style="padding:4px 8px; font-size:0.8rem;">📥 Excel</button>`
+                    : '-';
+
+                const sTime = slot.startTime || slot.time || "";
+                const eTime = slot.endTime || "";
+                const timeDisplay = eTime ? `${sTime} - ${eTime}` : sTime;
+
+                return `
+                    <tr>
+                        <td>${timeDisplay}</td>
+                        <td>${slot.subject}</td>
+                        <td>${slot.teacher}</td>
+                        <td>${statusHtml}</td>
+                        <td>${btnHtml}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        window.downloadSessionCsv = async function (records, filename) {
+            if (!records || records.length === 0) {
+                alert('No records to download.');
+                return;
+            }
+
+            await ensureStudentDirectory();
+            const nameMap = getStudentNameMap();
+
+            const headers = ["Date", "Time", "Roll No", "Student Name", "Subject", "Teacher", "Session ID"];
+            
+            // Sort numerically by Roll Number before export
+            const sortedRecords = [...records].sort((a, b) => parseInt(a.roll) - parseInt(b.roll));
+
+            const rows = sortedRecords.map(r => {
+                const dateObj = new Date(r.timestamp);
+                const date = dateObj.toISOString().split('T')[0];
+                const time = dateObj.toLocaleTimeString();
+
+                const resolvedName = resolveStudentName(r, nameMap);
+
+                return [
+                    csvEscape(date),
+                    csvEscape(time),
+                    csvEscape(r.roll),
+                    csvEscape(resolvedName),
+                    csvEscape(r.subject || ''),
+                    csvEscape(r.teacher || ''),
+                    csvEscape(r.sessionId || '')
+                ];
+            });
+
+            const csvContent = [
+                headers.join(","),
+                ...rows.map(row => row.join(","))
+            ].join("\n");
+
+            triggerCsvDownload(filename + ".csv", csvContent);
+        };
+
+        // Helper function for downloadReport
+        window.downloadReport = function (sessionId) {
+            const session = window.sessionDataMap[sessionId];
+            if (session && session.students) {
+                const filename = `${session.subject}_${session.date}`;
+                downloadSessionCsv(session.students, filename);
+            } else {
+                alert('Session data not found for download.');
+            }
+        };
+
+        async function loadQr() {
+            // Auto-detect server URL from backend
+            try {
+                const res = await fetch('/api/server-info');
+                const data = await res.json();
+                if (data.success && data.url) {
+                    window._serverBaseUrl = data.url.replace(/\/$/, '');
+                    const displayHost = data.ip || new URL(data.url).hostname;
+                    document.getElementById('serverIpInput').value = displayHost;
+                    document.getElementById('serverIpDisplay').textContent = displayHost;
+                } else if (data.success && data.ip) {
+                    document.getElementById('serverIpInput').value = data.ip;
+                    document.getElementById('serverIpDisplay').textContent = data.ip;
+                }
+            } catch (e) {
+                console.log('Could not auto-detect, using current origin');
+                const fallback = window.location.hostname;
+                document.getElementById('serverIpInput').value = fallback;
+                document.getElementById('serverIpDisplay').textContent = fallback;
+            }
+            updateQr();
+        }
+
+        function updateQr() {
+            let regUrl;
+            if (window._serverBaseUrl) {
+                // Use the authoritative server URL (handles cloud deployment correctly)
+                regUrl = `${window._serverBaseUrl}/student-register.html`;
+            } else {
+                // Fallback: build from current page origin
+                regUrl = `${window.location.origin}/student-register.html`;
+            }
+
+            document.getElementById('registerLink').href = regUrl;
+            document.getElementById('registerLink').textContent = regUrl;
+
+            // Public API
+            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(regUrl)}&color=000000&bgcolor=ffffff`;
+            document.getElementById('registerQrParams').src = qrApiUrl;
+        }
+
+        function setupUserUI() {
+            document.getElementById('userName').textContent = currentUser.displayName;
+            document.getElementById('userInitials').textContent = currentUser.displayName.charAt(0).toUpperCase();
+
+            const roleEl = document.getElementById('userRole');
+            roleEl.textContent = currentUser.role;
+
+            if (isGFM) {
+                roleEl.innerHTML += ' <span class="gfm-badge">GFM ACCESS</span>';
+                document.getElementById('gfm-nav').style.display = 'flex';
+                document.getElementById('gfm-scope-toggle').style.display = 'flex';
+                document.querySelectorAll('.gfm-only').forEach(el => el.style.display = 'block');
+
+                // GFM Auto-Refresh
+                loadQr();
+                loadQueue();
+                
+                // Replaced with smart polling above
+                // setInterval(loadQueue, 3000);
+
+            } else {
+                // Explicitly hide GFM elements for non-GFM users
+                document.getElementById('gfm-nav').style.display = 'none';
+                document.querySelectorAll('.gfm-only').forEach(el => el.style.display = 'none');
+            }
+        }
+
+        // NAVIGATION
+        window.switchTab = function (tabName) {
+            // Update Title
+            const titles = {
+                'dashboard': 'Overview',
+                'my-classes': isGFM ? 'Daily Schedule' : 'My Classes',
+                'enrollment': 'Enrollment Queue',
+                'devices': 'Device Status',
+                'global-stats': 'Global Analytics'
+            };
+            document.getElementById('pageTitle').textContent = titles[tabName] || 'Dashboard';
+
+            // Active Nav State
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            // Simple match for demo (in react we'd compare IDs)
+            event.target.closest('.nav-item').classList.add('active');
+
+            // View Switching
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            const target = document.getElementById(tabName + '-view');
+            if (target) target.classList.add('active');
+
+            // Lazy Load Data
+            if (tabName === 'global-stats') loadGlobalAttendance();
+            if (tabName === 'devices') loadDevices();
+        };
+
+        // DATA LOADER FUNCTIONS
+        
+        // ============================================================================
+        // STUDENT DIRECTORY (GFM ONLY)
+        // ============================================================================
+        async function loadStudentDirectory() {
+            try {
+                const res = await fetch('/api/students', {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await res.json();
+                if (!data.success) throw new Error(data.message);
+
+                const filterRoll = document.getElementById('dirFilterRoll').value.toLowerCase();
+                const filterClass = document.getElementById('dirFilterClass').value.toLowerCase();
+                const filterBatch = document.getElementById('dirFilterBatch').value.toLowerCase();
+
+                const tbody = document.getElementById('studentDirectoryBody');
+                tbody.innerHTML = '';
+
+                let filtered = data.students;
+                if (filterRoll) filtered = filtered.filter(s => String(s.roll).toLowerCase().includes(filterRoll));
+                if (filterClass) filtered = filtered.filter(s => (s.studentClass || '').toLowerCase().includes(filterClass));
+                if (filterBatch) filtered = filtered.filter(s => (s.practicalBatch || '').toLowerCase().includes(filterBatch));
+
+                if (filtered.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No students found matching filters</td></tr>';
+                    return;
+                }
+
+                filtered.forEach(student => {
+                    const tr = document.createElement('tr');
+                    const roll = student.roll || '';
+                    const sClass = student.studentClass || '';
+                    const batch = student.practicalBatch || '';
+                    const electives = (student.enrolledSubjects || []).join(', ');
+
+                    tr.innerHTML = `
+                        <td><strong>${roll}</strong></td>
+                        <td><input type="text" id="edit-class-${roll}" value="${sClass}" style="width:100px; padding:4px;"></td>
+                        <td><input type="text" id="edit-batch-${roll}" value="${batch}" style="width:80px; padding:4px;"></td>
+                        <td><input type="text" id="edit-electives-${roll}" value="${electives}" style="width:150px; padding:4px;" placeholder="Comma separated"></td>
+                        <td>
+                            <button class="action-btn" onclick="saveStudentAcademics('${roll}')" style="background:#dcfce7; color:#16a34a; border-color:#bbf7d0; padding:6px 12px; font-size:0.8rem;">
+                                <i class="fas fa-save"></i> Save
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (err) {
+                console.error(err);
+                alert('Failed to load student directory: ' + err.message);
+            }
+        }
+
+        async function saveStudentAcademics(roll) {
+            try {
+                const sClass = document.getElementById(`edit-class-${roll}`).value.trim();
+                const batch = document.getElementById(`edit-batch-${roll}`).value.trim();
+                const electivesStr = document.getElementById(`edit-electives-${roll}`).value.trim();
+                const enrolledSubjects = electivesStr ? electivesStr.split(',').map(s => s.trim()).filter(s => s) : [];
+
+                const res = await fetch(`/api/students/${roll}/academic-details`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        studentClass: sClass,
+                        practicalBatch: batch,
+                        enrolledSubjects: enrolledSubjects
+                    })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    alert('Saved successfully!');
+                    loadStudentDirectory(); // Refresh row
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Failed to save student details');
+            }
+        }
+
+        
+        // ============================================================================
+        // MY ROSTER (TEACHER)
+        // ============================================================================
+        async function loadMyRoster() {
+            try {
+                const res = await fetch('/api/students', {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await res.json();
+                if (!data.success) throw new Error(data.message);
+
+                const filterSubject = document.getElementById('rosterFilterSubject').value.toLowerCase().trim();
+                const filterBatch = document.getElementById('rosterFilterBatch').value.toLowerCase().trim();
+
+                const tbody = document.getElementById('rosterTableBody');
+                tbody.innerHTML = '';
+
+                let filtered = data.students;
+                
+                // If a teacher wants to see an elective roster:
+                if (filterSubject) {
+                    filtered = filtered.filter(s => {
+                        const electives = (s.enrolledSubjects || []).map(e => e.toLowerCase());
+                        return electives.some(e => e.includes(filterSubject));
+                    });
+                }
+                
+                // If a teacher wants to see a practical batch:
+                if (filterBatch) {
+                    filtered = filtered.filter(s => {
+                        const batch = (s.practicalBatch || '').toLowerCase();
+                        return batch.includes(filterBatch);
+                    });
+                }
+
+                if (filtered.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No students match this criteria.</td></tr>';
+                    return;
+                }
+
+                filtered.forEach(student => {
+                    const tr = document.createElement('tr');
+                    const roll = student.roll || '';
+                    const sClass = student.studentClass || '-';
+                    const batch = student.practicalBatch || '-';
+                    const electives = (student.enrolledSubjects || []).join(', ') || '-';
+
+                    tr.innerHTML = `
+                        <td><strong>${roll}</strong></td>
+                        <td>${sClass}</td>
+                        <td><span class="status-badge status-neutral">${batch}</span></td>
+                        <td><span style="font-size:0.85rem; color:var(--text-muted);">${electives}</span></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (err) {
+                console.error(err);
+                alert('Failed to load roster: ' + err.message);
+            }
+        }
+        async function loadMyClasses() {
+            try {
+                const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+                const token = localStorage.getItem('attendify_token');
+                const resTime = await fetch('/api/gfm/timetable?t=' + Date.now(), { headers: { 'Authorization': `Bearer ${token}` } });
+                const dataTime = await resTime.json();
+
+                const resSess = await fetch('/api/teacher/sessions?scope=mine', { headers: { 'Authorization': `Bearer ${token}` } });
+                const dataSess = await resSess.json();
+                const flatRecords = dataSess.sessions || [];
+
+                const groupedSessions = {};
+                flatRecords.forEach(rec => {
+                    const sid = rec.sessionId || 'UNKNOWN';
+                    if (!groupedSessions[sid]) {
+                        groupedSessions[sid] = {
+                            sessionId: sid,
+                            timestamp: rec.timestamp,
+                            date: rec.timestamp.split('T')[0],
+                            subject: rec.subject,
+                            teacher: rec.teacher,
+                            students: []
+                        };
+                    }
+                    groupedSessions[sid].students.push(rec);
+                });
+
+                window.sessionDataMap = { ...(window.sessionDataMap || {}), ...groupedSessions };
+
+                const mySessionsList = Object.values(groupedSessions);
+
+                const myName = document.getElementById('userName').textContent.trim();
+                const daySlots = (dataTime.timetable || {})[today] || [];
+                const gfmScope = window.gfmScheduleScope || (isGFM ? 'global' : 'mine');
+
+                let displaySlots = [];
+                if (isGFM && gfmScope === 'global') {
+                    displaySlots = daySlots;
+                    document.getElementById('myClassesTitle').textContent = "Today's College Schedule";
+                    document.getElementById('btnScopeAll').className = 'btn-primary';
+                    document.getElementById('btnScopeMine').className = 'action-btn';
+                    document.getElementById('btnScopeMine').style.border = 'none';
+                } else {
+                    displaySlots = daySlots.filter(s => {
+                        if (!s.teacher) return false;
+                        const t1 = s.teacher.toLowerCase().replace(/[._\s]+/g, '');
+                        const t0 = myName.toLowerCase().replace(/[._\s]+/g, '');
+                        return t1.includes(t0) || t0.includes(t1);
+                    });
+                    document.getElementById('myClassesTitle').textContent = "My Personal Classes";
+                    if (isGFM) {
+                        document.getElementById('btnScopeMine').className = 'btn-primary';
+                        document.getElementById('btnScopeAll').className = 'action-btn';
+                        document.getElementById('btnScopeAll').style.border = 'none';
+                    }
+                }
+
+                const container = document.getElementById('myClassesList');
+                if (displaySlots.length === 0) {
+                    const message = (isGFM && gfmScope === 'global')
+                        ? `No classes scheduled for ${today}`
+                        : `No classes scheduled for you today (${today})`;
+                    container.innerHTML = `<div class="empty-state"><p>${message}</p></div>`;
+                    return;
+                }
+
+                container.innerHTML = displaySlots.map(slot => {
+                    const todayDate = new Date().toISOString().split('T')[0];
+
+                    const conductedSession = mySessionsList.find(s => {
+                        const sSub = (s.subject || '').toLowerCase();
+                        const slotSub = (slot.subject || '').toLowerCase();
+                        return s.date === todayDate && (sSub.includes(slotSub) || slotSub.includes(sSub));
+                    });
+
+                    const statusHtml = conductedSession
+                        ? `<span class="status-badge success">✅ Conducted</span>`
+                        : `<span class="status-badge pending">🕒 Scheduled</span>`;
+
+                    const teacherHtml = (isGFM && slot.teacher)
+                        ? `<div style="font-size:0.8rem; color:var(--primary); margin-top:4px;"><i class="fas fa-user-tie"></i> ${slot.teacher}</div>`
+                        : '';
+
+                    const actionHtml = conductedSession
+                        ? `<div style="display:flex; gap:5px; align-items:center;">
+                             <span style="font-size:0.8rem; color:var(--text-muted);">${conductedSession.students.length} Students</span>
+                             <button onclick="downloadReport('${conductedSession.sessionId}')" class="btn-secondary" style="padding:4px 8px; font-size:0.8rem;">📥 CSV</button>
+                           </div>`
+                        : `<span class="text-muted" style="font-size:0.8rem;">${isGFM ? 'Not Started' : 'Upload via Device'}</span>`;
+
+                    const timeDisplay = slot.endTime ? `${slot.startTime || slot.time} - ${slot.endTime}` : (slot.startTime || slot.time || '');
+
+                    return `
+                    <div class="session-card" style="border-left: 4px solid ${conductedSession ? 'var(--success)' : 'var(--accent-primary)'};">
+                        <div class="session-header">
+                            <div style="flex-grow:1;">
+                                <div class="session-subject">${slot.subject}</div>
+                                <div class="session-time">${timeDisplay}</div>
+                                ${teacherHtml}
+                            </div>
+                            <div style="text-align:right;">
+                                ${statusHtml}
+                                <div style="margin-top:5px;">${actionHtml}</div>
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('');
+            } catch (e) {
+                console.error('loadMyClasses error:', e);
+                document.getElementById('myClassesList').innerHTML = '<p class="text-error">Error loading classes</p>';
+            }
+        }
+
+        window.setGfmScope = function (scope) {
+            window.gfmScheduleScope = scope;
+            loadMyClasses();
+        };
+
+            let attendanceChartInstance = null;
+            function renderAttendanceChart(sessions) {
+                const ctx = document.getElementById('attendanceChart');
+                if (!ctx) return;
+
+                // Aggregate sessions by date
+                const dateCounts = {};
+                sessions.forEach(s => {
+                    const date = new Date(s.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric'});
+                    dateCounts[date] = (dateCounts[date] || 0) + 1;
+               });
+
+                // Sort dates chronologically - limit to 7 days
+                const labels = Object.keys(dateCounts).sort((a, b) => new Date(a) - new Date(b)).slice(-7);
+                const data = labels.map(l => dateCounts[l]);
+
+                if (attendanceChartInstance) {
+                    attendanceChartInstance.destroy();
+               }
+
+                attendanceChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels.length ? labels : ['No Data'],
+                        datasets: [{
+                            label: 'Students Present',
+                            data: data.length ? data : [0],
+                            backgroundColor: '#3b82f6',
+                            borderRadius: 6
+                       }]
+                   },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: { beginAtZero: true, ticks: { precision: 0}}
+                       },
+                        plugins: {
+                            legend: { display: false}
+                       }
+                   }
+               });
+           }
+
+            
+            async function loadMySessions() {
+                const token = localStorage.getItem('attendify_token');
+                const res = await fetch('/api/teacher/sessions?scope=mine', { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await res.json();
+                const sessions = data.sessions || [];
+
+                const tbody = document.querySelector('#sessionsTable tbody');
+                if(tbody) {
+                    tbody.innerHTML = sessions.slice(0, 10).map(s => `
+                        <tr>
+                            <td><div style="font-weight:600;">${new Date(s.timestamp).toLocaleTimeString()}</div><div style="font-size:0.75rem; color:var(--text-muted);">${new Date(s.timestamp).toLocaleDateString()}</div></td>
+                            <td>${s.subject}</td>
+                            <td><div style="font-size:0.75rem; color:var(--text-muted);">#${s.roll}</div></td>
+                        </tr>
+                    `).join('') || '<tr><td colspan="3" style="text-align:center;">No recent sessions</td></tr>';
+                }
+
+                renderAttendanceChart(sessions);
+
+                // Also update "Students Present Today" stat
+                const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric'});
+                const dateCounts = {};
+                sessions.forEach(s => {
+                    const date = new Date(s.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric'});
+                    dateCounts[date] = (dateCounts[date] || 0) + 1;
+                });
+                const presentToday = dateCounts[today] || 0;
+                const statBox = document.querySelector('.stat-card .stat-value');
+                if (statBox && presentToday !== undefined) {
+                    statBox.textContent = presentToday;
+                }
+            }
+
+            window.currentTeacherPollRate = 12000;
+            window.startTeacherSmartPolling = function(rate) {
+                if (window.queueInterval) clearInterval(window.queueInterval);
+                window.currentTeacherPollRate = rate;
+                window.queueInterval = setInterval(() => {
+                    if (document.visibilityState === 'visible') {
+                        loadQueue();
+                    }
+                }, rate);
+            };
+
+            // GFM FUNCTIONS
+            async function loadQueue() {
+                if (!isGFM) return;
+                const token = localStorage.getItem('attendify_token');
+                const res = await fetch('/api/dashboard-data', { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await res.json();
+
+                // Adaptive Polling rate adjust based on queue status
+                const hasActive = data.queue?.some(q => q.status === 'AUTHORIZED' || q.status === 'IN_PROGRESS');
+                const desiredRate = hasActive ? 1500 : 12000;
+                if (desiredRate !== window.currentTeacherPollRate) {
+                    window.startTeacherSmartPolling(desiredRate);
+                }
+
+                document.getElementById('statsQueueCount').textContent = data.queue?.length || 0;
+
+                const tbody = document.getElementById('queueTable');
+                if(tbody) {
+                    tbody.innerHTML = data.queue?.map(q => `
+                        <tr>
+                            <td>${q.name}</td>
+                            <td>#${q.roll}</td>
+                            <td><span class="status-badge ${q.status === 'AUTHORIZED' ? 'status-success' : q.status === 'ENROLLED' ? 'status-info' : 'status-warning'}">${q.status}</span></td>
+                            <td>
+                                ${(q.status === 'WAITING' || q.status === 'PENDING' || q.status === 'FAILED' || q.status === 'CANCELLED') ? `
+                                    <button class="action-btn" style="padding:6px 12px; font-size:0.8rem; background:var(--secondary); color:white; border:none;" onclick="authorize('${q.roll}')">
+                                        <i class="fas fa-check"></i> Authorize
+                                    </button>
+                                ` : (q.status === 'ENROLLED' && !q.accountCreated) ? `
+                                    <button class="action-btn" style="padding:6px 12px; font-size:0.8rem; background:var(--primary); color:white; border:none;" onclick="createStudentFromQueue('${q.id || q.roll}')">
+                                        <i class="fas fa-user-plus"></i> Create Account
+                                    </button>
+                                ` : ''}
+                            </td>
+                        </tr>
+                    `).join('') || '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">Queue Empty</td></tr>';
+                }
+
+                // Populate enrolled students list
+                const studentList = document.getElementById('studentListQr');
+                if(studentList) {
+                    const enrolledStudents = data.students || [];
+                    window.allEnrolledStudents = enrolledStudents; // Store globally for name resolution
+                    enrolledStudents.sort((a, b) => parseInt(a.roll) - parseInt(b.roll));
+
+                    studentList.innerHTML = enrolledStudents.map(s => `
+                        <div class="card" style="padding:12px; background:rgba(255,255,255,0.03); position:relative; overflow:visible;">
+                            ${isGFM ? `
+                                <button onclick="deleteStudent('${s.roll}', '${s.name.replace(/'/g, "\\'")}')" 
+                                        style="position:absolute; top:-10px; right:-10px; background:var(--danger); border:none; color:white; width:24px; height:24px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 8px rgba(0,0,0,0.4); z-index:10;">
+                                    <i class="fas fa-times" style="font-size:0.7rem;"></i>
+                                </button>
+                            ` : ''}
+                            <div style="font-weight:600; color:white;">${s.name}</div>
+                            <div style="font-size:0.85rem; color:var(--text-muted);">Roll: #${s.roll}</div>
+                            <div style="font-size:0.8rem; color:var(--secondary); margin-top:4px;">
+                                <i class="fas fa-fingerprint"></i> ID: ${s.fingerprintId || 'N/A'}
+                            </div>
+                        </div>
+                    `).join('') || '<div style="color:var(--text-muted); text-align:center; padding:20px;">No enrolled students yet</div>';
+                }
+            }
+
+            window.deleteStudent = async function (roll, name) {
+                if (!confirm(`Are you sure you want to delete ${name} (Roll: #${roll})?\nThis will allow them to register again, but removes their record from this list.`)) return;
+
+                try {
+                    const token = localStorage.getItem('attendify_token');
+                    const res = await fetch(`/api/students/${roll}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        loadQueue();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                } catch (e) {
+                    console.error(e);
+                    alert('Connection error');
+                }
+            };
+
+            window.addToQueue = async function() {
+                const name = document.getElementById('newStudentName').value;
+                const roll = document.getElementById('newStudentRoll').value;
+                const email = document.getElementById('newStudentEmail').value;
+                if (!name || !roll) return;
+
+                await fetch('/api/register-queue', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, roll, email })
+                });
+                document.getElementById('newStudentName').value = '';
+                document.getElementById('newStudentRoll').value = '';
+                document.getElementById('newStudentEmail').value = '';
+                loadQueue();
+            };
+
+            window.authorize = async function(roll) {
+                console.log('[GFM] Authorizing roll:', roll);
+                try {
+                    const token = localStorage.getItem('attendify_token');
+                    const res = await fetch(`/api/gfm/enrollment-queue/${roll}/authorize`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+                    });
+                    const data = await res.json();
+                    console.log('[GFM] Authorize response:', data);
+
+                    if (data.success) {
+                        alert('✅ ' + (data.message || 'Student authorized!'));
+                    } else {
+                        alert('❌ ' + (data.message || 'Failed to authorize'));
+                    }
+                    loadQueue();
+                } catch (error) {
+                    console.error('[GFM] Authorize error:', error);
+                    alert('❌ Network error - check console');
+                }
+            };
+            window.createStudentFromQueue = async function(id) {
+                const password = prompt('Enter a custom password for the student account (or leave blank to auto-generate a secure password):');
+                if (password === null) return; // Cancelled
+                try {
+                    const token = localStorage.getItem('attendify_token');
+                    const res = await fetch(`/api/gfm/enrollment-queue/${id}/create-account`, {
+                        method: 'POST',
+                        headers: { 
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ password })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        const displayPassword = data.localPassword || 'Auto-generated';
+                        alert(`✅ Student Account Created Successfully!\n\nEmail: ${data.studentEmail || id}\nPassword: ${displayPassword}\n\nA welcome email containing these credentials has been sent to the student.`);
+                        loadQueue();
+                    } else {
+                        alert('❌ Error: ' + data.message);
+                    }
+                } catch (err) {
+                    alert('❌ Connection error');
+                }
+            };
+
+            async function clearQueue() {
+                const token = localStorage.getItem('attendify_token');
+                await fetch('/api/clear-queue', { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+                loadQueue();
+            }
+
+        async function loadDevices() {
+            const token = localStorage.getItem('attendify_token');
+            const res = await fetch('/api/devices/overview', { headers: { 'Authorization': `Bearer ${token}` } });
+            const data = await res.json();
+
+            document.getElementById('statsDeviceCount').textContent = data.devices?.length || 0;
+
+            const tbody = document.getElementById('deviceTable');
+            tbody.innerHTML = data.devices?.map(d => `
+                <tr>
+                    <td><code>${d.deviceId}</code></td>
+                    <td>v${d.version}</td>
+                    <td>${d.adminCount}</td>
+                    <td>${d.teacherCount}</td>
+                    <td>${d.lastUpdated?.substring(0, 10) || 'Never'}</td>
+                </tr>
+             `).join('') || '<tr><td colspan="5">No devices found</td></tr>';
+        }
+
+        function compareRolls(a, b) {
+            const aNum = parseInt(a, 10);
+            const bNum = parseInt(b, 10);
+            if (!Number.isNaN(aNum) && !Number.isNaN(bNum)) {
+                return aNum - bNum;
+            }
+            return String(a).localeCompare(String(b));
+        }
+
+        function getStudentNameMap() {
+            const nameMap = {};
+            (window.allEnrolledStudents || []).forEach(student => {
+                const roll = String(student.roll || '').trim();
+                const fingerprintId = String(student.fingerprintId || '').trim();
+                if (roll) nameMap[roll] = student.name || roll;
+                if (fingerprintId && !nameMap[fingerprintId]) nameMap[fingerprintId] = student.name || fingerprintId;
+            });
+            return nameMap;
+        }
+
+        function resolveStudentName(record, nameMap = getStudentNameMap()) {
+            if (record.name && !String(record.name).includes('Unknown')) {
+                return record.name;
+            }
+            const roll = String(record.roll || '').trim();
+            const fingerprintId = String(record.fingerprintId || '').trim();
+            return nameMap[roll] || nameMap[fingerprintId] || record.name || 'Unknown';
+        }
+
+        async function ensureStudentDirectory() {
+            if (window.allEnrolledStudents && window.allEnrolledStudents.length) {
+                return window.allEnrolledStudents;
+            }
+
+            const token = localStorage.getItem('attendify_token');
+            const res = await fetch('/api/dashboard-data', { headers: { 'Authorization': `Bearer ${token}` } });
+            const data = await res.json();
+            window.allEnrolledStudents = data.students || [];
+            return window.allEnrolledStudents;
+        }
+
+        function getLocalFormattedDate(timestamp) {
+            if (!timestamp) return '';
+            const date = new Date(timestamp);
+            if (isNaN(date.getTime())) return '';
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function getSessionKey(record) {
+            if (record.sessionId) return record.sessionId;
+            const date = getLocalFormattedDate(record.timestamp);
+            const time = new Date(record.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            return `${date}__${time}__${(record.subject || 'Unknown').trim().toLowerCase()}__${(record.teacher || 'Unknown').trim().toLowerCase()}`;
+        }
+
+        function buildSessionMap(records) {
+            const sessionsMap = {};
+            records.forEach(record => {
+                const key = getSessionKey(record);
+                if (!sessionsMap[key]) {
+                    sessionsMap[key] = {
+                        id: key,
+                        date: getLocalFormattedDate(record.timestamp),
+                        time: new Date(record.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                        subject: record.subject || 'Unknown',
+                        teacher: record.teacher || 'Unknown',
+                        students: [],
+                        studentRolls: new Set()
+                    };
+                }
+                const roll = String(record.roll || record.fingerprintId || '').trim();
+                if (!sessionsMap[key].studentRolls.has(roll)) {
+                    sessionsMap[key].studentRolls.add(roll);
+                    sessionsMap[key].students.push(record);
+                }
+            });
+            return sessionsMap;
+        }
+
+
+
+        // --- CLASS ROSTER LOGIC ---
+        function populateRosterSubjects() {
+            const select = document.getElementById('rosterSubjectSelect');
+            const currentVal = select.value;
+            select.innerHTML = '<option value="">Select a Subject...</option>';
+            
+            // Get unique subjects the teacher has taught (from their sessions)
+            const mySubjects = new Set();
+            (window.allMyRecords || []).forEach(s => {
+                if(s.subject) mySubjects.add(s.subject);
+            });
+            
+            Array.from(mySubjects).sort().forEach(subj => {
+                const opt = document.createElement('option');
+                opt.value = subj;
+                opt.textContent = subj;
+                select.appendChild(opt);
+            });
+            
+            if (currentVal && mySubjects.has(currentVal)) select.value = currentVal;
+        }
+
+        window.renderClassRoster = function() {
+            const subject = document.getElementById('rosterSubjectSelect').value;
+            const emptyState = document.getElementById('rosterEmptyState');
+            const container = document.getElementById('rosterTableContainer');
+            const tbody = document.getElementById('rosterBody');
+            
+            if (!subject) {
+                emptyState.style.display = 'block';
+                container.style.display = 'none';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            container.style.display = 'block';
+            tbody.innerHTML = '';
+            
+            // Re-calculate analytics just in case
+            const analytics = buildStudentAnalytics(allGlobalRecords); // Using global to have all totals
+            
+            let count = 0;
+            // Filter students who are enrolled in this subject (or enrolled in ALL)
+            analytics.students.forEach(student => {
+                const enrolled = student.enrolledSubjects;
+                const isExpected = (!enrolled || enrolled.includes(subject));
+                
+                if (isExpected) {
+                    count++;
+                    const subjStat = student.subjectStats.find(s => s.subject === subject) || { total: 0, attended: 0, percentage: 0 };
+                    
+                    const tr = document.createElement('tr');
+                    
+                    let pctColor = "var(--text-main)";
+                    if (subjStat.total > 0) {
+                        if (subjStat.percentage < 75) pctColor = "var(--error)";
+                        else pctColor = "var(--success)";
+                    }
+
+                    tr.innerHTML = `
+                        <td style="font-weight:600;">${student.roll}</td>
+                        <td>${student.name}</td>
+                        <td>${subjStat.total}</td>
+                        <td>${subjStat.attended}</td>
+                        <td style="font-weight:600; color:${pctColor};">${subjStat.percentage.toFixed(1)}%</td>
+                    `;
+                    tbody.appendChild(tr);
+                }
+            });
+            
+            document.getElementById('rosterCount').textContent = count;
+            if (count === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:16px;">No students enrolled in this subject.</td></tr>';
+            }
+        };
+        
+        window.downloadRosterCsv = function() {
+            const subject = document.getElementById('rosterSubjectSelect').value;
+            if(!subject) return;
+            
+            const analytics = buildStudentAnalytics(allGlobalRecords);
+            const headers = ["Roll No", "Name", "Expected Sessions", "Attended", "Percentage"];
+            const rows = [];
+            
+            analytics.students.forEach(student => {
+                const enrolled = student.enrolledSubjects;
+                const isExpected = (!enrolled || enrolled.includes(subject));
+                if (isExpected) {
+                    const subjStat = student.subjectStats.find(s => s.subject === subject) || { total: 0, attended: 0, percentage: 0 };
+                    rows.push([
+                        csvEscape(student.roll),
+                        csvEscape(student.name),
+                        subjStat.total,
+                        subjStat.attended,
+                        `${subjStat.percentage.toFixed(1)}%`
+                    ]);
+                }
+            });
+            
+            const csvContent = [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+            triggerCsvDownload(`Roster_${subject.replace(/\s+/g, '_')}.csv`, csvContent);
+        };
+
+        // --- STUDENT DIRECTORY & SUBJECT MANAGEMENT ---
+        async function loadStudentDirectory() {
+            try {
+                await ensureStudentDirectory();
+                const tbody = document.getElementById('studentDirectoryBody');
+                if (!window.allEnrolledStudents || window.allEnrolledStudents.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No students found</td></tr>';
+                    return;
+                }
+                
+                // We need to know all possible subjects taught in the system to build the checklist
+                await fetchAllSubjects();
+                renderStudentDirectory(window.allEnrolledStudents);
+            } catch (err) {
+                console.error(err);
+                document.getElementById('studentDirectoryBody').innerHTML = '<tr><td colspan="4" style="color:red; text-align:center;">Failed to load students</td></tr>';
+            }
+        }
+        
+        let allAvailableSubjects = new Set();
+        async function fetchAllSubjects() {
+            try {
+                const token = localStorage.getItem('attendify_token');
+                const res = await fetch('/api/teacher/sessions?scope=global', { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await res.json();
+                if(data.sessions) {
+                    data.sessions.forEach(s => {
+                        if(s.subject) allAvailableSubjects.add(s.subject);
+                    });
+                }
+            } catch(e) {}
+        }
+
+        function renderStudentDirectory(studentsToRender) {
+            const tbody = document.getElementById('studentDirectoryBody');
+            tbody.innerHTML = '';
+            
+            studentsToRender.forEach(student => {
+                const tr = document.createElement('tr');
+                const roll = String(student.roll || '').trim();
+                const name = student.name || 'Unknown';
+                const subjects = (student.enrolledSubjects || []).join(', ') || '<span style="color:#9ca3af; font-style:italic;">All / Unassigned</span>';
+                
+                tr.innerHTML = `
+                    <td style="font-weight:600;">${roll}</td>
+                    <td>${name}</td>
+                    <td>${subjects}</td>
+                    <td>
+                        <button class="action-btn" onclick="openManageSubjects('${roll}', '${name.replace(/'/g,"\\'")}')" style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; padding:4px 10px; font-size:0.8rem;">
+                            <i class="fas fa-edit"></i> Manage
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        window.filterStudentDirectory = function() {
+            const query = document.getElementById('dirSearch').value.toLowerCase();
+            const filtered = (window.allEnrolledStudents || []).filter(s => 
+                (s.name && s.name.toLowerCase().includes(query)) ||
+                (s.roll && String(s.roll).toLowerCase().includes(query))
+            );
+            renderStudentDirectory(filtered);
+        };
+        
+        window.openManageSubjects = function(roll, name) {
+            const student = window.allEnrolledStudents.find(s => s.roll === roll);
+            if(!student) return;
+            
+            document.getElementById('manageSubjRoll').value = roll;
+            document.getElementById('manageSubjName').textContent = name;
+            
+            const container = document.getElementById('subjectChecklist');
+            container.innerHTML = '';
+            
+            if(allAvailableSubjects.size === 0) {
+                container.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem;">No subjects have been taught yet. Subjects appear here once attendance is marked for them.</p>';
+            }
+            
+            const enrolledSet = new Set(student.enrolledSubjects || []);
+            
+            // Build checklist
+            Array.from(allAvailableSubjects).sort().forEach(subj => {
+                const lbl = document.createElement('label');
+                lbl.style.display = 'flex';
+                lbl.style.alignItems = 'center';
+                lbl.style.gap = '10px';
+                lbl.style.cursor = 'pointer';
+                lbl.style.padding = '4px 0';
+                
+                const cb = document.createElement('input');
+                cb.type = 'checkbox';
+                cb.value = subj;
+                cb.className = 'subj-checkbox';
+                if(enrolledSet.has(subj)) cb.checked = true;
+                
+                lbl.appendChild(cb);
+                lbl.appendChild(document.createTextNode(subj));
+                container.appendChild(lbl);
+            });
+            
+            document.getElementById('manageSubjectsModal').classList.add('active');
+        };
+        
+        document.getElementById('manageSubjectsForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const roll = document.getElementById('manageSubjRoll').value;
+            const btn = document.getElementById('saveSubjectsBtn');
+            const checkboxes = document.querySelectorAll('.subj-checkbox');
+            const selectedSubjects = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+            
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+            
+            try {
+                const token = localStorage.getItem('attendify_token');
+                const res = await fetch(`/api/students/${roll}/subjects`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}` 
+                    },
+                    body: JSON.stringify({ enrolledSubjects: selectedSubjects })
+                });
+                
+                const data = await res.json();
+                if(data.success) {
+                    // Update local cache
+                    const student = window.allEnrolledStudents.find(s => s.roll === roll);
+                    if(student) student.enrolledSubjects = selectedSubjects;
+                    
+                    document.getElementById('manageSubjectsModal').classList.remove('active');
+                    filterStudentDirectory(); // re-render
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Failed to update subjects');
+            }
+            
+            btn.disabled = false;
+            btn.textContent = 'Save Changes';
+        });
+        
+
+        function buildStudentAnalytics(records) {
+            const sessionsMap = buildSessionMap(records);
+            const sessions = Object.values(sessionsMap);
+            const subjectTotals = {};
+            const analyticsByRoll = {};
+            const nameMap = getStudentNameMap();
+            
+            // Need a fast lookup for enrolled subjects per student
+            const studentSubjectsMap = {};
+
+            (window.allEnrolledStudents || []).forEach(student => {
+                const roll = String(student.roll || '').trim();
+                if (!roll) return;
+                studentSubjectsMap[roll] = student.enrolledSubjects || null; // null means enrolled in ALL
+                
+                analyticsByRoll[roll] = {
+                    roll,
+                    name: student.name || nameMap[roll] || 'Unknown',
+                    attendedBySubject: {},
+                    totalAttended: 0
+                };
+            });
+
+            sessions.forEach(session => {
+                subjectTotals[session.subject] = (subjectTotals[session.subject] || 0) + 1;
+                session.studentRolls.forEach(roll => {
+                    if (!analyticsByRoll[roll]) {
+                        const fallbackRecord = session.students.find(std => String(std.roll || std.fingerprintId || '').trim() === roll) || {};
+                        analyticsByRoll[roll] = {
+                            roll,
+                            name: resolveStudentName(fallbackRecord, nameMap),
+                            attendedBySubject: {},
+                            totalAttended: 0
+                        };
+                        studentSubjectsMap[roll] = null; // Unregistered student attended, assume expected for all
+                    }
+                    analyticsByRoll[roll].attendedBySubject[session.subject] = (analyticsByRoll[roll].attendedBySubject[session.subject] || 0) + 1;
+                    analyticsByRoll[roll].totalAttended += 1;
+                });
+            });
+
+            return {
+                totalSessions: sessions.length,
+                students: Object.values(analyticsByRoll)
+                    .map(student => {
+                        const enrolledSubjects = studentSubjectsMap[student.roll];
+                        let studentExpectedSessions = 0;
+                        
+                        const subjectStats = Object.keys(subjectTotals).sort((a, b) => a.localeCompare(b)).map(subject => {
+                            const total = subjectTotals[subject];
+                            const attended = student.attendedBySubject[subject] || 0;
+                            
+                            // Does the student expect to attend this?
+                            const isExpected = (enrolledSubjects === null || enrolledSubjects.includes(subject));
+                            if (isExpected) {
+                                studentExpectedSessions += total;
+                            }
+                            
+                            return {
+                                subject,
+                                total,
+                                attended,
+                                percentage: total ? (attended / total) * 100 : 0,
+                                isExpected
+                            };
+                        });
+                        
+                        return {
+                            ...student,
+                            subjectStats,
+                            expectedSessions: studentExpectedSessions,
+                            // Calculate percentage out of ONLY their expected sessions
+                            overallPercentage: studentExpectedSessions > 0 ? (student.totalAttended / studentExpectedSessions) * 100 : 0
+                        }
+                    })
+                    .sort((a, b) => compareRolls(a.roll, b.roll))
+            };
+        }
+
+        function csvEscape(val) {
+            if (val === null || val === undefined) return "";
+            let str = String(val);
+            // Escape double quotes by doubling them
+            if (str.includes('"') || str.includes(',') || str.includes('\n') || str.includes('\r')) {
+                return '"' + str.replace(/"/g, '""') + '"';
+            }
+            return str;
+        }
+
+        function triggerCsvDownload(filename, content) {
+            // Add UTF-8 BOM (\uFEFF) to ensure Excel recognizes UTF-8 encoding
+            const blob = new Blob(['\uFEFF' + content], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", filename);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        let allGlobalRecords = [];
+        let analyticsMode = 'grouped';
+
+        window.setAnalyticsMode = function (mode) {
+            analyticsMode = mode;
+            document.getElementById('btnGrouped').classList.toggle('active', mode === 'grouped');
+            document.getElementById('btnRaw').classList.toggle('active', mode === 'raw');
+
+            // UI styling for buttons
+            document.getElementById('btnGrouped').style.background = mode === 'grouped' ? 'var(--secondary)' : 'transparent';
+            document.getElementById('btnGrouped').style.color = mode === 'grouped' ? 'white' : 'var(--text-muted)';
+            document.getElementById('btnRaw').style.background = mode === 'raw' ? 'var(--secondary)' : 'transparent';
+            document.getElementById('btnRaw').style.color = mode === 'raw' ? 'white' : 'var(--text-muted)';
+
+            filterGlobalTable();
+        };
+
+        async function loadGlobalAttendance() {
+            await ensureStudentDirectory();
+
+            const token = localStorage.getItem('attendify_token');
+            const res = await fetch('/api/teacher/sessions?scope=global', { headers: { 'Authorization': `Bearer ${token}` } });
+            const data = await res.json();
+            allGlobalRecords = data.sessions || [];
+
+            document.getElementById('statsTotalLogs').textContent = allGlobalRecords.length;
+            const uniqueRolls = new Set(allGlobalRecords.map(s => s.roll));
+            document.getElementById('statsUniqueStudents').textContent = uniqueRolls.size;
+
+            filterGlobalTable();
+        }
+
+        window.filterGlobalTable = function () {
+            const query = document.getElementById('globalSearch').value.toLowerCase();
+            const start = document.getElementById('globalDateStart').value;
+            const end = document.getElementById('globalDateEnd').value;
+            const nameMap = getStudentNameMap();
+
+            const filteredRecords = allGlobalRecords.filter(s => {
+                const date = getLocalFormattedDate(s.timestamp);
+                const resolvedName = resolveStudentName(s, nameMap).toLowerCase();
+                const matchesSearch = !query ||
+                    resolvedName.includes(query) ||
+                    String(s.roll || '').toLowerCase().includes(query) ||
+                    (s.subject && s.subject.toLowerCase().includes(query)) ||
+                    (s.teacher && s.teacher.toLowerCase().includes(query));
+
+                const matchesStart = !start || date >= start;
+                const matchesEnd = !end || date <= end;
+
+                return matchesSearch && matchesStart && matchesEnd;
+            });
+
+            if (analyticsMode === 'grouped') {
+                renderGroupedSessions(filteredRecords);
+            } else {
+                renderRawLogs(filteredRecords);
+            }
+        };
+
+        function renderGroupedSessions(records) {
+            const sessionsMap = buildSessionMap(records);
+
+            const sessionList = Object.values(sessionsMap).sort((a, b) => b.date.localeCompare(a.date));
+            document.getElementById('statsTotalSessions').textContent = sessionList.length;
+
+            const header = document.getElementById('globalTableHeader');
+            header.innerHTML = `<tr><th>Date</th><th>Subject</th><th>Teacher</th><th>Strength</th><th>Actions</th></tr>`;
+
+            const tbody = document.getElementById('globalTable');
+            tbody.innerHTML = sessionList.map(s => `
+                <tr>
+                    <td><div style="font-weight:600;">${s.date}</div><div style="font-size:0.75rem; color:var(--text-muted);">${s.time}</div></td>
+                    <td>${s.subject}</td>
+                    <td>${s.teacher}</td>
+                    <td><span class="status-badge status-info">${s.students.length} Students</span></td>
+                    <td>
+                        <button class="action-btn" onclick="viewSessionDetails('${s.id}')" style="padding:4px 8px; font-size:0.75rem;"><i class="fas fa-eye"></i> View</button>
+                        <button class="action-btn" onclick="downloadSessionCsv(${JSON.stringify(s.students).replace(/"/g, '&quot;')}, '${s.subject}_${s.date}')" style="padding:4px 8px; font-size:0.75rem;"><i class="fas fa-file-csv"></i> CSV</button>
+                    </td>
+                </tr>
+            `).join('') || '<tr><td colspan="5" style="text-align:center;">No sessions found</td></tr>';
+
+            // Store processed map for detail view
+            window.sessionDataMap = sessionsMap;
+        }
+
+        function renderRawLogs(records) {
+            const header = document.getElementById('globalTableHeader');
+            header.innerHTML = `<tr><th>Time</th><th>Subject</th><th>Teacher</th><th>Student</th><th>Roll</th></tr>`;
+            const nameMap = getStudentNameMap();
+
+            const tbody = document.getElementById('globalTable');
+            tbody.innerHTML = records.map(s => `
+                <tr>
+                    <td><div style="font-weight:600;">${new Date(s.timestamp).toLocaleTimeString()}</div><div style="font-size:0.75rem; color:var(--text-muted);">${new Date(s.timestamp).toLocaleDateString()}</div></td>
+                    <td>${s.subject || '-'}</td>
+                    <td>${s.teacher || '-'}</td>
+                    <td>${resolveStudentName(s, nameMap)}</td>
+                    <td>${s.roll}</td>
+                </tr>
+             `).join('') || '<tr><td colspan="5" style="text-align:center;">No records</td></tr>';
+        }
+
+        window.viewSessionDetails = function (sessionId) {
+            const session = window.sessionDataMap[sessionId];
+            if (!session) return;
+
+            document.getElementById('detailTitle').textContent = `Attendance: ${session.subject} (${session.date})`;
+            const tbody = document.getElementById('detailTableBody');
+            const nameMap = getStudentNameMap();
+
+            const sortedStudents = [...session.students].sort((a, b) => compareRolls(a.roll, b.roll));
+
+            tbody.innerHTML = sortedStudents.map(std => `
+                <tr>
+                    <td>#${std.roll}</td>
+                    <td>${resolveStudentName(std, nameMap)}</td>
+                    <td>${new Date(std.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('sessionDetailView').style.display = 'block';
+            document.getElementById('sessionDetailView').scrollIntoView({ behavior: 'smooth' });
+        };
+
+        window.closeSessionDetail = function () {
+            document.getElementById('sessionDetailView').style.display = 'none';
+        };
+
+        document.getElementById('sessionDetailView').style.display = 'none';
+
+        // ==========================================
+        // REPORTS LOGIC
+        // ==========================================
+        let allMySessions = [];
+
+        async function loadReports() {
+            // Re-use API if available or use 'loadMySessions' logic
+            // Since there's no dedicated 'all_sessions' without pagination, we use the teacher sessions endpoint
+            const token = localStorage.getItem('attendify_token');
+            try {
+                // Ensure we get local teacher scope
+                const res = await fetch('/api/teacher/sessions?scope=mine', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    allMySessions = data.sessions || [];
+                    
+                    if (!document.getElementById('reportDate').value) {
+                        // Auto-select latest date if available, fallback to today
+                        let latestDateStr = null;
+                        if (allMySessions && allMySessions.length > 0) {
+                            let maxTime = 0;
+                            allMySessions.forEach(s => {
+                                if (s.timestamp) {
+                                    const time = new Date(s.timestamp).getTime();
+                                    if (!isNaN(time) && time > maxTime) {
+                                        maxTime = time;
+                                        latestDateStr = getLocalFormattedDate(s.timestamp);
+                                    }
+                                }
+                            });
+                        }
+                        if (!latestDateStr) {
+                            latestDateStr = getLocalFormattedDate(new Date());
+                        }
+                        document.getElementById('reportDate').value = latestDateStr;
+                    }
+                    filterReports();
+                }
+            } catch (e) {
+                console.error("Error loading report data", e);
+            }
+        }
+
+        function filterReports() {
+            const dateInput = document.getElementById('reportDate').value;
+            if (!dateInput) return;
+
+            const tbody = document.getElementById('reportsTableBody');
+            const nameMap = getStudentNameMap();
+
+            const filtered = allMySessions.filter(s => getLocalFormattedDate(s.timestamp) === dateInput);
+            filtered.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No attendance found for this date</td></tr>';
+                document.getElementById('reportSummary').textContent = "0 records";
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(s => `
+                <tr>
+                    <td>${new Date(s.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+                    <td>${s.subject || '-'}</td>
+                    <td>${resolveStudentName(s, nameMap)}</td>
+                    <td>${s.roll}</td>
+                    <td><span class="status-badge status-success">Present</span></td>
+                </tr>
+            `).join('');
+
+            document.getElementById('reportSummary').textContent = `${filtered.length} records found`;
+        }
+
+        async function downloadReportCsv() {
+            const dateInput = document.getElementById('reportDate').value;
+            if (!dateInput) {
+                alert("Please select a date first");
+                return;
+            }
+
+            await ensureStudentDirectory();
+
+            // Re-filter to ensure consistency
+            const filtered = allMySessions.filter(s => getLocalFormattedDate(s.timestamp) === dateInput);
+            filtered.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+            if (filtered.length === 0) {
+                alert("No data to download for this date");
+                return;
+            }
+
+            const nameMap = getStudentNameMap();
+
+            // Generate CSV
+            const headers = ["Date", "Time", "Subject", "Teacher", "Student Name", "Roll No", "Status"];
+            const rows = filtered.map(s => {
+                const dateObj = new Date(s.timestamp);
+                const resolvedName = resolveStudentName(s, nameMap);
+
+                return [
+                    csvEscape(getLocalFormattedDate(s.timestamp)),
+                    csvEscape(dateObj.toLocaleTimeString()),
+                    csvEscape(s.subject || ''),
+                    csvEscape(s.teacher || ''),
+                    csvEscape(resolvedName),
+                    csvEscape(s.roll),
+                    csvEscape("Present")
+                ];
+            });
+
+            const csvContent = [
+                headers.join(","),
+                ...rows.map(r => r.join(","))
+            ].join("\n");
+
+            triggerCsvDownload(`Attendance_Flat_${dateInput}.csv`, csvContent);
+        }
+
+        window.downloadDailyMatrixCsv = async function () {
+            const dateInput = document.getElementById('reportDate').value;
+            if (!dateInput) {
+                alert("Please select a date first");
+                return;
+            }
+
+            const sessions = allMySessions.filter(s => getLocalFormattedDate(s.timestamp) === dateInput);
+            if (sessions.length === 0) {
+                alert("No sessions found for this date to generate a matrix.");
+                return;
+            }
+
+            await ensureStudentDirectory();
+
+            const lecturesMap = {};
+            sessions.forEach(s => {
+                const time = new Date(s.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const label = `${s.subject || 'Lecture'} (${time})`;
+                const key = getSessionKey(s);
+                if (!lecturesMap[key]) {
+                    lecturesMap[key] = { label, students: new Set() };
+                }
+                lecturesMap[key].students.add(String(s.roll || s.fingerprintId || '').trim());
+            });
+
+            const lectureKeys = Object.keys(lecturesMap);
+
+            const students = [...window.allEnrolledStudents].sort((a, b) => compareRolls(a.roll, b.roll));
+            
+            // Header Row
+            const headerRow = ["Roll No", "Student Name", ...lectureKeys.map(k => lecturesMap[k].label), "Total Present", "Attendance %"];
+            let csv = headerRow.map(h => csvEscape(h)).join(",") + "\n";
+
+            students.forEach(std => {
+                let presentCount = 0;
+                const row = [csvEscape(std.roll), csvEscape(std.name)];
+
+                lectureKeys.forEach(k => {
+                    const isPresent = lecturesMap[k].students.has(String(std.roll));
+                    if (isPresent) presentCount++;
+                    row.push(isPresent ? "P" : "A");
+                });
+
+                const percentage = ((presentCount / lectureKeys.length) * 100).toFixed(1);
+                row.push(presentCount);
+                row.push(percentage + "%");
+
+                csv += row.join(",") + "\n";
+            });
+
+            triggerCsvDownload(`Master_Report_${dateInput}.csv`, csv);
+        }
+
+        window.searchStudentPerformance = async function () {
+            const roll = document.getElementById('perfSearchRoll').value.trim();
+            if (!roll) {
+                alert('Enter a roll number first.');
+                return;
+            }
+
+            await ensureStudentDirectory();
+            if (!allGlobalRecords.length) {
+                await loadGlobalAttendance();
+            }
+
+            const analytics = buildStudentAnalytics(allGlobalRecords);
+            const student = analytics.students.find(item => String(item.roll) === roll);
+            if (!student) {
+                alert(`No student found for roll ${roll}.`);
+                return;
+            }
+
+            document.querySelector('#perfStudentName span').textContent = `${student.name} (#${student.roll})`;
+
+            const overallBadge = document.getElementById('perfOverall');
+            overallBadge.textContent = `${student.overallPercentage.toFixed(1)}%`;
+            overallBadge.style.background = student.overallPercentage < 75
+                ? 'var(--danger)'
+                : (student.overallPercentage < 90 ? 'var(--warning)' : 'var(--success)');
+
+            document.getElementById('perfTableBody').innerHTML = student.subjectStats.map(subject => `
+                <tr>
+                    <td>${subject.subject}</td>
+                    <td>${subject.total}</td>
+                    <td>${subject.attended}</td>
+                    <td>${subject.percentage.toFixed(1)}%</td>
+                </tr>
+            `).join('') || '<tr><td colspan="4" style="text-align:center;">No subject data found.</td></tr>';
+
+            document.getElementById('perfResults').style.display = 'block';
+        };
+
+        window.downloadDefaulterList = async function () {
+            const threshold = Number(document.getElementById('defaulterThreshold').value);
+            if (!Number.isFinite(threshold) || threshold < 0 || threshold > 100) {
+                alert('Enter a valid threshold between 0 and 100.');
+                return;
+            }
+
+            await ensureStudentDirectory();
+            if (!allGlobalRecords.length) {
+                await loadGlobalAttendance();
+            }
+
+            const analytics = buildStudentAnalytics(allGlobalRecords);
+            if (!analytics.totalSessions) {
+                alert('No attendance sessions available yet.');
+                return;
+            }
+
+            const defaulters = analytics.students
+                .filter(student => student.overallPercentage < threshold)
+                .sort((a, b) => a.overallPercentage - b.overallPercentage || compareRolls(a.roll, b.roll));
+
+            if (!defaulters.length) {
+                alert(`No students are below ${threshold}%.`);
+                return;
+            }
+
+            const subjectColumns = Array.from(new Set(
+                defaulters.flatMap(student => student.subjectStats.map(subject => subject.subject))
+            ))
+                .filter(subject => subject && subject.toLowerCase() !== 'unknown')
+                .sort((a, b) => {
+                    const preferredOrderUpper = PREFERRED_SUBJECT_ORDER.map(subject => subject.toUpperCase());
+                    const indexA = preferredOrderUpper.indexOf(a.toUpperCase());
+                    const indexB = preferredOrderUpper.indexOf(b.toUpperCase());
+
+                    if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+                    if (indexA !== -1) return -1;
+                    if (indexB !== -1) return 1;
+
+                    return a.localeCompare(b, undefined, { sensitivity: 'base', numeric: true });
+                });
+
+            const headers = [
+                "Roll No",
+                "Student Name",
+                "Attended Sessions",
+                "Total Sessions",
+                "Attendance %",
+                ...subjectColumns.map(subject => `${subject} %`)
+            ];
+
+            const rows = defaulters.map(student => {
+                const subjectPercentMap = student.subjectStats.reduce((accumulator, subject) => {
+                    accumulator[subject.subject] = subject.percentage;
+                    return accumulator;
+                }, {});
+
+                return [
+                    csvEscape(student.roll),
+                    csvEscape(student.name),
+                    csvEscape(student.totalAttended),
+                    csvEscape(analytics.totalSessions),
+                    csvEscape(`${student.overallPercentage.toFixed(1)}%`),
+                    ...subjectColumns.map(subject => csvEscape(`${(subjectPercentMap[subject] || 0).toFixed(1)}%`))
+                ];
+            });
+
+            triggerCsvDownload(`Defaulter_List_below_${threshold}.csv`, [
+                headers.join(","),
+                ...rows.map(row => row.join(","))
+            ].join("\n"));
+        };
+
+        // NAVIGATION (Combined & Robust)
+        window.switchTab = function (tabName) {
+            const titles = {
+                'dashboard': 'Overview',
+                'my-classes': isGFM ? 'Daily Schedule' : 'My Classes',
+                'reports': 'Attendance Reports',
+                'enrollment': 'Enrollment Queue',
+                'devices': 'Device Status',
+                'global-stats': 'Global Analytics',
+                'status': 'Daily Status',
+                'timetable': 'Timetable Editor',
+                'student-directory': 'Student Directory',
+                'roster': 'My Roster',
+                'leaves': 'Leave Requests'
+            };
+            document.getElementById('pageTitle').textContent = titles[tabName] || 'Dashboard';
+
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            const navs = document.querySelectorAll('.nav-item');
+            let activeNav = null;
+            navs.forEach(el => {
+                const clickAttr = el.getAttribute('onclick');
+                if (clickAttr && clickAttr.includes(`'${tabName}'`)) {
+                    activeNav = el;
+                }
+            });
+            if (activeNav) activeNav.classList.add('active');
+
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            const target = document.getElementById(tabName + '-view');
+            if (target) target.classList.add('active');
+
+            if (tabName === 'reports') loadReports();
+            if (tabName === 'student-directory') loadStudentDirectory();
+            if (tabName === 'roster') loadMyRoster();
+            if (tabName === 'my-classes' && window.loadMyClasses) window.loadMyClasses();
+            if (tabName === 'devices' && window.loadDevices) window.loadDevices();
+            if (tabName === 'global-stats' && window.loadGlobalAttendance) window.loadGlobalAttendance();
+            if (tabName === 'leaves') loadLeaveApplications();
+        };
+
+        // --- Leave Applications Logic ---
+        let activeReviewAppId = null;
+
+        async function loadLeaveApplications() {
+            try {
+                const token = localStorage.getItem('attendify_token');
+                const res = await fetch('/api/gfm/applications', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (!res.ok || !data.success) {
+                    alert(data.message || 'Failed to fetch leave applications');
+                    return;
+                }
+
+                const tbody = document.getElementById('gfmLeavesTableBody');
+                const apps = data.applications || [];
+                if (apps.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--text-muted);">No leave applications found.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = apps.map(app => {
+                    let statusBadgeClass = 'status-warning';
+                    if (app.status === 'APPROVED') statusBadgeClass = 'status-success';
+                    if (app.status === 'REJECTED') statusBadgeClass = 'status-danger';
+
+                    const duration = `${formatDateShort(app.startDate)} to ${formatDateShort(app.endDate)}`;
+                    const certDisplay = app.certificateUrl.startsWith('http')
+                        ? `<a href="${app.certificateUrl}" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600;"><i class="fas fa-external-link-alt"></i> View</a>`
+                        : `<span title="${app.certificateUrl}">${app.certificateUrl.length > 20 ? app.certificateUrl.substring(0, 18) + '...' : app.certificateUrl}</span>`;
+
+                    const appJson = JSON.stringify(app).replace(/'/g, "&#39;");
+                    const actionBtn = app.status === 'PENDING'
+                        ? `<button onclick='openReviewModal(${appJson})' class="btn-primary" style="padding: 4px 10px; font-size: 0.8rem;"><i class="fas fa-edit"></i> Review</button>`
+                        : `<span style="font-size:0.85rem; color:var(--text-muted);">Reviewed by ${app.reviewedBy.split('@')[0]}</span>`;
+
+                    return `
+                        <tr>
+                            <td>
+                                <strong>${app.studentName}</strong><br>
+                                <small style="color:var(--text-muted);">${app.studentRoll} • ${app.studentEmail}</small>
+                            </td>
+                            <td>${app.reason}</td>
+                            <td>${duration}</td>
+                            <td>${certDisplay}</td>
+                            <td><span class="status-badge ${statusBadgeClass}">${app.status}</span></td>
+                            <td>${actionBtn}</td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error(err);
+                alert('Error loading applications: ' + err.message);
+            }
+        }
+
+        function formatDateShort(dateStr) {
+            if (!dateStr) return 'N/A';
+            const date = new Date(dateStr);
+            if (isNaN(date.getTime())) return dateStr;
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        function openReviewModal(app) {
+            activeReviewAppId = app.id;
+            document.getElementById('reviewStudentName').textContent = app.studentName;
+            document.getElementById('reviewStudentRoll').textContent = app.studentRoll;
+            document.getElementById('reviewDates').textContent = `${formatDateShort(app.startDate)} to ${formatDateShort(app.endDate)}`;
+            document.getElementById('reviewReason').textContent = app.reason;
+            document.getElementById('reviewComments').value = app.gfmComments || '';
+            document.getElementById('reviewModal').style.display = 'flex';
+        }
+
+        function closeReviewModal() {
+            document.getElementById('reviewModal').style.display = 'none';
+            activeReviewAppId = null;
+        }
+
+        async function submitReview(status) {
+            if (!activeReviewAppId) return;
+            const comments = document.getElementById('reviewComments').value;
+
+            try {
+                const token = localStorage.getItem('attendify_token');
+                const res = await fetch(`/api/gfm/applications/${activeReviewAppId}/review`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ status, comments })
+                });
+
+                const data = await res.json();
+                if (!res.ok || !data.success) {
+                    alert(data.message || 'Failed to submit review');
+                    return;
+                }
+
+                alert(`Application successfully ${status.toLowerCase()}!`);
+                closeReviewModal();
+                loadLeaveApplications();
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        window.logout = async function () {
+            console.log('Logging out...');
+            try {
+                if (firebase.auth().currentUser) {
+                    await firebase.auth().signOut();
+                }
+            } catch (error) {
+                console.error('Firebase signOut error (ignoring):', error);
+            }
+            // Force local cleanup
+            localStorage.clear();
+            sessionStorage.clear();
+            // Redirect with flag to prevent auto-login loop
+            window.location.href = '/login?logout=true';
+        };
+    
+            function openChangePasswordModal() {
+                document.getElementById('changePasswordModal').classList.add('active');
+                document.getElementById('changePasswordForm').reset();
+                document.getElementById('changePasswordError').style.display = 'none';
+            }
+
+            function closeChangePasswordModal() {
+                document.getElementById('changePasswordModal').classList.remove('active');
+            }
+
+            document.getElementById('changePasswordForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const currentPassword = document.getElementById('currentPassword').value;
+                const newPassword = document.getElementById('newPassword').value;
+                const errorDiv = document.getElementById('changePasswordError');
+                const btn = document.getElementById('changePasswordBtn');
+                
+                errorDiv.style.display = 'none';
+                btn.disabled = true;
+                btn.textContent = 'Updating...';
+
+                try {
+                    if (runtimeMode.authMode === 'FIREBASE') {
+                        const user = firebase.auth().currentUser;
+                        if (!user) throw new Error("No user logged in");
+                        
+                        const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
+                        await user.reauthenticateWithCredential(credential);
+                        await user.updatePassword(newPassword);
+                        
+                        alert('✅ Password changed successfully!');
+                        closeChangePasswordModal();
+                    } else {
+                        const token = localStorage.getItem('attendify_token');
+                        const res = await fetch('/api/auth/change-password', {
+                            method: 'POST',
+                            headers: { 
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}` 
+                            },
+                            body: JSON.stringify({ currentPassword, newPassword })
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            alert('✅ Password changed successfully!');
+                            closeChangePasswordModal();
+                        } else {
+                            throw new Error(data.message || "Failed to change password");
+                        }
+                    }
+                } catch (error) {
+                    errorDiv.textContent = error.message;
+                    errorDiv.style.display = 'block';
+                }
+                btn.disabled = false;
+                btn.textContent = 'Change Password';
+            });
+        
+            function toggleProfileDropdown(e) {
+                e.stopPropagation();
+                document.getElementById('profileDropdown').classList.toggle('active');
+            }
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                const dropdown = document.getElementById('profileDropdown');
+                if (dropdown && dropdown.classList.contains('active')) {
+                    if (!e.target.closest('.profile-dropdown-container')) {
+                        dropdown.classList.remove('active');
+                    }
+                }
+            });
+
+        // ============================================================
+        // WI-FI SETTINGS
+        // ============================================================
+        async function pushWifiConfig() {
+            const ssid = document.getElementById('wifiSsidInput').value.trim();
+            const password = document.getElementById('wifiPasswordInput').value;
+            const statusEl = document.getElementById('wifiPushStatus');
+            if (!ssid) {
+                statusEl.style.display = 'block';
+                statusEl.style.background = '#fef2f2';
+                statusEl.style.color = '#dc2626';
+                statusEl.style.border = '1px solid #fecaca';
+                statusEl.textContent = 'Please enter a network name (SSID).';
+                return;
+            }
+            try {
+                const token = localStorage.getItem('attendify_token');
+                const res = await fetch('/api/wifi-config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ ssid, password })
+                });
+                const data = await res.json();
+                statusEl.style.display = 'block';
+                if (data.success) {
+                    statusEl.style.background = '#f0fdf4';
+                    statusEl.style.color = '#16a34a';
+                    statusEl.style.border = '1px solid #bbf7d0';
+                    statusEl.textContent = `Wi-Fi "${ssid}" pushed successfully! The device will auto-connect when in range.`;
+                    document.getElementById('wifiSsidInput').value = '';
+                    document.getElementById('wifiPasswordInput').value = '';
+                    loadWifiProfiles();
+                } else {
+                    statusEl.style.background = '#fef2f2';
+                    statusEl.style.color = '#dc2626';
+                    statusEl.style.border = '1px solid #fecaca';
+                    statusEl.textContent = data.message || 'Failed to save Wi-Fi profile.';
+                }
+            } catch (e) {
+                statusEl.style.display = 'block';
+                statusEl.style.background = '#fef2f2';
+                statusEl.style.color = '#dc2626';
+                statusEl.style.border = '1px solid #fecaca';
+                statusEl.textContent = 'Network error: ' + e.message;
+            }
+        }
+
+        async function loadWifiProfiles() {
+            const container = document.getElementById('wifiProfilesList');
+            if (!container) return;
+            try {
+                const token = localStorage.getItem('attendify_token');
+                const res = await fetch('/api/wifi-config', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (!data.success || !data.profiles || data.profiles.length === 0) {
+                    container.innerHTML = '<p style="color: var(--text-muted); font-size:0.85rem;">No Wi-Fi profiles configured yet.</p>';
+                    return;
+                }
+                let html = '<div style="font-size:0.85rem; color: var(--text-secondary); margin-bottom:12px; font-weight:600;">Saved Networks</div>';
+                html += '<div style="display:flex; flex-direction:column; gap:8px;">';
+                data.profiles.forEach(p => {
+                    html += `<div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background: var(--bg-secondary); border:1px solid var(--border); border-radius:8px;">
+                        <div>
+                            <span style="font-weight:600; color: var(--text-primary);"><i class="fas fa-wifi" style="margin-right:6px; color: var(--primary);"></i>${p.ssid}</span>
+                            <span style="margin-left:12px; font-size:0.75rem; color: var(--text-muted);">by ${p.addedBy || 'unknown'}</span>
+                        </div>
+                        <span style="font-size:0.75rem; color: var(--text-muted);">${p.createdAt ? new Date(p.createdAt).toLocaleDateString() : ''}</span>
+                    </div>`;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+            } catch (e) {
+                container.innerHTML = '<p style="color: var(--text-muted); font-size:0.85rem;">Could not load Wi-Fi profiles.</p>';
+            }
+        }
+
+        // Load Wi-Fi profiles & reports when switching to tabs
+        const origSwitchTab = window.switchTab;
+        if (origSwitchTab) {
+            window.switchTab = function(tab) {
+                origSwitchTab(tab);
+                if (tab === 'wifi-settings') loadWifiProfiles();
+                if (tab === 'reports') loadReports();
+            };
+        }
+</script>
+
+    <!-- Change Password Modal -->
+    <div id="changePasswordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Change Password</h3>
+                <button class="modal-close" onclick="closeChangePasswordModal()">&times;</button>
+            </div>
+            <form id="changePasswordForm">
+                <div class="form-group" id="currentPasswordGroup" style="margin-bottom: 16px;">
+                    <label for="currentPassword" style="display:block; margin-bottom:6px; font-weight:500;">Current Password</label>
+                    <input type="password" id="currentPassword" style="width:100%; padding:10px; border-radius:6px; border:1px solid #e2e8f0;" placeholder="Enter current password" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label for="newPassword" style="display:block; margin-bottom:6px; font-weight:500;">New Password</label>
+                    <input type="password" id="newPassword" style="width:100%; padding:10px; border-radius:6px; border:1px solid #e2e8f0;" placeholder="Enter new password" required>
+                </div>
+                <div id="changePasswordError" style="display: none; color: #dc2626; background: #fef2f2; border: 1px solid #fecaca; padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 14px;"></div>
+                <div class="modal-actions" style="display:flex; justify-content:flex-end; gap:12px;">
+                    <button type="button" class="btn-secondary" onclick="closeChangePasswordModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="changePasswordBtn">Change Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

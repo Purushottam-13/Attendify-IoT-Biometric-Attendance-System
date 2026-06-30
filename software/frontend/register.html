@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendify - Student Registration</title>
+    <style>
+        :root {
+            --primary-bg: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text-main: #ffffff;
+            --text-muted: #a0a0a0;
+            --accent: #3498db;
+        }
+
+        body {
+            background-color: var(--primary-bg);
+            color: var(--text-main);
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #444;
+            color: white;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .success-message {
+            color: #2ecc71;
+            display: none;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <h2>Student Registration</h2>
+        <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:20px;">
+            Enter your details to register for enrollment.
+        </p>
+
+        <form id="regForm">
+            <input type="text" id="name" placeholder="Full Name" required>
+            <input type="number" id="roll" placeholder="Roll Number" required>
+            <input type="email" id="email" placeholder="Email (Optional)">
+            <button type="submit">Submit Registration</button>
+        </form>
+
+        <div id="successInfo" class="success-message">
+            <h3>✅ Registered!</h3>
+            <p>Your request has been sent to the GFM.</p>
+            <p>Please wait for your name to be called for Fingerprint Scanning.</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('regForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerText;
+            btn.innerText = 'Submitting...';
+            btn.disabled = true;
+
+            const payload = {
+                name: document.getElementById('name').value,
+                roll: document.getElementById('roll').value,
+                email: document.getElementById('email').value
+            };
+
+            try {
+                // Determine API URL (Current Host)
+                const res = await fetch('/api/register-queue', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    document.getElementById('regForm').style.display = 'none';
+                    document.getElementById('successInfo').style.display = 'block';
+                } else {
+                    alert('Error: ' + data.message);
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Connection Failed');
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+
+</html>

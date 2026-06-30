@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendify - Student Registration</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="student-page">
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">📋</div>
+                <h1>Attendify</h1>
+            </div>
+            <p class="subtitle">Fingerprint Enrollment System</p>
+        </header>
+
+        <!-- Registration Form -->
+        <main class="main-content">
+            <div class="card enrollment-card">
+                <h2 class="card-title">Student Registration</h2>
+                <p class="card-description">Enter your details to enroll your fingerprint</p>
+
+                <form id="enrollForm" class="enrollment-form">
+                    <div class="form-group">
+                        <label for="studentName">Full Name</label>
+                        <input 
+                            type="text" 
+                            id="studentName" 
+                            name="name" 
+                            placeholder="Enter your full name"
+                            required
+                            autocomplete="name"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="studentRoll">Roll Number</label>
+                        <input 
+                            type="text" 
+                            id="studentRoll" 
+                            name="roll" 
+                            placeholder="Enter your roll number"
+                            required
+                            pattern="[0-9]+"
+                            title="Roll number must contain only numbers"
+                            autocomplete="off"
+                        >
+                    </div>
+
+                    <button type="submit" id="submitBtn" class="btn btn-primary">
+                        <span class="btn-text">Register for Enrollment</span>
+                        <span class="btn-loader" style="display: none;">
+                            <span class="spinner"></span>
+                            Processing...
+                        </span>
+                    </button>
+                </form>
+
+                <!-- Status Message -->
+                <div id="statusMessage" class="status-message" style="display: none;"></div>
+            </div>
+
+            <!-- Instructions -->
+            <div class="card instructions-card">
+                <h3>📝 Instructions</h3>
+                <ol class="instructions-list">
+                    <li>Enter your full name and roll number</li>
+                    <li>Click "Register for Enrollment"</li>
+                    <li>Go to the fingerprint scanner</li>
+                    <li>Wait for teacher approval</li>
+                    <li>Place your finger when prompted</li>
+                </ol>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Attendify Phase 1 • Local Network</p>
+        </footer>
+    </div>
+
+    <script>
+        // ============================================================
+        // CONFIGURATION
+        // ============================================================
+        const API_BASE = window.location.origin;
+
+        // ============================================================
+        // DOM ELEMENTS
+        // ============================================================
+        const form = document.getElementById('enrollForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = submitBtn.querySelector('.btn-text');
+        const btnLoader = submitBtn.querySelector('.btn-loader');
+        const statusMessage = document.getElementById('statusMessage');
+        const nameInput = document.getElementById('studentName');
+        const rollInput = document.getElementById('studentRoll');
+
+        // ============================================================
+        // FORM SUBMISSION
+        // ============================================================
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = nameInput.value.trim();
+            const roll = rollInput.value.trim();
+
+            // Validation
+            if (!name || !roll) {
+                showStatus('Please fill in all fields', 'error');
+                return;
+            }
+
+            if (!/^\d+$/.test(roll)) {
+                showStatus('Roll number must contain only numbers', 'error');
+                return;
+            }
+
+            // Disable button and show loader
+            setLoading(true);
+
+            try {
+                const response = await fetch(`${API_BASE}/api/register-queue`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, roll })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showStatus(data.message, 'success');
+                    form.reset();
+                } else {
+                    showStatus(data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showStatus('Connection error. Please check if server is running.', 'error');
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        // ============================================================
+        // UI HELPERS
+        // ============================================================
+        function showStatus(message, type) {
+            statusMessage.textContent = message;
+            statusMessage.className = `status-message ${type}`;
+            statusMessage.style.display = 'block';
+
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                statusMessage.style.display = 'none';
+            }, 5000);
+        }
+
+        function setLoading(loading) {
+            submitBtn.disabled = loading;
+            btnText.style.display = loading ? 'none' : 'inline';
+            btnLoader.style.display = loading ? 'inline-flex' : 'none';
+        }
+
+        // ============================================================
+        // INPUT VALIDATION
+        // ============================================================
+        rollInput.addEventListener('input', (e) => {
+            // Remove non-numeric characters
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+# Hardware Build Files
+attendify-hardware/.pio/
+attendify-hardware/.pio
+attendify-hardware/build/
+attendify-hardware/.clang_complete
+attendify-hardware/.gcc-flags.json
+attendify-hardware/build_log.txt
+attendify-hardware/*.o
+attendify-hardware/*.a
+
+# Node/Frontend
+attendify-software/node_modules/
+attendify-software/npm-debug.log
+attendify-software/package-lock.json
+*.log
+
+# Database & Config
+attendify-software/backend/database.json
+attendify-software/backend/audit.log
+attendify-software/backend/serviceAccountKey.json
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# Instance 2 Sensitive Files
+attendify-software2/backend/.env
+attendify-software2/backend/serviceAccountKey.json
+attendify-software2/backend/database.json
+attendify-software2/backend/audit.log
+
+# Hardware Instance 2 Config
+attendify-hardware2/src/config/hardware_secrets.h
+.env
+.env.local
+
+# IDE
+.vscode/
+.vscode/mcp.json
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Backup files
+*.bak
+old_main_backup.cpp
+
+# Compiled binaries
+*.elf
+*.bin
+*.hex

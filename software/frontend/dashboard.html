@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendify - Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="dashboard-page">
+    <div class="container dashboard-container">
+        <header class="header dashboard-header">
+            <div class="logo">
+                <div class="logo-icon">📊</div>
+                <h1>Attendify</h1>
+            </div>
+            <div class="header-status">
+                <button id="logoutBtn" class="btn btn-small btn-secondary">Logout</button>
+            </div>
+        </header>
+
+        <main id="dashboard-content" class="dashboard-grid">
+            <!-- Content injected by role_router.js -->
+            <div class="loading-spinner">Loading...</div>
+        </main>
+
+        <footer class="footer dashboard-footer">
+            <p>Attendify Phase 3 • Role-Based Access Control</p>
+        </footer>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script src="role_router.js"></script>
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyA5xTUSjlz0AUc3P2evFIwMIe6vQfS0Nl8",
+            authDomain: "newattendify.firebaseapp.com",
+            projectId: "newattendify",
+            storageBucket: "newattendify.firebasestorage.app",
+            messagingSenderId: "1087026675865",
+            appId: "1:1087026675865:web:796f43bc5249626a697808"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        // Migration helper: if an existing ID token was issued by a different
+        // Firebase project (old instance), clear it and force re-authentication.
+        function decodeJwt(token) {
+            try {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+                return JSON.parse(jsonPayload);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        (async () => {
+            const stored = localStorage.getItem('attendify_token');
+            if (stored) {
+                const d = decodeJwt(stored);
+                if (d && d.aud && d.aud !== firebaseConfig.projectId) {
+                    console.log('[MIGRATE] Clearing token issued by', d.aud);
+                    try { await firebase.auth().signOut(); } catch (e) {}
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    window.location.href = '/login?logout=true';
+                    return;
+                }
+            }
+        })();
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            console.log('Logging out...');
+            try {
+                if (firebase.auth().currentUser) {
+                    await firebase.auth().signOut();
+                }
+            } catch (error) {
+                console.error('SignOut error (ignoring):', error);
+            }
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = '/login?logout=true';
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,28 @@
+{
+  "name": "attendify-backend",
+  "version": "1.0.0",
+  "description": "Attendify Phase 1 - Local Backend Server",
+  "main": "server.js",
+  "scripts": {
+    "build": "node --check backend/server.js",
+    "erp:token": "node backend/tools/generate_erp_token.js",
+    "erp:verify": "node backend/tools/verify_erp_exchange.js",
+    "start": "node backend/server.js",
+    "dev": "node backend/server.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^4.18.2",
+    "firebase-admin": "^13.6.0",
+    "nodemailer": "^8.0.7"
+  },
+  "keywords": [
+    "attendance",
+    "fingerprint",
+    "esp32"
+  ],
+  "author": "Attendify",
+  "license": "MIT"
+}

@@ -1,0 +1,2673 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendify - Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        /* Admin-specific styles — Light Theme */
+
+        /* Toast styles */
+        .toast-container {
+            position: fixed;
+            right: 20px;
+            bottom: 26px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 99999;
+            pointer-events: none;
+        }
+        .toast {
+            pointer-events: auto;
+            min-width: 220px;
+            max-width: 420px;
+            background: #111827;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            opacity: 0.98;
+        }
+        .toast.success { background: #065f46; }
+        .toast.error { background: #7f1d1d; }
+        .toast.info { background: #0f172a; }
+        .toast .toast-close { margin-left: auto; cursor: pointer; opacity: 0.85; }
+
+        .admin-page {
+            min-height: 100vh;
+            background: #f8fafc;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-lg);
+            border-bottom: 1px solid var(--border-color);
+            background: #ffffff;
+        }
+
+        .admin-header .logo h1 {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .admin-header .logo {
+            gap: var(--space-sm);
+        }
+
+        .admin-header .logo-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: var(--brand-bg);
+            color: var(--brand);
+            font-size: 1.1rem;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-role {
+            font-size: 0.75rem;
+            color: var(--brand);
+            text-transform: uppercase;
+        }
+
+        .mode-badge {
+            display: inline-flex;
+            align-items: center;
+            min-height: 28px;
+            padding: 0 10px;
+            border: 1px solid #bfdbfe;
+            border-radius: var(--radius-md);
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            white-space: nowrap;
+        }
+
+        .mode-badge.local {
+            border-color: #fed7aa;
+            background: #fff7ed;
+            color: #c2410c;
+        }
+
+        .btn-logout {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-xs);
+            padding: var(--space-sm) var(--space-md);
+            background: var(--error-bg);
+            border: 1px solid var(--error-border);
+            color: var(--error);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .btn-logout:hover {
+            background: #fee2e2;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: var(--space-xs);
+            flex-wrap: wrap;
+            padding: var(--space-md) var(--space-lg);
+            border-bottom: 1px solid var(--border-color);
+            background: #ffffff;
+        }
+
+        .nav-tab {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-sm) var(--space-lg);
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all var(--transition-fast);
+        }
+
+        .nav-tab:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .nav-tab.active {
+            background: var(--brand);
+            color: white;
+        }
+
+        .nav-tab i {
+            font-size: 0.95rem;
+        }
+
+        /* Main Content */
+        .admin-content {
+            padding: var(--space-lg);
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Stats Cards */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-md);
+            margin-bottom: var(--space-xl);
+        }
+
+        .stat-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-card .stat-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 52px;
+            height: 52px;
+            margin-bottom: var(--space-sm);
+            border-radius: 16px;
+            background: var(--brand-bg);
+            color: var(--brand);
+            font-size: 1.35rem;
+        }
+
+        .stat-card .stat-icon.success {
+            background: var(--success-bg);
+            color: var(--success);
+        }
+
+        .stat-card .stat-icon.violet {
+            background: #f3e8ff;
+            color: #7e22ce;
+        }
+
+        .stat-card .stat-icon.warning {
+            background: #fff7ed;
+            color: #c2410c;
+        }
+
+        .stat-card .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--brand);
+        }
+
+        .stat-card .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .health-card {
+            margin-bottom: var(--space-xl);
+            padding: var(--space-lg);
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .health-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: var(--space-md);
+            margin-bottom: var(--space-md);
+        }
+
+        .health-card-title {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .health-pill {
+            display: inline-flex;
+            align-items: center;
+            min-height: 28px;
+            padding: 0 10px;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            white-space: nowrap;
+        }
+
+        .health-pill.ok {
+            background: #ecfdf5;
+            color: #047857;
+        }
+
+        .health-pill.warn {
+            background: #fffbeb;
+            color: #b45309;
+        }
+
+        .health-pill.error {
+            background: #fef2f2;
+            color: #b91c1c;
+        }
+
+        .health-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: var(--space-md);
+        }
+
+        .health-item {
+            padding: var(--space-md);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: #f8fafc;
+        }
+
+        .health-item-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .health-item-value {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            word-break: break-word;
+        }
+
+        /* Device List */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-md);
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .btn-add {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-sm) var(--space-md);
+            background: var(--brand);
+            border: none;
+            border-radius: var(--radius-md);
+            color: white;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-add:hover {
+            background: var(--brand-dark);
+        }
+
+        .device-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: var(--space-md);
+        }
+
+        .device-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition-normal);
+        }
+
+        .device-card:hover {
+            border-color: var(--brand-border);
+            box-shadow: var(--shadow-md);
+        }
+
+        .device-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--space-md);
+        }
+
+        .device-id {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+
+        .device-version {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .device-status {
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .device-status.online {
+            background: var(--success-bg);
+            color: var(--success);
+        }
+
+        .device-status.offline {
+            background: var(--error-bg);
+            color: var(--error);
+        }
+
+        .device-info {
+            display: flex;
+            gap: var(--space-lg);
+            flex-wrap: wrap;
+            margin-bottom: var(--space-md);
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .device-info span {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+        }
+
+        .device-info i {
+            color: var(--brand);
+        }
+
+        .device-actions {
+            display: flex;
+            gap: var(--space-sm);
+        }
+
+        .device-actions button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-xs);
+        }
+
+        .btn-edit,
+        .btn-delete {
+            flex: 1;
+            padding: var(--space-sm);
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .btn-edit {
+            background: var(--brand-bg);
+            color: var(--brand);
+        }
+
+        .btn-edit:hover {
+            background: #dbeafe;
+        }
+
+        .btn-delete {
+            background: var(--error-bg);
+            color: var(--error);
+        }
+
+        .btn-delete:hover {
+            background: #fee2e2;
+        }
+
+        /* Teacher List */
+        .teacher-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+
+        .teacher-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-md);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-xs);
+        }
+
+        .teacher-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 0;
+        }
+
+        .teacher-display-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .teacher-display-email,
+        .teacher-display-subjects {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .teacher-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-xs);
+            margin-top: 2px;
+        }
+
+        .role-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 10px;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+
+        .role-badge.admin {
+            background: #fff7ed;
+            color: #9a3412;
+        }
+
+        .role-badge.teacher {
+            background: var(--brand-bg);
+            color: var(--brand);
+        }
+
+        .role-badge.gfm {
+            background: #f3e8ff;
+            color: #7e22ce;
+        }
+
+        .teacher-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: var(--space-sm);
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-xs);
+            padding: 8px 12px;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .btn-action:hover {
+            background: var(--bg-hover);
+            border-color: var(--brand-border);
+        }
+
+        .btn-icon-danger {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            background: #ffffff;
+            border: 1px solid var(--error-border);
+            color: var(--error);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+        }
+
+        .btn-icon-danger:hover {
+            background: var(--error-bg);
+        }
+
+        .teacher-item.admin-only {
+            background: #fffbeb;
+            border-color: #fde68a;
+        }
+
+        .auth-status {
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .auth-status.authorized {
+            background: var(--success-bg);
+            color: var(--success);
+        }
+
+        .auth-status.pending {
+            background: var(--warning-bg);
+            color: var(--warning);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-xl);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-lg);
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-md);
+        }
+
+        .teacher-input-row {
+            display: flex;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-sm);
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .teacher-input-row .teacher-select,
+        .teacher-input-row .teacher-name,
+        .teacher-input-row .teacher-email,
+        .teacher-input-row .teacher-subjects {
+            flex: 1 1 180px;
+        }
+
+        .teacher-input-row .teacher-subjects {
+            flex-basis: 220px;
+        }
+
+        .btn-remove-teacher {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--error-bg);
+            color: var(--error);
+            border: none;
+            border-radius: var(--radius-md);
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .btn-add-teacher {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+            width: 100%;
+            padding: var(--space-sm);
+            background: var(--brand-bg);
+            border: 1px dashed var(--brand);
+            color: var(--brand);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            margin-top: var(--space-sm);
+        }
+
+        .teacher-gfm-label {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-xs);
+            color: #7e22ce;
+            font-size: 0.85rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .teacher-gfm {
+            accent-color: #7e22ce;
+        }
+
+        .form-select {
+            width: 100%;
+        }
+
+        .empty-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            background: var(--brand-bg);
+            color: var(--brand);
+            font-size: 1.35rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: var(--space-md);
+            margin-top: var(--space-lg);
+        }
+
+        .modal-actions button {
+            flex: 1;
+            padding: var(--space-md);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-hover);
+        }
+
+        .btn-small {
+            padding: 8px 12px;
+            background: var(--brand);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .btn-small:hover {
+            opacity: 0.9;
+        }
+
+        .modal-body {
+            padding: var(--space-lg);
+        }
+
+        @media (max-width: 768px) {
+            .admin-header,
+            .section-header,
+            .teacher-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .user-menu,
+            .teacher-actions,
+            .device-actions,
+            .modal-actions {
+                width: 100%;
+            }
+
+            .teacher-actions,
+            .device-actions,
+            .modal-actions {
+                flex-direction: column;
+            }
+
+            .teacher-actions .btn-action,
+            .teacher-actions .btn-icon-danger,
+            .device-actions button {
+                width: 100%;
+            }
+        }
+    
+        /* Profile Dropdown */
+        .profile-dropdown-container {
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .profile-dropdown-container:hover {
+            background-color: rgba(0,0,0,0.03);
+            border-radius: 8px;
+        }
+        
+        .profile-dropdown-menu {
+            display: none;
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            margin-bottom: 10px;
+            background: #ffffff;
+            border: 1px solid var(--border-color, #e2e8f0);
+            border-radius: var(--radius-md, 8px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            min-width: 200px;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .profile-dropdown-menu.active {
+            display: block;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .profile-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--text-primary, #1e293b);
+            text-decoration: none;
+            transition: background 0.2s;
+            border-bottom: 1px solid var(--border-color, #f1f5f9);
+            font-size: 0.95rem;
+        }
+
+        .profile-dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .profile-dropdown-item:hover {
+            background: var(--bg-hover, #f8fafc);
+        }
+
+        .profile-dropdown-item i {
+            color: var(--brand, #3b82f6);
+            width: 16px;
+            text-align: center;
+        }
+        
+        .profile-dropdown-item.danger-item i {
+            color: var(--error, #dc2626);
+        }
+
+        /* Modal Base CSS (Teacher fix) */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-content {
+            background: #ffffff;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transform: translateY(20px);
+            animation: slideUp 0.3s ease-out forwards;
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color, #e2e8f0);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary, #1e293b);
+            margin:0;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-secondary, #64748b);
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: #e2e8f0;
+            color: var(--text-primary, #1e293b);
+        }
+        
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+</style>
+</head>
+
+<body class="admin-page">
+    <!-- Header -->
+    <header class="admin-header">
+        <div class="logo">
+            <span class="logo-icon"><i class="fa-solid fa-shield-halved"></i></span>
+            <h1>Admin Dashboard</h1>
+        </div>
+        <div class="user-menu">
+            <span class="mode-badge" id="modeBadge">MODE</span>
+            <div class="user-info">
+                <div class="user-name" id="userName">Loading...</div>
+                <div class="user-role">ADMIN</div>
+            </div>
+            <button class="btn-action" onclick="sendAttendanceWarnings()" id="warningBtn" style="background:var(--brand); color:white; border:none;">
+                <i class="fa-solid fa-envelope-open-text"></i>
+                <span>Send Warnings</span>
+            </button>
+            <button class="btn-action" onclick="openAdminAccountsModal()">
+                <i class="fa-solid fa-users-gear"></i>
+                <span>Accounts</span>
+            </button>
+            <button class="btn-logout" onclick="logout()">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav-tabs">
+        <button class="nav-tab active" data-tab="devices"><i class="fa-solid fa-microchip"></i><span>Devices</span></button>
+        <button class="nav-tab" data-tab="teachers"><i class="fa-solid fa-chalkboard-user"></i><span>Teachers</span></button>
+        <button class="nav-tab" data-tab="sessions"><i class="fa-solid fa-calendar-check"></i><span>Sessions</span></button>
+        <button class="nav-tab" data-tab="reports"><i class="fa-solid fa-chart-column"></i><span>Reports</span></button>
+        <button class="nav-tab" data-tab="students"><i class="fa-solid fa-user-graduate"></i><span>Students</span></button>
+        <button class="nav-tab" data-tab="wifi"><i class="fa-solid fa-wifi"></i><span>Wi-Fi</span></button>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="admin-content">
+        <!-- Devices Tab -->
+        <div id="devices-tab" class="tab-content active">
+            <!-- Stats -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fa-solid fa-microchip"></i></div>
+                    <div class="stat-value" id="totalDevices">0</div>
+                    <div class="stat-label">Total Devices</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon success"><i class="fa-solid fa-signal"></i></div>
+                    <div class="stat-value" id="activeDevices">0</div>
+                    <div class="stat-label">Online Today</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon violet"><i class="fa-solid fa-chalkboard-user"></i></div>
+                    <div class="stat-value" id="totalTeachers">0</div>
+                    <div class="stat-label">Total Teachers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon warning"><i class="fa-solid fa-user-check"></i></div>
+                    <div class="stat-value" id="authorizedTeachers">0</div>
+                    <div class="stat-label">Authorized</div>
+                </div>
+            </div>
+
+            <div class="health-card" id="healthCard">
+                <div class="health-card-header">
+                    <div class="health-card-title">
+                        <i class="fa-solid fa-heart-pulse"></i>
+                        <span>System Health</span>
+                    </div>
+                    <span class="health-pill warn" id="healthOverall">Checking...</span>
+                </div>
+                <div class="health-grid">
+                    <div class="health-item">
+                        <div class="health-item-label">Server</div>
+                        <div class="health-item-value" id="healthServer">Checking...</div>
+                    </div>
+                    <div class="health-item">
+                        <div class="health-item-label">Mode</div>
+                        <div class="health-item-value" id="healthMode">Checking...</div>
+                    </div>
+                    <div class="health-item">
+                        <div class="health-item-label">Firebase Admin</div>
+                        <div class="health-item-value" id="healthFirebase">Checking...</div>
+                    </div>
+                    <div class="health-item">
+                        <div class="health-item-label">SMTP</div>
+                        <div class="health-item-value" id="healthSmtp">Checking...</div>
+                    </div>
+                    <div class="health-item">
+                        <div class="health-item-label">Database</div>
+                        <div class="health-item-value" id="healthDatabase">Checking...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Device List -->
+            <div class="section-header">
+                <h2 class="section-title">Device Configurations</h2>
+                <button class="btn-add" onclick="openAddDeviceModal()">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Add Device</span>
+                </button>
+            </div>
+            <div id="deviceList" class="device-grid">
+                <div class="empty-state">
+                    <div class="empty-icon"><i class="fa-solid fa-microchip"></i></div>
+                    <p>No devices configured yet</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Teachers Tab -->
+        <div id="teachers-tab" class="tab-content">
+            <div class="section-header">
+                <h2 class="section-title">All Teachers</h2>
+                <button class="btn-add" onclick="openCreateTeacherModal()">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>Create Teacher Account</span>
+                </button>
+            </div>
+            <div class="card">
+                <div id="allTeachersList" class="teacher-list">
+                    <p class="text-muted">Loading teachers...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sessions Tab -->
+        <div id="sessions-tab" class="tab-content">
+            <div class="section-header">
+                <h2 class="section-title">Recent Sessions</h2>
+            </div>
+            <div class="card">
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Device</th>
+                                <th>Teacher</th>
+                                <th>Subject</th>
+                                <th>Date</th>
+                                <th>Students</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sessionsTable">
+                            <tr class="empty-row">
+                                <td colspan="6">No sessions recorded yet</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Tab -->
+        <div id="reports-tab" class="tab-content">
+            <div class="section-header">
+                <h2 class="section-title">Attendance Reports</h2>
+            </div>
+            <div class="card">
+                <p class="text-muted">Reports feature coming soon...</p>
+            </div>
+        </div>
+
+        <!-- Students Tab -->
+        <div id="students-tab" class="tab-content">
+            <!-- All Students -->
+            <div class="section-header">
+                <h2 class="section-title"><i class="fa-solid fa-user-graduate"></i> Student Accounts</h2>
+                <button class="btn-add" onclick="openCreateStudentModal()">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>Create Student Account</span>
+                </button>
+            </div>
+            <div class="card">
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Roll No</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsTableBody">
+                            <tr><td colspan="5" style="text-align:center;">Loading students...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wi-Fi Tab -->
+        <div id="wifi-tab" class="tab-content">
+            <div class="section-header">
+                <h2 class="section-title"><i class="fa-solid fa-wifi"></i> Wi-Fi Network Profiles</h2>
+            </div>
+            <div class="card" style="padding:24px; margin-bottom:20px;">
+                <p style="color:#94a3b8; margin-bottom:16px; font-size:0.9rem;">Manage Wi-Fi credentials for Attendify devices. Teachers can also push their iPad/hotspot credentials from their dashboards. Devices auto-connect to these networks when in range.</p>
+                <div style="display:grid; grid-template-columns:1fr 1fr auto; gap:12px; align-items:end;">
+                    <div>
+                        <label style="display:block; font-size:0.8rem; color:#94a3b8; margin-bottom:6px;">Network Name (SSID)</label>
+                        <input type="text" id="adminWifiSsid" placeholder="e.g. Campus_WiFi" style="width:100%; padding:10px 14px; border:1px solid #334155; border-radius:8px; background:#1e293b; color:#e2e8f0; font-size:0.9rem;">
+                    </div>
+                    <div>
+                        <label style="display:block; font-size:0.8rem; color:#94a3b8; margin-bottom:6px;">Password</label>
+                        <input type="password" id="adminWifiPassword" placeholder="Network password" style="width:100%; padding:10px 14px; border:1px solid #334155; border-radius:8px; background:#1e293b; color:#e2e8f0; font-size:0.9rem;">
+                    </div>
+                    <button onclick="adminAddWifi()" class="btn-add" style="height:42px; white-space:nowrap;"><i class="fa-solid fa-plus"></i> <span>Add Network</span></button>
+                </div>
+                <div id="adminWifiStatus" style="display:none; padding:12px 16px; border-radius:8px; margin-top:12px; font-size:0.85rem;"></div>
+            </div>
+            <div class="card">
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>SSID</th>
+                                <th>Added By</th>
+                                <th>Role</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="wifiTableBody">
+                            <tr><td colspan="5" style="text-align:center;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    <!-- Create Student Modal -->
+    <div id="createStudentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Create Student Account</h3>
+                <button class="modal-close" onclick="closeStudentModal()">&times;</button>
+            </div>
+            <form id="createStudentForm">
+                <div class="form-group">
+                    <label for="newStudentEmail">Email</label>
+                    <input type="email" id="newStudentEmail" placeholder="student@school.edu" required>
+                </div>
+                <div class="form-group">
+                    <label for="newStudentRoll">Roll Number</label>
+                    <input type="text" id="newStudentRoll" placeholder="22it101" required>
+                </div>
+                <div class="form-group">
+                    <label for="newStudentName">Full Name</label>
+                    <input type="text" id="newStudentName" placeholder="Student Name" required>
+                </div>
+                <div class="form-group">
+                    <label for="newStudentPassword">Password (Optional - leave blank to auto-generate)</label>
+                    <input type="password" id="newStudentPassword" placeholder="Enter custom password">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeStudentModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    </main>
+
+    <!-- Add/Edit Device Modal -->
+    <div id="deviceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Add Device Configuration</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="deviceForm">
+                <div class="form-group">
+                    <label for="deviceId">Device ID</label>
+                    <input type="text" id="deviceId" placeholder="ESP32_CLASSROOM_01" required>
+                </div>
+                <div class="form-group">
+                    <label for="adminEmail">Admin Email</label>
+                    <input type="email" id="adminEmail" placeholder="admin@school.edu" required>
+                </div>
+                <div class="form-group">
+                    <label>Teachers</label>
+                    <div id="teachersContainer">
+                        <div class="teacher-input-row">
+                            <input type="text" placeholder="Teacher Name" class="teacher-name">
+                            <input type="email" placeholder="Email" class="teacher-email">
+                            <input type="text" placeholder="Subjects (comma)" class="teacher-subjects">
+                            <label class="teacher-gfm-label">
+                                <input type="checkbox" class="teacher-gfm">
+                                <span>GFM</span>
+                            </label>
+                            <button type="button" class="btn-remove-teacher" onclick="removeTeacherRow(this)"
+                                aria-label="Remove teacher row">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-add-teacher" onclick="addTeacherRow()">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Add Teacher</span>
+                    </button>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Configuration</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Create Teacher Modal -->
+    <div id="createTeacherModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Create Teacher Account</h3>
+                <button class="modal-close" onclick="closeTeacherModal()">&times;</button>
+            </div>
+            <form id="createTeacherForm">
+                <div class="form-group">
+                    <label for="newTeacherName">Full Name</label>
+                    <input type="text" id="newTeacherName" placeholder="Dr. Jane Doe" required>
+                </div>
+                <div class="form-group">
+                    <label for="newTeacherEmail">Email</label>
+                    <input type="email" id="newTeacherEmail" placeholder="teacher@school.edu" required>
+                </div>
+                <div class="form-group">
+                    <label for="newTeacherRole">Role</label>
+                    <select id="newTeacherRole" class="form-select">
+                        <option value="TEACHER">Teacher (Regular)</option>
+                        <option value="GFM">GFM (Guardian Faculty)</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeTeacherModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Teacher Creation Result Modal (show credentials) -->
+    <div id="teacherCreatedModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">✅ Account Created Successfully</h3>
+                <button class="modal-close" onclick="closeTeacherCreatedModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="background: #f0f9ff; padding: 16px; border-radius: 8px; border: 1px solid #bfdbfe; margin-bottom: 16px;">
+                    <p style="margin: 0 0 8px 0; font-size: 0.9rem; color: #1e40af;"><strong>Teacher Email:</strong></p>
+                    <p id="createdTeacherEmail" style="margin: 0 0 12px 0; font-family: monospace; word-break: break-all; font-weight: 600;"></p>
+                    
+                    <p style="margin: 0 0 8px 0; font-size: 0.9rem; color: #1e40af;"><strong>Temporary Password:</strong></p>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <code id="createdTeacherPassword" style="flex: 1; background: white; padding: 10px; border-radius: 4px; border: 1px solid #bfdbfe; font-size: 0.95rem; word-break: break-all;"></code>
+                        <button type="button" class="btn-small" onclick="copyToClipboard()" title="Copy to clipboard" style="padding: 8px 12px; white-space: nowrap;">📋 Copy</button>
+                    </div>
+                </div>
+
+                <div style="background: #fefce8; padding: 12px; border-radius: 6px; border-left: 3px solid #eab308; margin-bottom: 16px; font-size: 0.85rem; color: #78350f;">
+                    <strong>⚠ How to share:</strong><br/>
+                    • Share email and password via WhatsApp or email<br/>
+                    • Ask teacher to change password after first login<br/>
+                    • Password expires after first login (best practice)<br/>
+                    • <span id="modeNoteSpan"></span>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="openWhatsAppShare()">
+                        <i class="fab fa-whatsapp"></i> Share on WhatsApp
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="closeTeacherCreatedModal()">Done</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+
+    <!-- Toast container -->
+    <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Admin Accounts Modal -->
+    <div id="adminAccountsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Admin: Accounts</h3>
+                <button class="modal-close" onclick="closeAdminAccountsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="accountsList">Loading accounts...</div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeAdminAccountsModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Account Action Result Modal -->
+    <div id="accountResultModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Account Action Result</h3>
+                <button class="modal-close" onclick="closeAccountResultModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Email:</strong> <span id="resultEmail"></span></p>
+                <p><strong>Temporary Password:</strong></p>
+                <code id="resultPassword" style="display:block; padding:12px; background:#fff; border-radius:6px; border:1px solid #e5e7eb; margin-top:8px;"></code>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="copyResultPassword()">Copy Password</button>
+                <button type="button" class="btn btn-primary" onclick="closeAccountResultModal()">Done</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyA5xTUSjlz0AUc3P2evFIwMIe6vQfS0Nl8",
+            authDomain: "newattendify.firebaseapp.com",
+            projectId: "newattendify",
+            storageBucket: "newattendify.firebasestorage.app",
+            messagingSenderId: "1087026675865",
+            appId: "1:1087026675865:web:796f43bc5249626a697808"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        // Toast helper — initialized immediately
+        window.showToast = function(message, type = 'info', duration = 4500) {
+            try {
+                const container = document.getElementById('toastContainer');
+                if (!container) return;
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.innerHTML = `<div>${String(message).replace(/\n/g, '<br/>')}</div><div class="toast-close">&times;</div>`;
+                container.appendChild(toast);
+                const closer = toast.querySelector('.toast-close');
+                closer.addEventListener('click', () => { toast.remove(); });
+                setTimeout(() => { try { toast.remove(); } catch (e) {} }, duration);
+            } catch (e) { console.warn('Toast error', e); }
+        };
+        // Redirect old alert() calls to showToast for better UX
+        try { window.alert = function(m) { window.showToast(m, 'info'); }; } catch (e) {}
+
+        // Runtime mode — will be populated by loadModeBadge()
+        let runtimeMode = { storageMode: 'CLOUD', authMode: 'FIREBASE', modeLabel: 'CLOUD MODE' };
+
+        // Migration helper: if an existing ID token was issued by a different
+        // Firebase project (old instance), clear it and force re-authentication.
+        function decodeJwt(token) {
+            try {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+                return JSON.parse(jsonPayload);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        (async () => {
+            const stored = localStorage.getItem('attendify_token');
+            if (stored) {
+                const d = decodeJwt(stored);
+                if (d && d.aud && d.aud !== firebaseConfig.projectId) {
+                    console.log('[MIGRATE] Clearing token issued by', d.aud);
+                    try { await firebase.auth().signOut(); } catch (e) { }
+                    localStorage.removeItem('attendify_token');
+                    localStorage.removeItem('attendify_email');
+                    alert('Attendify upgraded — please sign in again to continue.');
+                    location.reload();
+                }
+            }
+        })();
+
+        let currentUser = null;
+        let editingDeviceId = null;
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[char]));
+        }
+
+        async function loadModeBadge() {
+            try {
+                const res = await fetch('/api/server-info');
+                const data = await res.json();
+                const badge = document.getElementById('modeBadge');
+                const mode = data.mode || {};
+                runtimeMode = mode;
+                const isLocal = mode.storageMode === 'LOCAL' && mode.authMode === 'LOCAL';
+                badge.textContent = mode.modeLabel || (isLocal ? 'LOCAL DEV MODE' : 'CLOUD MODE');
+                badge.classList.toggle('local', isLocal);
+                badge.title = `Storage: ${mode.storageMode || 'UNKNOWN'} | Auth: ${mode.authMode || 'UNKNOWN'}`;
+            } catch (error) {
+                console.warn('Failed to load mode badge:', error);
+            }
+        }
+
+        function setHealthValue(id, value) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.textContent = value;
+            }
+        }
+
+        function setHealthOverall(status, text) {
+            const pill = document.getElementById('healthOverall');
+            if (!pill) return;
+            pill.classList.remove('ok', 'warn', 'error');
+            pill.classList.add(status);
+            pill.textContent = text;
+        }
+
+        async function loadSystemHealth() {
+            try {
+                const res = await fetch('/api/health');
+                const data = await res.json();
+                const overallOk = data.server === 'ok' && data.database === 'ok' && data.supported !== false;
+
+                setHealthOverall(overallOk ? 'ok' : 'warn', overallOk ? 'Healthy' : 'Needs attention');
+                setHealthValue('healthServer', data.server || 'unknown');
+                setHealthValue('healthMode', `${data.modeLabel || 'UNKNOWN'} (${data.storageMode || 'N/A'} / ${data.authMode || 'N/A'})`);
+                setHealthValue('healthFirebase', data.firebaseAdmin || 'unknown');
+                setHealthValue('healthSmtp', data.smtp || 'unknown');
+                setHealthValue('healthDatabase', `${data.database || 'unknown'} (R:${data.databaseRead || 'unknown'} W:${data.databaseWrite || 'unknown'})`);
+            } catch (error) {
+                console.warn('Failed to load system health:', error);
+                setHealthOverall('error', 'Unavailable');
+                setHealthValue('healthServer', 'unavailable');
+                setHealthValue('healthMode', 'unavailable');
+                setHealthValue('healthFirebase', 'unavailable');
+                setHealthValue('healthSmtp', 'unavailable');
+                setHealthValue('healthDatabase', 'unavailable');
+            }
+        }
+
+        // Auto-refresh token helper
+        async function getValidToken() {
+            const user = firebase.auth().currentUser;
+            if (user) {
+                const token = await user.getIdToken(true); // Force refresh
+                localStorage.setItem('attendify_token', token);
+                return token;
+            }
+            return null;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            loadModeBadge();
+            loadSystemHealth();
+            const token = localStorage.getItem('attendify_token');
+
+            // If we have a local token, skip Firebase auth check
+            if (token && token.startsWith('LOCAL_TOKEN_')) {
+                console.log('[ADMIN] Using local token auth');
+                await checkAuth();
+                setupTabs();
+                loadDevices();
+                loadTeachers();
+                loadStudents();
+                return;
+            }
+
+            // Otherwise use Firebase auth state
+            firebase.auth().onAuthStateChanged(async (user) => {
+                if (!user) {
+                    // No Firebase user and no local token — redirect to login
+                    if (!localStorage.getItem('attendify_token')) {
+                        window.location.href = '/login';
+                        return;
+                    }
+                }
+                await checkAuth();
+                setupTabs();
+                loadDevices();
+                loadTeachers();
+                loadStudents();
+            });
+        });
+
+        // Auth Check
+        async function checkAuth() {
+            const token = localStorage.getItem('attendify_token');
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/auth/me', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!res.ok) throw new Error('Auth failed');
+
+                const data = await res.json();
+                currentUser = data.user;
+
+                if (currentUser.role !== 'ADMIN') {
+                    showToast('Access denied. Admin only.', 'error');
+                    window.location.href = '/dashboard';
+                    return;
+                }
+
+                document.getElementById('userName').textContent = currentUser.displayName || currentUser.email;
+            } catch (error) {
+                console.error('Auth error:', error);
+                logout();
+            }
+        }
+
+        // Tab Navigation
+        function setupTabs() {
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Update tab buttons
+                    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+
+                    // Update content
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    document.getElementById(`${tab.dataset.tab}-tab`).classList.add('active');
+                });
+            });
+        }
+
+        function getLastAssignedSubjects(email) {
+            if (!window.deviceConfigs || !email) return '';
+            const sortedConfigs = [...window.deviceConfigs].sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
+            for (const config of sortedConfigs) {
+                const t = (config.teachers || []).find(teach => {
+                    const teachEmail = typeof teach === 'object' ? teach.email : teach;
+                    return teachEmail && teachEmail.toLowerCase() === email.toLowerCase();
+                });
+                if (t && t.subjects) {
+                    return Array.isArray(t.subjects) ? t.subjects.join(', ') : t.subjects;
+                }
+            }
+            return '';
+        }
+
+        function createTeacherRow(teacher = {}) {
+            const teacherData = (typeof teacher === 'object' && teacher !== null)
+                ? teacher
+                : { name: teacher };
+            const row = document.createElement('div');
+            row.className = 'teacher-input-row';
+
+            const teachers = window.allTeachers || [];
+            let optionsHtml = `<option value="">-- Select Registered Teacher --</option>`;
+            let isCustom = false;
+            let matchedEmail = '';
+
+            if (teacherData.email) {
+                const found = teachers.find(t => t.email.toLowerCase() === teacherData.email.toLowerCase());
+                if (found) {
+                    matchedEmail = found.email;
+                } else {
+                    isCustom = true;
+                }
+            } else if (teacherData.name) {
+                const found = teachers.find(t => (t.name || '').toLowerCase() === teacherData.name.toLowerCase());
+                if (found) {
+                    matchedEmail = found.email;
+                } else {
+                    isCustom = true;
+                }
+            }
+
+            teachers.forEach(t => {
+                const displayName = `${t.name || t.email.split('@')[0]} (${t.email})`;
+                const selected = (matchedEmail === t.email) ? 'selected' : '';
+                optionsHtml += `<option value="${t.email}" ${selected}>${escapeHtml(displayName)}</option>`;
+            });
+
+            const customSelected = isCustom ? 'selected' : '';
+            optionsHtml += `<option value="CUSTOM" ${customSelected}>[Custom / New Teacher]</option>`;
+
+            row.innerHTML = `
+                <select class="teacher-select" style="padding: 10px; border-radius: var(--radius-md); border: 1px solid var(--border-color); background: var(--bg-input); color: var(--text-primary); font-size: 0.9rem; outline: none;">
+                    ${optionsHtml}
+                </select>
+                <input type="text" placeholder="Teacher Name" class="teacher-name" value="${teacherData.name || ''}" ${matchedEmail ? 'readonly style="background: var(--bg-hover); color: var(--text-secondary); cursor: not-allowed;"' : ''}>
+                <input type="email" placeholder="Email" class="teacher-email" value="${teacherData.email || ''}" ${matchedEmail ? 'readonly style="background: var(--bg-hover); color: var(--text-secondary); cursor: not-allowed;"' : ''}>
+                <input type="text" placeholder="Subjects (comma)" class="teacher-subjects" value="${teacherData.subjects || ''}">
+                <label class="teacher-gfm-label">
+                    <input type="checkbox" class="teacher-gfm" ${teacherData.is_gfm ? 'checked' : ''}>
+                    <span>GFM</span>
+                </label>
+                <button type="button" class="btn-remove-teacher" onclick="removeTeacherRow(this)" aria-label="Remove teacher row">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            `;
+
+            const selectEl = row.querySelector('.teacher-select');
+            selectEl.addEventListener('change', (e) => {
+                const val = e.target.value;
+                const nameInput = row.querySelector('.teacher-name');
+                const emailInput = row.querySelector('.teacher-email');
+                const subjectsInput = row.querySelector('.teacher-subjects');
+                const gfmInput = row.querySelector('.teacher-gfm');
+
+                if (val === 'CUSTOM') {
+                    nameInput.value = '';
+                    emailInput.value = '';
+                    nameInput.readOnly = false;
+                    emailInput.readOnly = false;
+                    nameInput.removeAttribute('style');
+                    emailInput.removeAttribute('style');
+                    gfmInput.checked = false;
+                } else if (val) {
+                    const t = (window.allTeachers || []).find(user => user.email === val);
+                    if (t) {
+                        nameInput.value = t.name || t.email.split('@')[0];
+                        emailInput.value = t.email;
+                        nameInput.readOnly = true;
+                        emailInput.readOnly = true;
+                        nameInput.style.background = 'var(--bg-hover)';
+                        nameInput.style.color = 'var(--text-secondary)';
+                        nameInput.style.cursor = 'not-allowed';
+                        emailInput.style.background = 'var(--bg-hover)';
+                        emailInput.style.color = 'var(--text-secondary)';
+                        emailInput.style.cursor = 'not-allowed';
+                        gfmInput.checked = t.is_gfm === true || t.role === 'GFM';
+
+                        const lastSubs = getLastAssignedSubjects(t.email);
+                        if (lastSubs) {
+                            subjectsInput.value = lastSubs;
+                        } else {
+                            subjectsInput.value = '';
+                        }
+                    }
+                } else {
+                    nameInput.value = '';
+                    emailInput.value = '';
+                    subjectsInput.value = '';
+                    gfmInput.checked = false;
+                    nameInput.readOnly = false;
+                    emailInput.readOnly = false;
+                    nameInput.removeAttribute('style');
+                    emailInput.removeAttribute('style');
+                }
+            });
+
+            return row;
+        }
+
+        // Load Devices
+        async function loadDevices() {
+            try {
+                const token = localStorage.getItem('attendify_token');
+                const res = await fetch('/api/device/configs', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                const deviceList = document.getElementById('deviceList');
+                const configs = data.configs || [];
+                window.deviceConfigs = configs;
+
+                document.getElementById('totalDevices').textContent = configs.length;
+                document.getElementById('activeDevices').textContent = configs.filter(c => c.status === 'ONLINE').length || 0;
+
+                // Count teachers
+                let teacherCount = 0;
+                configs.forEach(c => teacherCount += (c.teachers ? c.teachers.length : 0));
+                document.getElementById('totalTeachers').textContent = teacherCount;
+
+                if (configs.length === 0) {
+                    deviceList.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon"><i class="fa-solid fa-microchip"></i></div>
+                            <p>No devices configured yet</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                deviceList.innerHTML = configs.map(config => `
+                    <div class="device-card">
+                        <div class="device-header">
+                            <div>
+                                <div class="device-id">${config.deviceId}</div>
+                                <div class="device-version">v${config.version || 1}</div>
+                            </div>
+                            <span class="device-status offline">Offline</span>
+                        </div>
+                        <div class="device-info">
+                            <span><i class="fa-solid fa-user-shield"></i> ${config.admins ? config.admins.length : 0} Admin</span>
+                            <span><i class="fa-solid fa-chalkboard-user"></i> ${config.teachers ? config.teachers.length : 0} Teachers</span>
+                        </div>
+                        <div class="teacher-list">
+                            ${(config.teachers || []).slice(0, 3).map(t => `
+                                <div class="teacher-item">
+                                    <div class="teacher-info">
+                                        <span class="teacher-display-name">${typeof t === 'object' ? t.name : t}</span>
+                                        <span class="teacher-display-subjects">${typeof t === 'object' ? t.subjects : 'All subjects'}</span>
+                                    </div>
+                                    <span class="auth-status pending">Pending</span>
+                                </div>
+                            `).join('')}
+                            ${(config.teachers || []).length > 3 ? `<p class="text-muted">+${config.teachers.length - 3} more...</p>` : ''}
+                        </div>
+                        <div class="device-actions">
+                            <button class="btn-edit" onclick="editDevice('${config.deviceId}')">
+                                <i class="fa-solid fa-pen"></i>
+                                <span>Edit</span>
+                            </button>
+                            <button class="btn-delete" onclick="deleteDevice('${config.deviceId}')">
+                                <i class="fa-solid fa-trash"></i>
+                                <span>Delete</span>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                console.error('Load devices error:', error);
+            }
+        }
+
+        // Load Teachers
+        async function loadTeachers() {
+            try {
+                const token = localStorage.getItem('attendify_token');
+                const res = await fetch('/api/users', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (!res.ok || !data.success) {
+                    throw new Error(data.message || 'Failed to load users');
+                }
+
+                const teacherList = document.getElementById('allTeachersList');
+                const users = (data.users || [])
+                    .filter(u => u.role === 'TEACHER' || u.role === 'GFM' || u.is_gfm === true)
+                    .sort((a, b) => String(a.email || '').localeCompare(String(b.email || '')));
+                window.allTeachers = users;
+
+                if (users.length === 0) {
+                    teacherList.innerHTML = '<p class="text-muted">No teacher accounts created yet</p>';
+                    return;
+                }
+
+                teacherList.innerHTML = users.map(u => {
+                    const email = String(u.email || '');
+                    const encodedEmail = encodeURIComponent(email);
+                    const displayName = escapeHtml(u.name || email.split('@')[0] || 'Teacher');
+                    const displayEmail = escapeHtml(email);
+                    const roleLabel = escapeHtml(u.role || 'TEACHER');
+                    const roleBadgeClass = u.role === 'GFM' ? 'gfm' : 'teacher';
+                    const gfmBadge = u.is_gfm && u.role !== 'GFM'
+                        ? '<span class="role-badge gfm">GFM</span>'
+                        : '';
+                    const authBadge = u.authProvider && u.authProvider !== 'FIREBASE'
+                        ? `<span class="role-badge teacher">${escapeHtml(u.authProvider.replace(/_/g, ' '))}</span>`
+                        : '';
+                    const actionButtons = `
+                        <div class="teacher-actions">
+                            <button onclick="toggleGFM(decodeURIComponent('${encodedEmail}'), ${!u.is_gfm})" class="btn-action">
+                                <i class="fa-solid ${u.is_gfm ? 'fa-user-minus' : 'fa-user-plus'}"></i>
+                                <span>${u.is_gfm ? 'Remove GFM' : 'Make GFM'}</span>
+                            </button>
+                            <button onclick="deleteUser(decodeURIComponent('${encodedEmail}'))" class="btn-icon-danger" aria-label="Delete user">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+
+                    return `
+                        <div class="teacher-item">
+                            <div class="teacher-info">
+                                <span class="teacher-display-name">${displayName}</span>
+                                <span class="teacher-display-email">${displayEmail}</span>
+                                <div class="teacher-badges">
+                                    <span class="role-badge ${roleBadgeClass}">${roleLabel}</span>
+                                    ${gfmBadge}
+                                    ${authBadge}
+                                </div>
+                            </div>
+                            ${actionButtons}
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                console.error('Load users error:', error);
+                document.getElementById('allTeachersList').innerHTML =
+                    `<p class="text-muted">Failed to load teacher accounts: ${escapeHtml(error.message)}</p>`;
+            }
+        }
+
+
+        async function loadStudents() {
+            try {
+                const token = localStorage.getItem('attendify_token');
+                const res = await fetch('/api/users', { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await res.json();
+                
+                const resStudents = await fetch('/api/students', { headers: { 'Authorization': `Bearer ${token}` } });
+                const studentsData = await resStudents.json();
+                const studentList = studentsData.students || [];
+
+                const users = (data.users || []).filter(u => u.role === 'STUDENT');
+                const tbody = document.getElementById('studentsTableBody');
+
+                if (users.length === 0 && studentList.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No students found.</td></tr>';
+                    return;
+                }
+
+                // Combine and deduplicate
+                const combined = [...users];
+                studentList.forEach(s => {
+                    if (!combined.find(u => u.email === s.email || u.roll === s.roll)) {
+                        combined.push({ ...s, role: 'STUDENT' });
+                    }
+                });
+
+                tbody.innerHTML = combined.map(u => {
+                    return `
+                        <tr>
+                            <td><strong>${escapeHtml(u.name || 'Unknown')}</strong></td>
+                            <td>${escapeHtml(u.roll || 'N/A')}</td>
+                            <td>${escapeHtml(u.email || 'N/A')}</td>
+                            <td><span class="auth-status authorized">Active</span></td>
+                            <td>
+                                <button onclick="deleteStudentAdmin('${escapeHtml(String(u.roll || ''))}', '${escapeHtml(String(u.email || ''))}')" class="btn-icon-danger" title="Delete Student">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Load students error:', error);
+                document.getElementById('studentsTableBody').innerHTML = `<tr><td colspan="5">Error: ${escapeHtml(error.message)}</td></tr>`;
+            }
+        }
+
+        async function changeRole(email, newRole) {
+            if (!confirm(`Change role for ${email} to ${newRole}?`)) return;
+
+            try {
+                const token = localStorage.getItem('attendify_token');
+                const res = await fetch('/api/admin/update-user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ email, role: newRole })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    loadTeachers();
+                } else {
+                    alert(data.message);
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Update failed");
+            }
+        }
+
+        async function toggleGFM(email, isGfm) {
+            const action = isGfm ? 'grant GFM access to' : 'remove GFM access from';
+            if (!confirm(`${action} ${email}?`)) return;
+
+            try {
+                const token = localStorage.getItem('attendify_token');
+                const res = await fetch('/api/admin/update-user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ email, is_gfm: isGfm })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert(isGfm ? '✅ GFM access granted!' : '✅ GFM access removed!');
+                    loadTeachers();
+                } else {
+                    alert(data.message);
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Update failed");
+            }
+        }
+
+        async function deleteUser(email) {
+            if (!confirm(`⚠️ PERMANENTLY DELETE ${email}?\n\nThis will remove them from Login and Local Database.\nThis cannot be undone.`)) return;
+
+            try {
+                const token = localStorage.getItem('attendify_token');
+                const res = await fetch('/api/admin/delete-user', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ email })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert(data.message);
+                    loadTeachers();
+                    loadStudents();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Delete failed");
+            }
+        }
+
+        async function deleteStudentAdmin(roll, email) {
+            const displayId = email && email !== 'N/A' && email !== 'undefined' ? email : `Roll ${roll}`;
+            if (!confirm(`⚠️ PERMANENTLY DELETE student ${displayId}?\n\nThis will remove their login account, student profile, and fingerprint records. This cannot be undone.`)) return;
+
+            try {
+                const token = localStorage.getItem('attendify_token');
+                
+                // If there's a valid email, delete the user login credentials first
+                if (email && email !== 'N/A' && email !== 'undefined') {
+                    await fetch('/api/admin/delete-user', {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify({ email })
+                    });
+                }
+                
+                // Delete the student profile and fingerprint
+                if (roll && roll !== 'N/A' && roll !== 'undefined') {
+                    await fetch(`/api/students/${roll}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                }
+
+                alert('Student deleted successfully');
+                loadStudents();
+                loadTeachers();
+            } catch (e) {
+                console.error(e);
+                alert("Delete failed");
+            }
+        }
+
+
+
+        // Modal Functions
+
+        // Admin Accounts Modal
+        function openAdminAccountsModal() {
+            document.getElementById('adminAccountsModal').classList.add('active');
+            loadAccounts();
+        }
+        function closeAdminAccountsModal() {
+            document.getElementById('adminAccountsModal').classList.remove('active');
+        }
+
+        async function loadAccounts() {
+            const container = document.getElementById('accountsList');
+            container.innerHTML = 'Loading accounts...';
+            try {
+                const token = localStorage.getItem('attendify_token');
+                const res = await fetch('/api/users', { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await res.json();
+                if (!res.ok || !data.success) {
+                    container.innerHTML = `<p class="text-muted">Failed to load accounts: ${escapeHtml(data.message || 'Unknown')}</p>`;
+                    return;
+                }
+                const users = data.users || [];
+                if (users.length === 0) {
+                    container.innerHTML = '<p class="text-muted">No accounts found</p>';
+                    return;
+                }
+                container.innerHTML = users.map(u => {
+                    const email = escapeHtml(u.email || '');
+                    const auth = escapeHtml(u.authProvider || 'LOCAL');
+                    const uid = escapeHtml(u.uid || '');
+                    return `
+                        <div style="display:flex;align-items:center;gap:12px;padding:10px;border-bottom:1px solid #eee;">
+                            <div style="flex:1"><strong>${email}</strong><div style="font-size:0.85rem;color:#6b7280;">${auth}${uid ? ' | uid:'+uid : ''}</div></div>
+                            <div style="display:flex;gap:8px">
+                                <button class="btn-small" onclick="resetLocalPassword('${encodeURIComponent(u.email)}')">Reset Local PW</button>
+                                <button class="btn-small" onclick="recreateFirebase('${encodeURIComponent(u.email)}')">Recreate Firebase</button>
+                                <button class="btn-small" onclick="deleteUser(decodeURIComponent('${encodeURIComponent(u.email)}'))" style="background:#ef4444;color:#fff">Delete</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (e) {
+                container.innerHTML = `<p class="text-muted">Error: ${escapeHtml(e.message)}</p>`;
+            }
+        }
+
+        async function resetLocalPassword(encodedEmail) {
+            const email = decodeURIComponent(encodedEmail);
+            if (!confirm(`Reset local password for ${email}? This will overwrite local password.`)) return;
+            try {
+                const token = localStorage.getItem('attendify_token');
+                const res = await fetch('/api/admin/reset-local-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ email })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('resultEmail').textContent = email;
+                    document.getElementById('resultPassword').textContent = data.temporaryPassword || '(none)';
+                    document.getElementById('accountResultModal').classList.add('active');
+                    loadTeachers();
+                    loadAccounts();
+                } else {
+                    showToast(data.message || 'Reset failed', 'error');
+                }
+            } catch (e) {
+                console.error(e);
+                showToast('Failed to contact server', 'error');
+            }
+        }
+
+        async function recreateFirebase(encodedEmail) {
+            const email = decodeURIComponent(encodedEmail);
+            if (!confirm(`Create or recreate Firebase Auth user for ${email}?`)) return;
+            try {
+                const token = localStorage.getItem('attendify_token');
+                const res = await fetch('/api/admin/recreate-firebase', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ email })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast(data.message || 'Firebase user recreated', 'success');
+                    loadTeachers();
+                    loadAccounts();
+                } else {
+                    showToast(data.message || 'Operation failed', 'error');
+                }
+            } catch (e) {
+                console.error(e);
+                showToast('Failed to contact server', 'error');
+            }
+        }
+
+        function closeAccountResultModal() {
+            document.getElementById('accountResultModal').classList.remove('active');
+            document.getElementById('resultEmail').textContent = '';
+            document.getElementById('resultPassword').textContent = '';
+        }
+
+        function copyResultPassword() {
+            const pw = document.getElementById('resultPassword').textContent;
+            if (!pw) return showToast('No password to copy', 'error');
+            navigator.clipboard.writeText(pw).then(() => showToast('Password copied', 'success')).catch(() => showToast('Failed to copy', 'error'));
+        }
+
+        // Modal Functions
+        function openAddDeviceModal() {
+            editingDeviceId = null;
+            document.getElementById('modalTitle').textContent = 'Add Device Configuration';
+            document.getElementById('deviceForm').reset();
+            document.getElementById('deviceId').disabled = false;
+            const teachersContainer = document.getElementById('teachersContainer');
+            teachersContainer.innerHTML = '';
+            teachersContainer.appendChild(createTeacherRow());
+            
+            const adminEmailInput = document.getElementById('adminEmail');
+            if (adminEmailInput) {
+                adminEmailInput.value = localStorage.getItem('attendify_email') || '';
+                adminEmailInput.readOnly = true;
+                adminEmailInput.style.background = 'var(--bg-hover)';
+                adminEmailInput.style.color = 'var(--text-secondary)';
+                adminEmailInput.style.cursor = 'not-allowed';
+            }
+            
+            document.getElementById('deviceModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('deviceModal').classList.remove('active');
+        }
+
+        function openCreateTeacherModal() {
+            document.getElementById('createTeacherForm').reset();
+            document.getElementById('createTeacherModal').classList.add('active');
+        }
+
+        function closeTeacherModal() {
+            document.getElementById('createTeacherModal').classList.remove('active');
+        }
+
+        function openCreateStudentModal() {
+            document.getElementById('createStudentForm').reset();
+            document.getElementById('createStudentModal').classList.add('active');
+        }
+
+        function closeStudentModal() {
+            document.getElementById('createStudentModal').classList.remove('active');
+        }
+
+        document.getElementById('createStudentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('newStudentEmail').value.trim();
+            const roll = document.getElementById('newStudentRoll').value.trim();
+            const name = document.getElementById('newStudentName').value.trim();
+            const password = document.getElementById('newStudentPassword').value;
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            try {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating...';
+                const token = localStorage.getItem('attendify_token');
+                const res = await fetch('/api/admin/create-student', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ email, roll, name, password })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    const message = `Student account created successfully.\n\nEmail: ${email}\nPassword: ${data.localPassword || 'Auto-generated'}\n\nA welcome email has been sent to the student's email address.`;
+                    alert(message);
+                    closeStudentModal();
+                    loadStudents();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Create student error:', error);
+                alert('Failed to connect to server');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        });
+
+        document.getElementById('createTeacherForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('newTeacherName').value.trim();
+            const email = document.getElementById('newTeacherEmail').value.trim();
+            const role = document.getElementById('newTeacherRole').value;
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+
+            try {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating...';
+                const token = localStorage.getItem('attendify_token');
+                const res = await fetch('/api/create-teacher', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ email, role, name })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    // Close creation form and show result modal
+                    closeTeacherModal();
+                    
+                    // Populate result modal with credentials
+                    document.getElementById('createdTeacherEmail').textContent = data.email;
+                    document.getElementById('createdTeacherPassword').textContent = data.temporaryPassword;
+                    
+                    // Set mode-specific note
+                    const modeNote = data.mode === 'LOCAL' 
+                        ? 'Stored in local database (no Firebase required)' 
+                        : 'Stored in Firebase Authentication';
+                    document.getElementById('modeNoteSpan').textContent = modeNote;
+                    
+                    // Store for WhatsApp share
+                    window.lastCreatedTeacher = data;
+                    
+                    // Show result modal
+                    document.getElementById('teacherCreatedModal').classList.add('active');
+                    
+                    // Refresh teacher list after 500ms
+                    setTimeout(loadTeachers, 500);
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Create teacher error:', error);
+                alert('Failed to connect to server');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        });
+
+        function closeTeacherModal() {
+            document.getElementById('createTeacherModal').classList.remove('active');
+            document.getElementById('createTeacherForm').reset();
+        }
+
+        function closeTeacherCreatedModal() {
+            document.getElementById('teacherCreatedModal').classList.remove('active');
+            window.lastCreatedTeacher = null;
+        }
+
+        function copyToClipboard() {
+            const password = document.getElementById('createdTeacherPassword').textContent;
+            navigator.clipboard.writeText(password).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✅ Copied!';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            }).catch(() => {
+                alert('Failed to copy. Please copy manually: ' + password);
+            });
+        }
+
+        function openWhatsAppShare() {
+            if (!window.lastCreatedTeacher) {
+                alert('No teacher data available to share');
+                return;
+            }
+            const { email, temporaryPassword, role } = window.lastCreatedTeacher;
+            const message = `Hello! I've created your ${role} account on Attendify:\n\n📧 Email: ${email}\n🔐 Password: ${temporaryPassword}\n\nPlease log in and change your password immediately. Let me know if you need help!`;
+            const encodedMsg = encodeURIComponent(message);
+            window.open(`https://wa.me/?text=${encodedMsg}`, '_blank');
+        }
+
+        function addTeacherRow() {
+            const container = document.getElementById('teachersContainer');
+            container.appendChild(createTeacherRow());
+        }
+
+        function removeTeacherRow(btn) {
+            const container = document.getElementById('teachersContainer');
+            if (container.children.length > 1) {
+                btn.parentElement.remove();
+            }
+        }
+
+        // Save Device
+        document.getElementById('deviceForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const deviceId = document.getElementById('deviceId').value.trim();
+            const adminEmail = document.getElementById('adminEmail').value.trim();
+
+            // Collect teachers
+            const teachers = [];
+            document.querySelectorAll('.teacher-input-row').forEach(row => {
+                const name = row.querySelector('.teacher-name').value.trim();
+                const email = row.querySelector('.teacher-email').value.trim();
+                const subjects = row.querySelector('.teacher-subjects').value.trim();
+                const isGfm = row.querySelector('.teacher-gfm')?.checked || false;
+
+                if (name && email) {
+                    teachers.push({ name, email, subjects, is_gfm: isGfm });
+                }
+            });
+
+            try {
+                const token = localStorage.getItem('attendify_token');
+                const res = await fetch('/api/device/config', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        deviceId,
+                        admins: [adminEmail],
+                        teachers
+                    })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    closeModal();
+                    loadDevices();
+                } else {
+                    alert(data.message || 'Failed to save');
+                }
+            } catch (error) {
+                console.error('Save error:', error);
+                alert('Failed to save configuration');
+            }
+        });
+
+        // Edit Device
+        async function editDevice(deviceId) {
+            try {
+                const token = localStorage.getItem('attendify_token');
+                const res = await fetch('/api/device/configs', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                const config = data.configs.find(c => c.deviceId === deviceId);
+
+                if (!config) return;
+
+                editingDeviceId = deviceId;
+                document.getElementById('modalTitle').textContent = 'Edit Device Configuration';
+                document.getElementById('deviceId').value = config.deviceId;
+                document.getElementById('deviceId').disabled = true;
+                
+                const adminEmailInput = document.getElementById('adminEmail');
+                if (adminEmailInput) {
+                    adminEmailInput.value = config.admins[0] || '';
+                    adminEmailInput.readOnly = true;
+                    adminEmailInput.style.background = 'var(--bg-hover)';
+                    adminEmailInput.style.color = 'var(--text-secondary)';
+                    adminEmailInput.style.cursor = 'not-allowed';
+                }
+
+                // Populate teachers
+                const container = document.getElementById('teachersContainer');
+                container.innerHTML = '';
+                (config.teachers || []).forEach(t => {
+                    container.appendChild(createTeacherRow(t));
+                });
+
+                if (container.children.length === 0) {
+                    addTeacherRow();
+                }
+
+                document.getElementById('deviceModal').classList.add('active');
+            } catch (error) {
+                console.error('Edit error:', error);
+            }
+        }
+
+        // Delete Device
+        async function deleteDevice(deviceId) {
+            if (!confirm(`Are you sure you want to delete ${deviceId}?`)) return;
+
+            try {
+                const token = localStorage.getItem('attendify_token');
+                const res = await fetch(`/api/device/config/${deviceId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    loadDevices();
+                } else {
+                    alert(data.message || 'Failed to delete');
+                }
+            } catch (error) {
+                console.error('Delete error:', error);
+            }
+        }
+
+        // Logout
+        async function logout() {
+            console.log('Logging out...');
+            try {
+                await firebase.auth().signOut();
+            } catch (e) {
+                console.error('SignOut error (ignoring):', e);
+            }
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = '/login?logout=true';
+        }
+    
+            function openChangePasswordModal() {
+                document.getElementById('changePasswordModal').classList.add('active');
+                document.getElementById('changePasswordForm').reset();
+                document.getElementById('changePasswordError').style.display = 'none';
+            }
+
+            function closeChangePasswordModal() {
+                document.getElementById('changePasswordModal').classList.remove('active');
+            }
+
+            document.getElementById('changePasswordForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const currentPassword = document.getElementById('currentPassword').value;
+                const newPassword = document.getElementById('newPassword').value;
+                const errorDiv = document.getElementById('changePasswordError');
+                const btn = document.getElementById('changePasswordBtn');
+                
+                errorDiv.style.display = 'none';
+                btn.disabled = true;
+                btn.textContent = 'Updating...';
+
+                try {
+                    if (runtimeMode.authMode === 'FIREBASE') {
+                        const user = firebase.auth().currentUser;
+                        if (!user) throw new Error("No user logged in");
+                        
+                        const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
+                        await user.reauthenticateWithCredential(credential);
+                        await user.updatePassword(newPassword);
+                        
+                        alert('✅ Password changed successfully!');
+                        closeChangePasswordModal();
+                    } else {
+                        const token = localStorage.getItem('attendify_token');
+                        const res = await fetch('/api/auth/change-password', {
+                            method: 'POST',
+                            headers: { 
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}` 
+                            },
+                            body: JSON.stringify({ currentPassword, newPassword })
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            alert('✅ Password changed successfully!');
+                            closeChangePasswordModal();
+                        } else {
+                            throw new Error(data.message || "Failed to change password");
+                        }
+                    }
+                } catch (error) {
+                    errorDiv.textContent = error.message;
+                    errorDiv.style.display = 'block';
+                }
+                btn.disabled = false;
+                btn.textContent = 'Change Password';
+            });
+        
+            function toggleProfileDropdown(e) {
+                e.stopPropagation();
+                document.getElementById('profileDropdown').classList.toggle('active');
+            }
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                const dropdown = document.getElementById('profileDropdown');
+                if (dropdown && dropdown.classList.contains('active')) {
+                    if (!e.target.closest('.profile-dropdown-container')) {
+                        dropdown.classList.remove('active');
+                    }
+                }
+            });
+
+        // ============================================================
+        // WI-FI PROFILE MANAGEMENT
+        // ============================================================
+        async function adminLoadWifi() {
+            const tbody = document.getElementById('wifiTableBody');
+            if (!tbody) return;
+            try {
+                const token = localStorage.getItem('attendify_token');
+                const res = await fetch('/api/wifi-config', { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await res.json();
+                if (!data.success || !data.profiles || data.profiles.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">No Wi-Fi profiles configured yet.</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = data.profiles.map(p => `
+                    <tr>
+                        <td><i class="fa-solid fa-wifi" style="margin-right:6px; color:#6366f1;"></i>${p.ssid}</td>
+                        <td>${p.addedBy || '-'}</td>
+                        <td><span class="role-badge">${p.role || '-'}</span></td>
+                        <td>${p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '-'}</td>
+                        <td><button onclick="adminDeleteWifi('${p.id}')" class="action-btn" style="color:#ef4444; font-size:0.8rem;"><i class="fa-solid fa-trash"></i> Delete</button></td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#ef4444;">Failed to load profiles.</td></tr>';
+            }
+        }
+
+        async function adminAddWifi() {
+            const ssid = document.getElementById('adminWifiSsid').value.trim();
+            const password = document.getElementById('adminWifiPassword').value;
+            const statusEl = document.getElementById('adminWifiStatus');
+            if (!ssid) {
+                statusEl.style.display = 'block';
+                statusEl.style.background = '#450a0a';
+                statusEl.style.color = '#fca5a5';
+                statusEl.textContent = 'SSID is required.';
+                return;
+            }
+            try {
+                const token = localStorage.getItem('attendify_token');
+                const res = await fetch('/api/wifi-config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ ssid, password })
+                });
+                const data = await res.json();
+                statusEl.style.display = 'block';
+                if (data.success) {
+                    statusEl.style.background = '#052e16';
+                    statusEl.style.color = '#86efac';
+                    statusEl.textContent = `"${ssid}" added successfully.`;
+                    document.getElementById('adminWifiSsid').value = '';
+                    document.getElementById('adminWifiPassword').value = '';
+                    adminLoadWifi();
+                    setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
+                } else {
+                    statusEl.style.background = '#450a0a';
+                    statusEl.style.color = '#fca5a5';
+                    statusEl.textContent = data.message || 'Failed.';
+                }
+            } catch (e) {
+                statusEl.style.display = 'block';
+                statusEl.style.background = '#450a0a';
+                statusEl.style.color = '#fca5a5';
+                statusEl.textContent = 'Network error: ' + e.message;
+            }
+        }
+
+        async function adminDeleteWifi(id) {
+            if (!confirm('Delete this Wi-Fi profile?')) return;
+            try {
+                const token = localStorage.getItem('attendify_token');
+                await fetch(`/api/wifi-config/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                adminLoadWifi();
+            } catch (e) {
+                alert('Delete failed: ' + e.message);
+            }
+        }
+
+        // Auto-load wifi profiles when the wifi tab is activated
+        document.querySelectorAll('.nav-tab[data-tab="wifi"]').forEach(tab => {
+            tab.addEventListener('click', () => setTimeout(adminLoadWifi, 100));
+        });
+
+        async function sendAttendanceWarnings() {
+            if (!confirm('Are you sure you want to trigger low-attendance warnings to all students below 75%?')) return;
+            const btn = document.getElementById('warningBtn');
+            const originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            try {
+                const token = await getValidToken();
+                const res = await fetch('/api/gfm/send-attendance-warnings', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    showToast(data.message || 'Low-attendance warnings sent successfully!', 'success');
+                } else {
+                    showToast(data.message || 'Failed to send low-attendance warnings', 'error');
+                }
+            } catch (error) {
+                console.error(error);
+                showToast('Server error', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            }
+        }
+</script>
+
+    <!-- Change Password Modal -->
+    <div id="changePasswordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Change Password</h3>
+                <button class="modal-close" onclick="closeChangePasswordModal()">&times;</button>
+            </div>
+            <form id="changePasswordForm">
+                <div class="form-group" id="currentPasswordGroup" style="margin-bottom: 16px;">
+                    <label for="currentPassword" style="display:block; margin-bottom:6px; font-weight:500;">Current Password</label>
+                    <input type="password" id="currentPassword" style="width:100%; padding:10px; border-radius:6px; border:1px solid #e2e8f0;" placeholder="Enter current password" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label for="newPassword" style="display:block; margin-bottom:6px; font-weight:500;">New Password</label>
+                    <input type="password" id="newPassword" style="width:100%; padding:10px; border-radius:6px; border:1px solid #e2e8f0;" placeholder="Enter new password" required>
+                </div>
+                <div id="changePasswordError" style="display: none; color: #dc2626; background: #fef2f2; border: 1px solid #fecaca; padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 14px;"></div>
+                <div class="modal-actions" style="display:flex; justify-content:flex-end; gap:12px;">
+                    <button type="button" class="btn-secondary" onclick="closeChangePasswordModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="changePasswordBtn">Change Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

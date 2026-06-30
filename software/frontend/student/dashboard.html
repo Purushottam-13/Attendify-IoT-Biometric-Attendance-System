@@ -1,0 +1,2003 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendify - Premium Student Dashboard</title>
+    <!-- Modern Font: Outfit (Apple-like aesthetics) -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            /* Premium Color Palette */
+            --primary: #007AFF; /* iOS Blue */
+            --primary-light: rgba(0, 122, 255, 0.1);
+            --success: #34C759; /* iOS Green */
+            --danger: #FF3B30; /* iOS Red */
+            --warning: #FF9500; /* iOS Orange */
+            
+            --text-main: #1C1C1E;
+            --text-muted: #8E8E93;
+            
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        /* Animated Mesh Gradient Background */
+        body {
+            background: linear-gradient(-45deg, #f3e8ff, #e0e7ff, #dbeafe, #f1f5f9);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Glassmorphism Classes */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: var(--glass-shadow);
+            padding: 24px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .glass-panel:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.1);
+        }
+
+        /* Header Section */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .profile-info h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #1C1C1E, #3A3A3C);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 4px;
+        }
+
+        .profile-info p {
+            color: var(--text-muted);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            padding: 10px 20px;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: scale(1.02);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: #0062CC;
+            background: var(--primary);
+        }
+
+        .btn-danger {
+            color: var(--danger);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-icon {
+            position: absolute;
+            right: -10px;
+            top: -10px;
+            font-size: 80px;
+            opacity: 0.05;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        /* Status Pill */
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            width: fit-content;
+        }
+
+        .status-pill.success {
+            background: rgba(52, 199, 89, 0.15);
+            color: var(--success);
+        }
+
+        .status-pill.danger {
+            background: rgba(255, 59, 48, 0.15);
+            color: var(--danger);
+        }
+
+        /* Main Dashboard Grid */
+        .dashboard-main {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        
+        @media (max-width: 900px) {
+            .dashboard-main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--primary);
+        }
+
+        /* Charts Containers */
+        .chart-container {
+            position: relative;
+            height: 280px;
+            width: 100%;
+        }
+
+        /* Timeline (Recent Logs) */
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        /* Scrollbar styling */
+        .timeline::-webkit-scrollbar {
+            width: 6px;
+        }
+        .timeline::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .timeline::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 16px;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: background 0.2s;
+        }
+
+        .timeline-item:hover {
+            background: rgba(255, 255, 255, 0.7);
+        }
+
+        .timeline-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-light);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .timeline-content {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            width: 100%;
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            font-size: 1.05rem;
+        }
+
+        .timeline-time {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .timeline-meta {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            display: flex;
+            gap: 12px;
+        }
+
+        .timeline-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 16px 20px;
+            border-radius: 16px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .alert-danger {
+            background: rgba(255, 59, 48, 0.1);
+            border: 1px solid rgba(255, 59, 48, 0.2);
+            color: var(--danger);
+        }
+        
+        .alert-warning {
+            background: rgba(255, 149, 0, 0.1);
+            border: 1px solid rgba(255, 149, 0, 0.2);
+            color: #C07000;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    
+        /* Profile Dropdown */
+        .profile-dropdown-container {
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .profile-dropdown-container:hover {
+            background-color: rgba(0,0,0,0.03);
+            border-radius: 8px;
+        }
+        
+        .profile-dropdown-menu {
+            display: none;
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            margin-bottom: 10px;
+            background: #ffffff;
+            border: 1px solid var(--border-color, #e2e8f0);
+            border-radius: var(--radius-md, 8px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            min-width: 200px;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .profile-dropdown-menu.active {
+            display: block;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .profile-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--text-primary, #1e293b);
+            text-decoration: none;
+            transition: background 0.2s;
+            border-bottom: 1px solid var(--border-color, #f1f5f9);
+            font-size: 0.95rem;
+        }
+
+        .profile-dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .profile-dropdown-item:hover {
+            background: var(--bg-hover, #f8fafc);
+        }
+
+        .profile-dropdown-item i {
+            color: var(--brand, #3b82f6);
+            width: 16px;
+            text-align: center;
+        }
+        
+        .profile-dropdown-item.danger-item i {
+            color: var(--error, #dc2626);
+        }
+
+        /* Student header dropdown adjustments */
+        header .profile-dropdown-menu {
+            bottom: auto;
+            top: 100%;
+            left: 0;
+            margin-bottom: 0;
+            margin-top: 10px;
+        }
+
+        /* Modal Base CSS */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-content {
+            background: #ffffff;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transform: translateY(20px);
+            animation: slideUp 0.3s ease-out forwards;
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color, #e2e8f0);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary, #1e293b);
+            margin:0;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-secondary, #64748b);
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: #e2e8f0;
+            color: var(--text-primary, #1e293b);
+        }
+        
+        .modal-content form {
+            padding: 24px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* SIDEBAR CSS */
+        .sidebar {
+            width: 260px;
+            background: rgba(255, 255, 255, 0.7); /* glass-bg */
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 40px;
+            color: var(--text-main);
+        }
+
+        .logo i {
+            color: var(--primary);
+            font-size: 1.8rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.5);
+            color: var(--text-main);
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 122, 255, 0.2);
+        }
+
+        /* Adjust profile dropdown menu in sidebar */
+        .sidebar .profile-dropdown-menu {
+            bottom: 100%;
+            top: auto;
+            left: 0;
+            margin-bottom: 10px;
+            margin-top: 0;
+        }
+
+        /* MAIN CONTENT LAYOUT */
+        body {
+            display: flex;
+        }
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 32px 40px;
+            max-width: 1400px;
+        }
+        
+        /* Clean up header */
+        .header {
+            margin-bottom: 24px;
+        }
+
+        /* Leaves & Forms */
+        .tab-pane {
+            transition: opacity 0.3s ease;
+        }
+        .tab-pane.hidden {
+            display: none !important;
+        }
+        .leaves-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 24px;
+            margin-top: 10px;
+        }
+        @media (max-width: 900px) {
+            .leaves-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+        .form-input {
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid var(--glass-border);
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            transition: all 0.2s;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.8);
+        }
+        .premium-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 12px;
+        }
+        .premium-table th {
+            background: rgba(0, 0, 0, 0.02);
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 12px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--glass-border);
+        }
+        .premium-table td {
+            padding: 14px 14px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.02);
+            color: var(--text-main);
+            font-size: 0.9rem;
+        }
+        .premium-table tr:last-child td {
+            border-bottom: none;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .badge.pending {
+            background: #fffbeb;
+            color: #b45309;
+            border: 1px solid #fde68a;
+        }
+        .badge.approved {
+            background: #ecfdf5;
+            color: #047857;
+            border: 1px solid #a7f3d0;
+        }
+        .badge.rejected {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+
+        /* Focus Rings & Smooth Transitions */
+        .form-input {
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, background 0.15s ease-in-out;
+        }
+        .form-input:focus {
+            outline: none !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.15) !important;
+            background: rgba(255, 255, 255, 0.85);
+        }
+
+        /* Skeleton Loaders */
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .skeleton {
+            background: linear-gradient(90deg, rgba(0,0,0,0.03) 25%, rgba(0,0,0,0.08) 50%, rgba(0,0,0,0.03) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite linear;
+            border-radius: 8px;
+            display: inline-block;
+        }
+        .skeleton-text {
+            height: 14px;
+            width: 80%;
+        }
+        .skeleton-title {
+            height: 24px;
+            width: 40%;
+        }
+
+        /* Modern Empty States */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.3);
+            border: 1px dashed rgba(0, 0, 0, 0.08);
+            border-radius: 16px;
+            margin: 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .empty-state-icon {
+            font-size: 2.2rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+        .empty-state h3 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+        .empty-state p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            max-width: 280px;
+            margin: 0 auto;
+            line-height: 1.4;
+        }
+
+        /* ============================================================
+           PREMIUM UX ANIMATIONS & TRANSITIONS
+           ============================================================ */
+
+        /* Smooth fade-in slide-up animation */
+        @keyframes premiumFadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tab-content, .card, .stat-card, .metric-card, .premium-table tbody tr {
+            animation: premiumFadeInUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Glassmorphic elements */
+        .glass-card, .sidebar {
+            backdrop-filter: blur(16px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+        }
+
+        /* Interactive Card Elevate Hover */
+        .card, .stat-card, .metric-card, .glass-card {
+            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                        box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                        border-color 0.3s ease !important;
+        }
+
+        .card:hover, .stat-card:hover, .metric-card:hover, .glass-card:hover {
+            transform: translateY(-4px) scale(1.005) !important;
+            box-shadow: 0 12px 24px -10px rgba(0, 122, 255, 0.12), 0 4px 12px -5px rgba(0, 0, 0, 0.05) !important;
+            border-color: rgba(0, 122, 255, 0.35) !important;
+        }
+
+        /* Micro-animations for button active/hover states */
+        .btn, button, .nav-item {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+
+        .btn:hover, button:hover:not(:disabled), .nav-item:hover {
+            transform: translateY(-1px) scale(1.02) !important;
+        }
+
+        .btn:active, button:active:not(:disabled), .nav-item:active {
+            transform: translateY(0) scale(0.98) !important;
+        }
+
+        /* Crisp Input Focus Rings */
+        input:focus, select:focus, textarea:focus {
+            outline: none !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.15) !important;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        /* Table Hover Row Glow */
+        .premium-table tbody tr {
+            transition: background-color 0.15s ease, transform 0.15s ease !important;
+        }
+
+        .premium-table tbody tr:hover {
+            background-color: rgba(0, 122, 255, 0.03) !important;
+        }
+
+</style>
+</head>
+
+<body>
+
+    <aside class="sidebar">
+        <div class="logo">
+            <i class="fa-solid fa-fingerprint"></i>
+            Attendify
+        </div>
+        
+        <nav class="nav-menu">
+            <a class="nav-item active" onclick="switchTab('dashboard')">
+                <i class="fa-solid fa-chart-pie"></i> Dashboard
+            </a>
+            <a class="nav-item" onclick="switchTab('timetable')">
+                <i class="fa-solid fa-calendar-days"></i> Timetable
+            </a>
+            <a class="nav-item" onclick="switchTab('announcements')">
+                <i class="fa-solid fa-bullhorn"></i> Announcements
+            </a>
+            <a class="nav-item" onclick="switchTab('history')">
+                <i class="fa-solid fa-clock-rotate-left"></i> History
+            </a>
+            <a class="nav-item" onclick="switchTab('leaves')">
+                <i class="fa-solid fa-file-medical"></i> Leave Requests
+            </a>
+        </nav>
+
+        <!-- Injected Profile -->
+<div class="profile-info profile-dropdown-container" onclick="toggleProfileDropdown(event)" style="display:flex; align-items:center; padding: 12px; border-top: 1px solid rgba(0,0,0,0.1); margin-top: auto;">
+                <div>
+                    <h1 id="studentName" style="margin:0;">Loading...</h1>
+                    <p id="studentSubtitle" style="margin:0;">Roll No: -- • Enrolled: --</p>
+                </div>
+                <i class="fa-solid fa-chevron-down" style="color: var(--text-secondary); margin-left:8px; font-size:14px;"></i>
+                
+                <div class="profile-dropdown-menu" id="profileDropdown">
+                    <a href="#" class="profile-dropdown-item" onclick="openChangePasswordModal(); return false;">
+                        <i class="fa-solid fa-key"></i> Change Password
+                    </a>
+                    <a href="#" class="profile-dropdown-item danger-item" onclick="logout(); return false;">
+                        <i class="fa-solid fa-right-from-bracket"></i> Logout
+                    </a>
+                </div>
+            </div>
+    </aside>
+
+    <main class="main-content">
+
+    <div class="container">
+        
+        <!-- Defaulter & Error Banners -->
+        <div id="errorBox" class="alert alert-danger hidden">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span id="errorMessage"></span>
+        </div>
+        <div id="defaulterBanner" class="alert alert-warning hidden">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span id="defaulterMessage"></span>
+        </div>
+
+        <!-- Header -->
+        <header class="glass-panel header">
+            
+            <div class="page-title">
+                <h1 style="font-size:1.8rem; margin-bottom:4px;">Dashboard</h1>
+                <p style="color:var(--text-muted);">Overview and Statistics</p>
+            </div>
+    
+            <div class="actions">
+                <button id="downloadCsvBtn" class="btn">
+                    <i class="fa-solid fa-file-csv"></i> Report
+                </button>
+                <button id="refreshBtn" class="btn btn-primary">
+                    <i class="fa-solid fa-rotate-right"></i> Sync
+                </button>
+
+            </div>
+        </header>
+
+        <!-- Dashboard Tab -->
+        <div id="tab-dashboard" class="tab-pane">
+            <!-- Key Stats -->
+            <div class="stats-grid">
+                <div class="glass-panel stat-card">
+                    <i class="fa-solid fa-chart-pie stat-icon"></i>
+                    <span class="stat-label">Overall Attendance</span>
+                    <span class="stat-value" id="overallPercent">--%</span>
+                </div>
+                <div class="glass-panel stat-card">
+                    <i class="fa-solid fa-fingerprint stat-icon"></i>
+                    <span class="stat-label">Sessions Attended</span>
+                    <span class="stat-value" id="sessionsAttended">--</span>
+                </div>
+                <div class="glass-panel stat-card">
+                    <i class="fa-solid fa-book-open stat-icon"></i>
+                    <span class="stat-label">Sessions Total</span>
+                    <span class="stat-value" id="sessionsObserved">--</span>
+                </div>
+                <div class="glass-panel stat-card">
+                    <i class="fa-solid fa-shield-halved stat-icon"></i>
+                    <span class="stat-label">Eligibility Status</span>
+                    <div id="defaulterPill" class="status-pill">--</div>
+                </div>
+            </div>
+
+            <!-- Visualizations -->
+            <div class="dashboard-main" style="margin-top: 24px;">
+                <!-- Subject Donut Chart -->
+                <div class="glass-panel">
+                    <h2 class="section-title">
+                        <i class="fa-solid fa-layer-group"></i> Subject Breakdown
+                    </h2>
+                    <div class="chart-container">
+                        <canvas id="subjectChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Monthly Trend Bar Chart -->
+                <div class="glass-panel">
+                    <h2 class="section-title">
+                        <i class="fa-solid fa-chart-line"></i> Monthly Trend
+                    </h2>
+                    <div class="chart-container">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timetable Tab -->
+        <div id="tab-timetable" class="tab-pane hidden">
+            <div class="glass-panel">
+                <h2 class="section-title">
+                    <i class="fa-solid fa-calendar-days"></i> My Class Timetable
+                </h2>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <span style="font-weight: 600; font-size: 1rem;">Class: </span><span id="timetableClassDisplay" style="color:var(--primary); font-weight: 700;">--</span>
+                        <span style="font-weight: 600; font-size: 1rem; margin-left: 15px;">Batch: </span><span id="timetableBatchDisplay" style="color:var(--primary); font-weight: 700;">--</span>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button onclick="changeTimetableDay('Monday')" class="btn btn-sm timetable-day-btn" id="day-btn-Monday">Mon</button>
+                        <button onclick="changeTimetableDay('Tuesday')" class="btn btn-sm timetable-day-btn" id="day-btn-Tuesday">Tue</button>
+                        <button onclick="changeTimetableDay('Wednesday')" class="btn btn-sm timetable-day-btn" id="day-btn-Wednesday">Wed</button>
+                        <button onclick="changeTimetableDay('Thursday')" class="btn btn-sm timetable-day-btn" id="day-btn-Thursday">Thu</button>
+                        <button onclick="changeTimetableDay('Friday')" class="btn btn-sm timetable-day-btn" id="day-btn-Friday">Fri</button>
+                    </div>
+                </div>
+
+                <style>
+                    .timetable-list {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 16px;
+                    }
+                    .timetable-slot-card {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        padding: 18px 24px;
+                        background: rgba(255, 255, 255, 0.4);
+                        border-radius: 18px;
+                        border: 1px solid rgba(255, 255, 255, 0.3);
+                        transition: all 0.3s ease;
+                    }
+                    .timetable-slot-card.active-lecture {
+                        border-color: var(--primary);
+                        box-shadow: 0 0 15px rgba(0, 122, 255, 0.2);
+                        background: rgba(0, 122, 255, 0.05);
+                        animation: pulseActiveSlot 2s infinite ease-in-out;
+                    }
+                    @keyframes pulseActiveSlot {
+                        0% { opacity: 0.95; }
+                        50% { opacity: 1; border-color: #007AFF; box-shadow: 0 0 20px rgba(0, 122, 255, 0.35); }
+                        100% { opacity: 0.95; }
+                    }
+                    .slot-info {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 4px;
+                    }
+                    .slot-time {
+                        font-size: 0.85rem;
+                        color: var(--text-muted);
+                        font-weight: 600;
+                    }
+                    .slot-subject {
+                        font-size: 1.1rem;
+                        font-weight: 700;
+                        color: var(--text-main);
+                    }
+                    .slot-meta {
+                        display: flex;
+                        gap: 16px;
+                        font-size: 0.85rem;
+                        color: var(--text-muted);
+                    }
+                    .slot-status-pill {
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        padding: 6px 12px;
+                        border-radius: 12px;
+                        font-size: 0.8rem;
+                        font-weight: 600;
+                    }
+                    .slot-status-pill.present {
+                        background: rgba(52, 199, 89, 0.15);
+                        color: var(--success);
+                    }
+                    .slot-status-pill.absent {
+                        background: rgba(255, 59, 48, 0.15);
+                        color: var(--danger);
+                    }
+                    .slot-status-pill.upcoming {
+                        background: rgba(142, 142, 147, 0.15);
+                        color: var(--text-muted);
+                    }
+                </style>
+
+                <div class="timetable-list" id="timetableSlotList">
+                    <p style="color: var(--text-muted); text-align: center; padding: 20px;">Select a day to view timetable.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Announcements Tab -->
+        <div id="tab-announcements" class="tab-pane hidden">
+            <div class="glass-panel">
+                <h2 class="section-title">
+                    <i class="fa-solid fa-bullhorn"></i> Announcements Notice Board
+                </h2>
+                
+                <style>
+                    .announcements-list {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 16px;
+                        margin-top: 10px;
+                    }
+                    .announcement-card {
+                        padding: 20px;
+                        background: rgba(255, 255, 255, 0.4);
+                        border-radius: 18px;
+                        border: 1px solid rgba(255, 255, 255, 0.3);
+                        display: flex;
+                        flex-direction: column;
+                        gap: 10px;
+                        transition: all 0.2s ease;
+                    }
+                    .announcement-card:hover {
+                        background: rgba(255, 255, 255, 0.7);
+                    }
+                    .announcement-header {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        flex-wrap: wrap;
+                        gap: 8px;
+                    }
+                    .announcement-title {
+                        font-size: 1.15rem;
+                        font-weight: 700;
+                        color: var(--text-main);
+                    }
+                    .announcement-meta {
+                        display: flex;
+                        gap: 12px;
+                        font-size: 0.8rem;
+                        color: var(--text-muted);
+                    }
+                    .announcement-content {
+                        font-size: 0.95rem;
+                        line-height: 1.5;
+                        color: var(--text-main);
+                        white-space: pre-wrap;
+                    }
+                    .category-badge {
+                        padding: 4px 8px;
+                        border-radius: 8px;
+                        font-size: 0.7rem;
+                        font-weight: 700;
+                        text-transform: uppercase;
+                    }
+                    .category-badge.urgent {
+                        background: rgba(255, 59, 48, 0.15);
+                        color: var(--danger);
+                        border: 1px solid rgba(255, 59, 48, 0.2);
+                    }
+                    .category-badge.academics {
+                        background: rgba(0, 122, 255, 0.15);
+                        color: var(--primary);
+                        border: 1px solid rgba(0, 122, 255, 0.2);
+                    }
+                    .category-badge.info {
+                        background: rgba(142, 142, 147, 0.15);
+                        color: var(--text-muted);
+                        border: 1px solid rgba(142, 142, 147, 0.2);
+                    }
+                </style>
+
+                <div class="announcements-list" id="announcementsList">
+                    <p style="color: var(--text-muted); text-align: center; padding: 20px;">Loading notices...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Tab -->
+        <div id="tab-history" class="tab-pane hidden">
+            <!-- Timeline -->
+            <div class="glass-panel">
+                <h2 class="section-title">
+                    <i class="fa-solid fa-clock-rotate-left"></i> Recent Scans
+                </h2>
+                <div class="timeline" id="recentTimeline">
+                    <!-- Timeline items injected here -->
+                    <p style="color: var(--text-muted); text-align: center; padding: 20px;">Loading timeline...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leave Requests Tab -->
+        <div id="tab-leaves" class="tab-pane hidden">
+            <div class="leaves-grid">
+                <!-- Submit Form -->
+                <div class="glass-panel">
+                    <h2 class="section-title">
+                        <i class="fa-solid fa-paper-plane"></i> Apply for Leave
+                    </h2>
+                    <form id="leaveApplicationForm" onsubmit="submitLeaveApplication(event)">
+                        <div class="form-group">
+                            <label for="leaveReason">Reason / Category</label>
+                            <select id="leaveReason" class="form-input" required style="width: 100%;">
+                                <option value="">Select Reason</option>
+                                <option value="Medical Certificate">Medical Leave</option>
+                                <option value="Sports Duty">Sports / Co-curricular Duty</option>
+                                <option value="Family Emergency">Family Emergency</option>
+                                <option value="Other">Other Official Leave</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="leaveStartDate">Start Date</label>
+                            <input type="date" id="leaveStartDate" class="form-input" required style="width: 100%;">
+                        </div>
+                        <div class="form-group">
+                            <label for="leaveEndDate">End Date</label>
+                            <input type="date" id="leaveEndDate" class="form-input" required style="width: 100%;">
+                        </div>
+                        <div class="form-group">
+                            <label for="leaveCertificate">Document URL / Reason Details</label>
+                            <input type="text" id="leaveCertificate" class="form-input" placeholder="e.g. Medical Certificate URL or reason details" required style="width: 100%;">
+                        </div>
+                        <button type="submit" id="submitLeaveBtn" class="btn btn-primary" style="width: 100%; margin-top: 10px; justify-content: center;">
+                            <i class="fa-solid fa-upload"></i> Submit Request
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Applications History -->
+                <div class="glass-panel" style="overflow-x: auto;">
+                    <h2 class="section-title">
+                        <i class="fa-solid fa-list-check"></i> Application History
+                    </h2>
+                    <table class="premium-table">
+                        <thead>
+                            <tr>
+                                <th>Reason</th>
+                                <th>Duration</th>
+                                <th>Attachment/Details</th>
+                                <th>Status</th>
+                                <th>GFM Comments</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leavesTableBody">
+                            <tr>
+                                <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                                    No applications submitted yet.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Firebase Auth -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    
+    <script>
+        // --- Firebase Init ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyA5xTUSjlz0AUc3P2evFIwMIe6vQfS0Nl8",
+            authDomain: "newattendify.firebaseapp.com",
+            projectId: "newattendify",
+            storageBucket: "newattendify.firebasestorage.app",
+            messagingSenderId: "1087026675865",
+            appId: "1:1087026675865:web:796f43bc5249626a697808"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        // --- Chart Instances ---
+        let subjectChartInstance = null;
+        let trendChartInstance = null;
+
+        // --- Runtime Mode & Token Auto-Refresh ---
+        let runtimeMode = { storageMode: 'CLOUD', authMode: 'FIREBASE', modeLabel: 'CLOUD MODE' };
+
+        async function loadRuntimeMode() {
+            try {
+                const res = await fetch('/api/server-info');
+                const data = await res.json();
+                runtimeMode = data.mode || runtimeMode;
+            } catch (error) {
+                console.warn('Could not load runtime mode:', error);
+            }
+        }
+
+        async function getValidToken() {
+            const token = localStorage.getItem('attendify_token');
+            if (token && token.startsWith('LOCAL_TOKEN_')) {
+                return token;
+            }
+            if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+                try {
+                    const freshToken = await firebase.auth().currentUser.getIdToken(true);
+                    localStorage.setItem('attendify_token', freshToken);
+                    return freshToken;
+                } catch (e) {
+                    console.warn('Failed to refresh Firebase token:', e);
+                }
+            }
+            return token;
+        }
+
+        // --- Utils ---
+        function getQueryParam(name) {
+            const params = new URLSearchParams(window.location.search);
+            return params.get(name);
+        }
+
+        function clearQueryParams() {
+            if (window.location.search) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+
+        function setError(message) {
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorBox').classList.remove('hidden');
+        }
+
+        function clearError() {
+            document.getElementById('errorBox').classList.add('hidden');
+        }
+
+        function formatDate(input) {
+            if (!input) return 'N/A';
+            const date = new Date(input);
+            if (Number.isNaN(date.getTime())) return String(input);
+            return date.toLocaleString('en-US', { 
+                month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' 
+            });
+        }
+
+        function formatMonthLabel(monthKey) {
+            if (!monthKey || !/^\d{4}-\d{2}$/.test(monthKey)) return monthKey || 'N/A';
+            const [year, month] = monthKey.split('-').map(Number);
+            const date = new Date(year, month - 1, 1);
+            return date.toLocaleString('en-US', { month: 'short' });
+        }
+
+        // --- API & Auth Logic ---
+        async function exchangeErpTokenIfPresent() {
+            const erpToken = getQueryParam('erp_token');
+            if (!erpToken) return;
+
+            const res = await fetch('/api/auth/erp-login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ erpToken })
+            });
+
+            const data = await res.json();
+            if (!res.ok || !data.success || !data.token) {
+                throw new Error(data.message || 'ERP login exchange failed');
+            }
+
+            localStorage.setItem('attendify_token', data.token);
+            localStorage.setItem('attendify_email', data.user?.email || '');
+            clearQueryParams();
+        }
+
+        async function requireStudentRole() {
+            const token = await getValidToken();
+            if (!token) {
+                window.location.href = '/login';
+                return false;
+            }
+
+            const res = await fetch('/api/auth/me', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (!res.ok) {
+                window.location.href = '/login';
+                return false;
+            }
+
+            const data = await res.json();
+            const role = data?.user?.role;
+            if (role !== 'STUDENT') {
+                window.location.href = '/dashboard';
+                return false;
+            }
+            return true;
+        }
+
+        // --- Render UI ---
+        function renderDashboard(data) {
+            const { student, stats, subjects, recentLogs, monthlyTrend, applications } = data;
+
+            // Header Profile
+            document.getElementById('studentName').textContent = student.name || 'Student';
+            const enrolledDate = student.enrolledAt ? new Date(student.enrolledAt).toLocaleDateString() : 'N/A';
+            document.getElementById('studentSubtitle').textContent = `Roll No: ${student.roll || '--'} • Enrolled: ${enrolledDate}`;
+
+            // Top Stats
+            document.getElementById('overallPercent').textContent = `${stats.overallPercent}%`;
+            document.getElementById('sessionsAttended').textContent = stats.uniqueSessionsAttended;
+            document.getElementById('sessionsObserved').textContent = stats.uniqueSessionsObserved;
+
+            const defaulterPill = document.getElementById('defaulterPill');
+            const defaulterBanner = document.getElementById('defaulterBanner');
+            
+            if (stats.isDefaulter) {
+                defaulterPill.className = 'status-pill danger';
+                defaulterPill.innerHTML = `<i class="fa-solid fa-xmark"></i> Defaulter (<${stats.threshold}%)`;
+                document.getElementById('defaulterMessage').textContent = `Action Required: Your attendance is ${stats.overallPercent}%, which is below the minimum ${stats.threshold}% requirement.`;
+                defaulterBanner.classList.remove('hidden');
+            } else {
+                defaulterPill.className = 'status-pill success';
+                defaulterPill.innerHTML = `<i class="fa-solid fa-check"></i> Cleared (>${stats.threshold}%)`;
+                defaulterBanner.classList.add('hidden');
+            }
+
+            // Render Charts
+            renderSubjectChart(subjects || []);
+            renderTrendChart(monthlyTrend || []);
+
+            // Render Timeline
+            const timelineContainer = document.getElementById('recentTimeline');
+            if (!recentLogs || recentLogs.length === 0) {
+                timelineContainer.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 20px;">No recent attendance logs found.</p>';
+            } else {
+                timelineContainer.innerHTML = recentLogs.map(log => `
+                    <div class="timeline-item">
+                        <div class="timeline-icon">
+                            <i class="fa-solid fa-fingerprint"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <span class="timeline-title">${log.subject || 'Unknown Subject'}</span>
+                                <span class="timeline-time">${formatDate(log.timestamp)}</span>
+                            </div>
+                            <div class="timeline-meta">
+                                <span><i class="fa-solid fa-user-tie"></i> ${log.teacher || 'Unknown'}</span>
+                                <span><i class="fa-solid fa-microchip"></i> ${log.deviceId || '-'}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Render applications
+            const leavesTableBody = document.getElementById('leavesTableBody');
+            const apps = applications || [];
+            if (apps.length === 0) {
+                leavesTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                            No applications submitted yet.
+                        </td>
+                    </tr>
+                `;
+            } else {
+                leavesTableBody.innerHTML = apps.map(app => {
+                    let statusBadgeClass = 'pending';
+                    let statusIcon = 'fa-clock';
+                    if (app.status === 'APPROVED') {
+                        statusBadgeClass = 'approved';
+                        statusIcon = 'fa-circle-check';
+                    } else if (app.status === 'REJECTED') {
+                        statusBadgeClass = 'rejected';
+                        statusIcon = 'fa-circle-xmark';
+                    }
+
+                    const duration = `${formatDateShort(app.startDate)} to ${formatDateShort(app.endDate)}`;
+                    const certDisplay = app.certificateUrl.startsWith('http') 
+                        ? `<a href="${app.certificateUrl}" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500;"><i class="fa-solid fa-arrow-up-right-from-square"></i> View Doc</a>`
+                        : `<span title="${app.certificateUrl}">${app.certificateUrl.length > 25 ? app.certificateUrl.substring(0, 22) + '...' : app.certificateUrl}</span>`;
+
+                    return `
+                        <tr>
+                            <td style="font-weight: 600; color: var(--text-main);">${app.reason}</td>
+                            <td style="white-space: nowrap;">${duration}</td>
+                            <td>${certDisplay}</td>
+                            <td>
+                                <span class="badge ${statusBadgeClass}">
+                                    <i class="fa-solid ${statusIcon}"></i> ${app.status}
+                                </span>
+                            </td>
+                            <td style="color: var(--text-muted); font-size: 0.85rem;">
+                                ${app.gfmComments ? app.gfmComments : '<span style="font-style: italic; opacity: 0.6;">Pending review</span>'}
+                                ${app.reviewedBy ? `<br><small style="opacity: 0.7;">Reviewed by: ${app.reviewedBy.split('@')[0]}</small>` : ''}
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+        }
+
+        // --- Chart Rendering ---
+        function renderSubjectChart(subjects) {
+            const ctx = document.getElementById('subjectChart').getContext('2d');
+            if (subjectChartInstance) subjectChartInstance.destroy();
+
+            if (subjects.length === 0) return;
+
+            const labels = subjects.map(s => s.subject);
+            const data = subjects.map(s => s.percent);
+            
+            // iOS-inspired colors
+            const colors = ['#007AFF', '#34C759', '#FF9500', '#FF3B30', '#5856D6', '#FF2D55'];
+
+            subjectChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors.slice(0, data.length),
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { font: { family: 'Outfit' }, color: '#1C1C1E' } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ` ${context.label}: ${context.raw}%`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        function renderTrendChart(monthlyTrend) {
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            if (trendChartInstance) trendChartInstance.destroy();
+
+            if (monthlyTrend.length === 0) return;
+
+            // Sort chronically if API doesn't guarantee order
+            const sortedData = [...monthlyTrend].sort((a, b) => a.month.localeCompare(b.month));
+            
+            const labels = sortedData.map(m => formatMonthLabel(m.month));
+            const data = sortedData.map(m => m.percent);
+
+            trendChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Attendance %',
+                        data: data,
+                        backgroundColor: 'rgba(0, 122, 255, 0.8)',
+                        borderRadius: 6,
+                        barThickness: 30
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            max: 100,
+                            grid: { color: 'rgba(0,0,0,0.05)' },
+                            ticks: { font: { family: 'Outfit' }, color: '#8E8E93' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { family: 'Outfit' }, color: '#8E8E93' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        // --- Data Fetching ---
+        let globalDashboardData = null;
+        let studentTimetable = null;
+        let currentTimetableDay = '';
+
+        async function loadStudentDashboard() {
+            clearError();
+            const token = await getValidToken();
+
+            try {
+                const res = await fetch('/api/student/dashboard-data', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await res.json();
+                if (!res.ok || !data.success) {
+                    setError(data.message || 'Failed to load student dashboard data');
+                    return;
+                }
+
+                globalDashboardData = data;
+                renderDashboard(data);
+
+                // Initialize today's day for timetable
+                const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                const todayDay = days[new Date().getDay()];
+                currentTimetableDay = (todayDay === 'Sunday' || todayDay === 'Saturday') ? 'Monday' : todayDay;
+            } catch (err) {
+                setError(err.message || 'Network error while fetching data.');
+            }
+        }
+
+        async function loadTimetable() {
+            if (!globalDashboardData || !globalDashboardData.student) return;
+            const token = await getValidToken();
+            try {
+                const res = await fetch('/api/student/timetable', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    studentTimetable = data.timetable || {};
+                    document.getElementById('timetableClassDisplay').textContent = data.studentClass || 'Not Assigned';
+                    document.getElementById('timetableBatchDisplay').textContent = data.practicalBatch || 'Not Assigned';
+                    renderTimetableForDay(currentTimetableDay);
+                }
+            } catch (e) {
+                console.error('Error loading timetable:', e);
+            }
+        }
+
+        function changeTimetableDay(day) {
+            currentTimetableDay = day;
+            renderTimetableForDay(day);
+        }
+
+        function parseTimeSlot(slotStr) {
+            try {
+                const parts = slotStr.split('-');
+                if (parts.length !== 2) return null;
+                const start = parts[0].trim().split(':').map(Number);
+                const end = parts[1].trim().split(':').map(Number);
+                return { startHour: start[0], startMin: start[1], endHour: end[0], endMin: end[1] };
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function renderTimetableForDay(day) {
+            document.querySelectorAll('.timetable-day-btn').forEach(btn => {
+                btn.style.background = 'rgba(255,255,255,0.5)';
+                btn.style.color = 'var(--text-main)';
+            });
+            const activeBtn = document.getElementById(`day-btn-${day}`);
+            if (activeBtn) {
+                activeBtn.style.background = 'var(--primary)';
+                activeBtn.style.color = 'white';
+            }
+
+            const listContainer = document.getElementById('timetableSlotList');
+            if (!studentTimetable || !studentTimetable.schedule || !studentTimetable.schedule[day] || studentTimetable.schedule[day].length === 0) {
+                listContainer.innerHTML = `<div class="empty-state">
+                    <i class="fa-solid fa-calendar-xmark empty-state-icon"></i>
+                    <h3>No Classes Scheduled</h3>
+                    <p>No timetable entries are defined for ${day} yet.</p>
+                </div>`;
+                return;
+            }
+
+            const schedule = studentTimetable.schedule[day];
+            const logs = (globalDashboardData && globalDashboardData.myLogs) || [];
+            
+            const today = new Date();
+            const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const todayDay = daysOfWeek[today.getDay()];
+            const isToday = (todayDay === day);
+            const currentHour = today.getHours();
+            const currentMin = today.getMinutes();
+
+            listContainer.innerHTML = schedule.map(slot => {
+                let statusClass = 'upcoming';
+                let statusText = 'Upcoming';
+                let statusIcon = 'fa-solid fa-hourglass-start';
+
+                const timeConfig = parseTimeSlot(slot.slot);
+                let isSlotActive = false;
+                if (isToday && timeConfig) {
+                    const startVal = timeConfig.startHour * 60 + timeConfig.startMin;
+                    const endVal = timeConfig.endHour * 60 + timeConfig.endMin;
+                    const currentVal = currentHour * 60 + currentMin;
+                    if (currentVal >= startVal && currentVal < endVal) {
+                        isSlotActive = true;
+                    }
+                }
+
+                const hasMatchToday = logs.some(log => {
+                    if (!log.timestamp) return false;
+                    const logDate = new Date(log.timestamp);
+                    const sameDay = logDate.toDateString() === today.toDateString();
+                    const sameSubject = (log.subject || '').toLowerCase().trim() === (slot.subject || '').toLowerCase().trim();
+                    
+                    if (sameDay && sameSubject && timeConfig) {
+                        const logTimeVal = logDate.getHours() * 60 + logDate.getMinutes();
+                        const startVal = timeConfig.startHour * 60 + timeConfig.startMin - 30;
+                        const endVal = timeConfig.endHour * 60 + timeConfig.endMin + 30;
+                        return logTimeVal >= startVal && logTimeVal <= endVal;
+                    }
+                    return false;
+                });
+
+                if (hasMatchToday) {
+                    statusClass = 'present';
+                    statusText = 'Present';
+                    statusIcon = 'fa-solid fa-circle-check';
+                } else if (isToday) {
+                    if (timeConfig) {
+                        const endVal = timeConfig.endHour * 60 + timeConfig.endMin;
+                        const currentVal = currentHour * 60 + currentMin;
+                        if (currentVal > endVal) {
+                            statusClass = 'absent';
+                            statusText = 'Absent';
+                            statusIcon = 'fa-solid fa-circle-xmark';
+                        }
+                    }
+                }
+
+                return `
+                    <div class="timetable-slot-card ${isSlotActive ? 'active-lecture' : ''}">
+                        <div class="slot-info">
+                            <span class="slot-time"><i class="fa-regular fa-clock"></i> ${slot.slot}</span>
+                            <span class="slot-subject">${slot.subject}</span>
+                            <div class="slot-meta">
+                                <span><i class="fa-solid fa-user-tie"></i> ${slot.teacher}</span>
+                                <span><i class="fa-solid fa-location-dot"></i> ${slot.classroom}</span>
+                                ${slot.batches ? `<span><i class="fa-solid fa-users"></i> Batches: ${slot.batches.join(', ')}</span>` : ''}
+                            </div>
+                        </div>
+                        <div>
+                            <span class="slot-status-pill ${statusClass}">
+                                <i class="${statusIcon}"></i> ${statusText}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function loadAnnouncements() {
+            const token = await getValidToken();
+            try {
+                const res = await fetch('/api/student/announcements', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    renderAnnouncements(data.announcements || []);
+                }
+            } catch (e) {
+                console.error('Error loading announcements:', e);
+            }
+        }
+
+        function renderAnnouncements(list) {
+            const container = document.getElementById('announcementsList');
+            if (list.length === 0) {
+                container.innerHTML = `<div class="empty-state">
+                    <i class="fa-solid fa-bullhorn empty-state-icon" style="opacity:0.3;"></i>
+                    <h3>No Announcements Posted</h3>
+                    <p>There are no current announcements for your class.</p>
+                </div>`;
+                return;
+            }
+
+            container.innerHTML = list.map(item => {
+                const categoryClass = (item.category || 'info').toLowerCase();
+                return `
+                    <div class="announcement-card">
+                        <div class="announcement-header">
+                            <span class="announcement-title">${item.title}</span>
+                            <span class="category-badge ${categoryClass}">${item.category || 'INFO'}</span>
+                        </div>
+                        <div class="announcement-content">${item.content}</div>
+                        <div class="announcement-header" style="border-top: 1px dashed rgba(0,0,0,0.05); padding-top: 8px; margin-top: 5px;">
+                            <span class="announcement-meta">
+                                <span><i class="fa-solid fa-user"></i> Posted by: ${item.postedBy}</span>
+                            </span>
+                            <span class="announcement-meta">
+                                <span><i class="fa-regular fa-calendar-days"></i> ${formatDate(item.postedAt)}</span>
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // --- Event Listeners ---
+        document.getElementById('refreshBtn').addEventListener('click', () => {
+            const btn = document.getElementById('refreshBtn');
+            const icon = btn.querySelector('i');
+            icon.classList.add('fa-spin');
+            loadStudentDashboard().finally(() => {
+                setTimeout(() => icon.classList.remove('fa-spin'), 500);
+            });
+        });
+
+        document.getElementById('downloadCsvBtn').addEventListener('click', async () => {
+            try {
+                const token = await getValidToken();
+                const res = await fetch('/api/student/attendance-report.csv', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!res.ok) {
+                    const errorData = await res.json().catch(() => ({}));
+                    setError(errorData.message || 'Failed to download CSV report');
+                    return;
+                }
+
+                const blob = await res.blob();
+                const downloadUrl = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = downloadUrl;
+                link.download = 'Attendify_Report.csv';
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                window.URL.revokeObjectURL(downloadUrl);
+            } catch (error) {
+                setError(error.message || 'Failed to download CSV report');
+            }
+        });
+
+        async function logout() {
+            console.log('Logging out...');
+            try {
+                if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+                    await firebase.auth().signOut();
+                }
+            } catch (error) {
+                console.error('SignOut error (ignoring):', error);
+            }
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = '/login?logout=true';
+        }
+
+        // --- Init App ---
+        (async () => {
+            await loadRuntimeMode();
+            await exchangeErpTokenIfPresent();
+            const ok = await requireStudentRole();
+            if (!ok) return;
+            await loadStudentDashboard();
+        })().catch(err => setError(err.message));
+    
+            function openChangePasswordModal() {
+                document.getElementById('changePasswordModal').classList.add('active');
+                document.getElementById('changePasswordForm').reset();
+                document.getElementById('changePasswordError').style.display = 'none';
+            }
+
+            function closeChangePasswordModal() {
+                document.getElementById('changePasswordModal').classList.remove('active');
+            }
+
+            document.getElementById('changePasswordForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const currentPassword = document.getElementById('currentPassword').value;
+                const newPassword = document.getElementById('newPassword').value;
+                const errorDiv = document.getElementById('changePasswordError');
+                const btn = document.getElementById('changePasswordBtn');
+                
+                errorDiv.style.display = 'none';
+                btn.disabled = true;
+                btn.textContent = 'Updating...';
+
+                try {
+                    if (runtimeMode.authMode === 'FIREBASE' || (typeof firebase !== 'undefined' && firebase.auth().currentUser)) {
+                        const user = firebase.auth().currentUser;
+                        if (!user) throw new Error("No user logged in");
+                        
+                        const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
+                        await user.reauthenticateWithCredential(credential);
+                        await user.updatePassword(newPassword);
+                        
+                        alert('✅ Password changed successfully!');
+                        closeChangePasswordModal();
+                    } else {
+                        const token = await getValidToken();
+                        const res = await fetch('/api/auth/change-password', {
+                            method: 'POST',
+                            headers: { 
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}` 
+                            },
+                            body: JSON.stringify({ currentPassword, newPassword })
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            alert('✅ Password changed successfully!');
+                            closeChangePasswordModal();
+                        } else {
+                            throw new Error(data.message || "Failed to change password");
+                        }
+                    }
+                } catch (error) {
+                    errorDiv.textContent = error.message;
+                    errorDiv.style.display = 'block';
+                }
+                btn.disabled = false;
+                btn.textContent = 'Change Password';
+            });
+
+            function toggleProfileDropdown(e) {
+                e.stopPropagation();
+                document.getElementById('profileDropdown').classList.toggle('active');
+            }
+            document.addEventListener('click', (e) => {
+                const dropdown = document.getElementById('profileDropdown');
+                if (dropdown && dropdown.classList.contains('active')) {
+                    if (!e.target.closest('.profile-dropdown-container')) {
+                        dropdown.classList.remove('active');
+                    }
+                }
+            });
+
+        function formatDateShort(dateStr) {
+            if (!dateStr) return 'N/A';
+            const date = new Date(dateStr);
+            if (isNaN(date.getTime())) return dateStr;
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        async function submitLeaveApplication(e) {
+            e.preventDefault();
+            const reason = document.getElementById('leaveReason').value;
+            const startDate = document.getElementById('leaveStartDate').value;
+            const endDate = document.getElementById('leaveEndDate').value;
+            const certificateUrl = document.getElementById('leaveCertificate').value;
+            const btn = document.getElementById('submitLeaveBtn');
+
+            if (!reason || !startDate || !endDate) return;
+
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Submitting...`;
+
+            try {
+                const token = await getValidToken();
+                const res = await fetch('/api/student/applications', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ reason, startDate, endDate, certificateUrl })
+                });
+
+                const data = await res.json();
+                if (!res.ok || !data.success) {
+                    alert(data.message || 'Failed to submit application');
+                    return;
+                }
+
+                alert('✅ Leave application submitted successfully!');
+                document.getElementById('leaveApplicationForm').reset();
+                await loadStudentDashboard();
+            } catch (err) {
+                alert('Error submitting application: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-upload"></i> Submit Request`;
+            }
+        }
+
+        function switchTab(tabId) {
+            console.log("Switching to tab:", tabId);
+            
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                if (item.getAttribute('onclick') && item.getAttribute('onclick').includes(`'${tabId}'`)) {
+                    item.classList.add('active');
+                }
+            });
+
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.add('hidden');
+            });
+            
+            const targetPane = document.getElementById(`tab-${tabId}`);
+            if (targetPane) {
+                targetPane.classList.remove('hidden');
+            }
+
+            if (tabId === 'timetable') {
+                loadTimetable();
+            } else if (tabId === 'announcements') {
+                loadAnnouncements();
+            }
+        }
+
+    </script>
+
+    </main>
+
+    <!-- Change Password Modal -->
+    <div id="changePasswordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Change Password</h3>
+                <button class="modal-close" onclick="closeChangePasswordModal()">&times;</button>
+            </div>
+            <form id="changePasswordForm" style="padding: 24px;">
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label for="currentPassword" style="display:block; margin-bottom:6px; font-weight:500;">Current Password</label>
+                    <input type="password" id="currentPassword" style="width:100%; padding:10px; border-radius:6px; border:1px solid #e2e8f0;" placeholder="Enter current password" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label for="newPassword" style="display:block; margin-bottom:6px; font-weight:500;">New Password</label>
+                    <input type="password" id="newPassword" style="width:100%; padding:10px; border-radius:6px; border:1px solid #e2e8f0;" placeholder="Enter new password" required>
+                </div>
+                <div id="changePasswordError" style="display: none; color: #dc2626; background: #fef2f2; border: 1px solid #fecaca; padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 14px;"></div>
+                <div class="modal-actions" style="display:flex; justify-content:flex-end; gap:12px;">
+                    <button type="button" class="btn btn-secondary" style="padding: 10px 16px; border-radius: 6px; border: 1px solid #e2e8f0; background: white; cursor: pointer;" onclick="closeChangePasswordModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="changePasswordBtn" style="padding: 10px 16px; border-radius: 6px; border: none; background: #3b82f6; color: white; cursor: pointer;">Change Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

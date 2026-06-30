@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendify - Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="login-page">
+        <div class="login-container">
+            <div class="login-card">
+                <div class="login-header">
+                    <div class="login-logo">📋</div>
+                    <h1>Attendify</h1>
+                    <p>Sign in to your account</p>
+                </div>
+                <form id="loginForm" class="login-form">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" placeholder="teacher@school.edu" required>
+                    </div>
+                    <div class="form-group">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label for="password" style="margin-bottom: 0;">Password</label>
+                            <a href="#" id="forgotPasswordLink" style="font-size: 13px; color: #2563eb; text-decoration: none;">Forgot Password?</a>
+                        </div>
+                        <input type="password" id="password" placeholder="Enter password" required>
+                    </div>
+                    <div id="errorMessage" class="error-message" style="display: none;"></div>
+                    <button type="submit" id="loginBtn" class="btn-login">
+                        <span id="loginBtnText">Sign In</span>
+                        <span id="loginSpinner" class="login-spinner" style="display: none;"></span>
+                    </button>
+                </form>
+                <div class="login-footer">
+                    <p>Authorized users can access their dashboard</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyA5xTUSjlz0AUc3P2evFIwMIe6vQfS0Nl8",
+            authDomain: "newattendify.firebaseapp.com",
+            projectId: "newattendify",
+            storageBucket: "newattendify.firebasestorage.app",
+            messagingSenderId: "1087026675865",
+            appId: "1:1087026675865:web:796f43bc5249626a697808"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        let runtimeMode = { storageMode: 'CLOUD', authMode: 'FIREBASE', modeLabel: 'CLOUD MODE' };
+
+        async function loadRuntimeMode() {
+            try {
+                const res = await fetch('/api/server-info');
+                const data = await res.json();
+                runtimeMode = data.mode || runtimeMode;
+            } catch (error) {
+                console.warn('Could not load runtime mode:', error);
+            }
+        }
+
+        // Migration helper: clear tokens from a different Firebase project
+        function decodeJwt(token) {
+            try {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+                return JSON.parse(jsonPayload);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        (async () => {
+            const stored = localStorage.getItem('attendify_token');
+            if (stored) {
+                const d = decodeJwt(stored);
+                if (d && d.aud && d.aud !== firebaseConfig.projectId) {
+                    console.log('[MIGRATE] Clearing token issued by', d.aud);
+                    try { await firebase.auth().signOut(); } catch (e) { }
+                    localStorage.removeItem('attendify_token');
+                    localStorage.removeItem('attendify_email');
+                    alert('Attendify upgraded — please sign in again to continue.');
+                    location.reload();
+                }
+            }
+        })();
+
+        const auth = firebase.auth();
+
+        const loginForm = document.getElementById('loginForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const errorMessage = document.getElementById('errorMessage');
+        const loginBtn = document.getElementById('loginBtn');
+        const loginBtnText = document.getElementById('loginBtnText');
+        const loginSpinner = document.getElementById('loginSpinner');
+
+        const runtimeModeReady = loadRuntimeMode();
+
+        auth.onAuthStateChanged(async (user) => {
+            await runtimeModeReady;
+            const params = new URLSearchParams(window.location.search);
+            const isLogout = params.get('logout') === 'true';
+
+            if (isLogout) {
+                console.log('Detected logout param. Clearing session.');
+                await auth.signOut();
+                localStorage.clear();
+                window.history.replaceState({}, document.title, window.location.pathname);
+                return;
+            }
+
+            if (runtimeMode.authMode === 'LOCAL') {
+                return;
+            }
+
+            if (user) {
+                const token = await user.getIdToken();
+                localStorage.setItem('attendify_token', token);
+                localStorage.setItem('attendify_email', user.email);
+                window.location.href = '/dashboard';
+            }
+        });
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            loginBtn.disabled = true;
+            loginBtnText.style.display = 'none';
+            loginSpinner.style.display = 'inline-block';
+            errorMessage.style.display = 'none';
+
+            await loadRuntimeMode();
+
+            if (runtimeMode.authMode === 'FIREBASE') {
+                try {
+                    const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                    const token = await userCredential.user.getIdToken();
+                    localStorage.setItem('attendify_token', token);
+                    localStorage.setItem('attendify_email', userCredential.user.email);
+                    window.location.href = '/dashboard';
+                    return;
+                } catch (firebaseError) {
+                    console.log('[LOGIN] Firebase Auth failed:', firebaseError.code);
+                    errorMessage.textContent = 'Firebase login failed. Check your email and password.';
+                    errorMessage.style.display = 'block';
+                    loginBtn.disabled = false;
+                    loginBtnText.style.display = 'inline';
+                    loginSpinner.style.display = 'none';
+                    return;
+                }
+            }
+
+            try {
+                const res = await fetch('/api/auth/login-local', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+
+                if (data.success && data.token) {
+                    localStorage.setItem('attendify_token', data.token);
+                    localStorage.setItem('attendify_email', data.user.email);
+                    console.log('[LOGIN] Local login successful:', data.user.role);
+                    window.location.href = '/dashboard';
+                    return;
+                } else {
+                    throw new Error(data.message || 'Local login failed');
+                }
+            } catch (localError) {
+                console.error('Local login error:', localError);
+                errorMessage.textContent = 'Login failed. Check your email and password.';
+                errorMessage.style.display = 'block';
+                loginBtn.disabled = false;
+                loginBtnText.style.display = 'inline';
+                loginSpinner.style.display = 'none';
+            }
+        });
+
+        const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+        if (forgotPasswordLink) {
+            forgotPasswordLink.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const email = emailInput.value.trim();
+                if (!email) {
+                    errorMessage.textContent = 'Please enter your email address first to reset password.';
+                    errorMessage.style.display = 'block';
+                    return;
+                }
+
+                await loadRuntimeMode();
+                
+                loginBtn.disabled = true;
+                loginBtnText.textContent = 'Sending...';
+                errorMessage.style.display = 'none';
+
+                if (runtimeMode.authMode === 'FIREBASE') {
+                    try {
+                        await auth.sendPasswordResetEmail(email);
+                        errorMessage.style.color = '#15803d';
+                        errorMessage.style.backgroundColor = '#f0fdf4';
+                        errorMessage.style.borderColor = '#bbf7d0';
+                        errorMessage.textContent = 'Password reset link sent to your email.';
+                        errorMessage.style.display = 'block';
+                    } catch (error) {
+                        errorMessage.style.color = '#dc2626';
+                        errorMessage.style.backgroundColor = '#fef2f2';
+                        errorMessage.style.borderColor = '#fecaca';
+                        errorMessage.textContent = 'Failed to send reset email. ' + error.message;
+                        errorMessage.style.display = 'block';
+                    }
+                } else {
+                    try {
+                        const res = await fetch('/api/auth/forgot-password', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email })
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            errorMessage.style.color = '#15803d';
+                            errorMessage.style.backgroundColor = '#f0fdf4';
+                            errorMessage.style.borderColor = '#bbf7d0';
+                            errorMessage.textContent = data.message;
+                            errorMessage.style.display = 'block';
+                        } else {
+                            throw new Error(data.message);
+                        }
+                    } catch (error) {
+                        errorMessage.style.color = '#dc2626';
+                        errorMessage.style.backgroundColor = '#fef2f2';
+                        errorMessage.style.borderColor = '#fecaca';
+                        errorMessage.textContent = error.message;
+                        errorMessage.style.display = 'block';
+                    }
+                }
+
+                loginBtn.disabled = false;
+                loginBtnText.textContent = 'Sign In';
+                
+                setTimeout(() => {
+                    errorMessage.style.color = '#dc2626';
+                    errorMessage.style.backgroundColor = '#fef2f2';
+                    errorMessage.style.borderColor = '#fecaca';
+                }, 5000);
+            });
+        }
+    </script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: #0f172a;
+        }
+
+        .login-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f1f5f9;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .login-logo {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .login-header h1 {
+            color: #0f172a;
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .login-header p {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .login-form .form-group {
+            margin-bottom: 20px;
+        }
+
+        .login-form label {
+            display: block;
+            color: #334155;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
+        .login-form input {
+            width: 100%;
+            padding: 12px 16px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            color: #0f172a;
+            font-size: 15px;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        .login-form input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .login-form input::placeholder {
+            color: #94a3b8;
+        }
+
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 12px;
+            color: #dc2626;
+            font-size: 14px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.15s, transform 0.15s;
+        }
+
+        .btn-login:hover:not(:disabled) {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        .btn-login:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-login:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .login-spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .login-footer {
+            margin-top: 24px;
+            text-align: center;
+        }
+
+        .login-footer p {
+            color: #94a3b8;
+            font-size: 12px;
+        }
+    </style>
+</body>
+
+</html>
