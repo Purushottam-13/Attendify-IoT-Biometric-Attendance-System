@@ -1,148 +1,381 @@
 <div align="center">
-  <h1>✨ Attendify</h1>
-  <p><strong>A Next-Generation Biometric Attendance System (IoT + Full Stack)</strong></p>
 
-  <!-- Badges -->
-  <img src="https://img.shields.io/badge/Hardware-ESP32-blue?style=for-the-badge&logo=espressif" alt="ESP32" />
-  <img src="https://img.shields.io/badge/Backend-Node.js-green?style=for-the-badge&logo=nodedotjs" alt="Node.js" />
-  <img src="https://img.shields.io/badge/Database-Firebase-FFCA28?style=for-the-badge&logo=firebase" alt="Firebase" />
-  <img src="https://img.shields.io/badge/C++-PlatformIO-orange?style=for-the-badge&logo=cplusplus" alt="C++" />
+# 📡 Attendify
+
+### ✨ Next-Generation IoT-Based Biometric Attendance System using ESP32, Fingerprint Authentication, Firebase & Web Dashboard
+
+<p>
+  <img src="https://img.shields.io/badge/ESP32-Embedded-red?style=for-the-badge&logo=espressif" />
+  <img src="https://img.shields.io/badge/PlatformIO-Firmware-orange?style=for-the-badge&logo=platformio" />
+  <img src="https://img.shields.io/badge/Firebase-Cloud-yellow?style=for-the-badge&logo=firebase" />
+  <img src="https://img.shields.io/badge/Node.js-Backend-green?style=for-the-badge&logo=nodedotjs" />
+  <img src="https://img.shields.io/badge/HTML%20%7C%20CSS%20%7C%20JavaScript-Frontend-blue?style=for-the-badge" />
+</p>
+
+<p>
+  <a href="https://attendify-backend-apha.onrender.com/home.html">
+    <img src="https://img.shields.io/badge/🌐_Live_Demo-Visit-blue?style=for-the-badge" />
+  </a>
+
+  <a href="https://youtu.be/EVmmJ_ZsfPY?feature=shared">
+    <img src="https://img.shields.io/badge/🎥_Demo_Video-Watch-red?style=for-the-badge" />
+  </a>
+
+  <a href="https://portfolio-zeta-murex-cawoef54bd.vercel.app/">
+    <img src="https://img.shields.io/badge/💻_Portfolio-Visit-success?style=for-the-badge" />
+  </a>
+</p>
+
 </div>
 
-<br />
+---
 
-<!-- Hero Image -->
+## 📸 Project Showcase
+
+A working prototype of the Attendify portable biometric attendance device developed as part of the final-year engineering project.
+
 <p align="center">
-  <img src="images/dashboard-home.png" alt="Attendify Dashboard Hero" width="90%" style="border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);" />
+  <img src="images/hardware-prototype.png" alt="Attendify Device" width="90%">
 </p>
 
 ---
 
-## 📖 Overview
+# 📖 Overview
 
-**Attendify** is a comprehensive, end-to-end biometric attendance solution designed for schools and educational institutions. By bridging the gap between custom **IoT hardware** and a **modern web backend**, Attendify offers a robust, secure, and user-friendly platform for managing student attendance. 
+Attendify is a **Next-Generation IoT-Based Biometric Attendance System** developed as a Final Year B.E. Electronics & Telecommunication Engineering project.
 
-Unlike traditional software-only solutions, this project demonstrates full-stack capabilities, ranging from low-level C++ embedded systems programming to high-level asynchronous JavaScript web development.
+The system combines an **ESP32-based embedded device**, **R307 fingerprint authentication**, **Firebase cloud services**, and a **browser-based dashboard** to automate attendance management in educational institutions.
+
+Unlike conventional biometric attendance systems, Attendify supports **offline-first operation** using an RTC module and MicroSD card, ensuring attendance can be recorded even without an internet connection. Once connectivity is restored, the device automatically synchronizes attendance records with the cloud.
+
+The project demonstrates the integration of **Embedded Systems**, **IoT**, **Cloud Computing**, and **Full-Stack Web Development** into a single portable attendance solution.
 
 ---
 
-## 🎨 Visual Showcase & Screenshots
+# ✨ Key Features
 
-### 🖥️ Responsive Web Dashboard
-The web application provides an intuitive interface tailored for administrators, teachers, and students to track attendance metrics and manage system preferences in real time.
+- 🔐 Secure biometric authentication using the **R307 Fingerprint Sensor**
+- 📡 ESP32-based IoT device with Wi-Fi connectivity
+- ☁️ Firebase Authentication & Realtime Database integration
+- 📱 Web dashboard for **Admin, Teacher, GFM, and Student**
+- 📶 Offline attendance logging using **RTC (DS3231)** and **MicroSD**
+- 🔄 Automatic cloud synchronization after reconnecting to Wi-Fi
+- 👨‍🏫 Teacher-controlled attendance sessions
+- 📊 Attendance history and report management
+- 🔋 Rechargeable battery-powered portable device
+- 🖥️ Custom-designed 3D enclosure and user-friendly interface
+
+---
+
+# 🏗️ System Architecture
+
+Attendify consists of two major components that work together to provide a secure and reliable biometric attendance solution.
+
+## 🔹 Firmware (ESP32)
+
+The embedded firmware is developed using **PlatformIO** and runs on the ESP32 microcontroller.
+
+### Responsibilities
+
+- Fingerprint authentication
+- OLED user interface
+- Wi-Fi communication
+- RTC-based timestamping
+- SD card attendance logging
+- Teacher & Student authentication
+- Device configuration
+- Cloud synchronization
+
+---
+
+## 🔹 Software
+
+The software stack provides cloud services and a browser-based dashboard.
+
+### Components
+
+- **Backend:** Node.js & Express.js
+- **Frontend:** HTML, CSS & JavaScript
+- **Database:** Firebase Realtime Database
+- **Authentication:** Firebase Authentication
+
+The dashboard allows administrators, teachers, and students to securely access attendance records, manage users, and configure devices.
+
+---
 
 <p align="center">
-  <kbd>
-    <img src="images/dashboard-login.png" alt="Login Portal" width="31%" />
-  </kbd>
-  <kbd>
-    <img src="images/dashboard-home.png" alt="Main Dashboard" width="31%" />
-  </kbd>
-  <kbd>
-    <img src="images/dashboard-config.png" alt="Device Configuration" width="31%" />
-  </kbd>
+  <img src="docs/System-Architecture.png" alt="System Architecture" width="85%">
 </p>
 
-### 🛠️ Hardware & Biometric Device IoT Renders
-The hardware device integrates biometrics with offline fallback safety, packaged inside a custom-designed 3D-printed enclosure.
+# 🛠️ Hardware Used
 
-<p align="center">
-  <kbd>
-    <img src="images/device-reference.png" alt="Device Architecture Reference" width="22%" />
-  </kbd>
-  <kbd>
-    <img src="images/device-render-1.png" alt="IoT Device Render Front" width="22%" />
-  </kbd>
-  <kbd>
-    <img src="images/device-render-2.png" alt="IoT Device Render Side" width="22%" />
-  </kbd>
-  <kbd>
-    <img src="images/device-render-3.png" alt="IoT Device Assembly" width="22%" />
-  </kbd>
-</p>
+| Component | Description |
+|-----------|-------------|
+| ESP32 | Main microcontroller with Wi-Fi connectivity |
+| R307 Fingerprint Sensor | Biometric authentication |
+| SH1106 OLED Display | User interface |
+| DS3231 RTC Module | Offline timekeeping |
+| MicroSD Card Module | Local attendance storage |
+| Push Buttons | Navigation & configuration |
+| Li-ion Battery | Portable power supply |
+| Custom 3D Enclosure | Compact handheld device |
 
 ---
 
-## 🚀 Key Features
-
-* **Biometric Authentication:** Uses the R307 fingerprint sensor for reliable, foolproof student identification.
-* **Offline-First Hardware:** The ESP32 device operates flawlessly offline using an onboard RTC (DS3231) and MicroSD card, syncing data to the cloud automatically when Wi-Fi is available.
-* **Real-time Web Dashboard:** A sleek web interface built for Admins, Teachers, and Students to monitor attendance records, manage devices, and generate reports.
-* **Role-Based Access Control (RBAC):** Secure authentication flows supporting multiple user tiers (Admin, Teacher, GFM, Student).
-* **Cloud Integration:** Leverages Firebase for real-time data sync and authentication, with local JSON storage fallback.
-
----
-
-## 🏗️ System Architecture
-
-The project is split into two primary domains, demonstrating a clear separation of concerns:
-
-### 1. Embedded Systems (`attendify-hardware2/`)
-* **Microcontroller:** ESP32 handling Wi-Fi connectivity and asynchronous tasks.
-* **Peripherals:** 
-  * **R307** Fingerprint Sensor for biometrics.
-  * **SH1106 OLED** Display for a local user interface.
-  * **DS3231 RTC** for accurate offline timekeeping.
-  * **MicroSD Module** for local data logging.
-* **Firmware:** Developed in C++ using the PlatformIO ecosystem, featuring a custom state machine for the local setup flow and UI.
-
-### 2. Web Application (`attendify-software2/`)
-* **Backend API:** Built with Node.js and Express. Handles complex routing, data validation, and communication with the hardware endpoints.
-* **Database & Auth:** Integrates Firebase Admin SDK for robust cloud storage and user authentication.
-* **Frontend:** Responsive dashboard created with HTML, CSS, and Vanilla JavaScript, ensuring lightweight and fast client-side performance.
-
----
-
-## 💻 Technology Stack
+# 💻 Software & Technologies
 
 | Category | Technologies |
-| :--- | :--- |
-| **Embedded / IoT** | C++, PlatformIO, Arduino Framework, ESP32 |
-| **Backend** | Node.js, Express.js, RESTful APIs |
-| **Database & Auth** | Firebase Realtime Database, Firebase Authentication |
-| **Frontend** | HTML5, CSS3, JavaScript (ES6+), Webpack |
-| **Tools & DevOps** | Git, GitHub, VS Code, Postman |
+|----------|--------------|
+| Embedded Firmware | C++, PlatformIO, ESP32 |
+| Backend | Node.js, Express.js |
+| Frontend | HTML5, CSS3, JavaScript |
+| Database | Firebase Realtime Database |
+| Authentication | Firebase Authentication |
+| Cloud Deployment | Render |
+| Version Control | Git & GitHub |
 
 ---
 
-## ⚙️ Quick Start
-
-### Hardware Setup
-1. Navigate to the `attendify-hardware2/` directory.
-2. Open the project in VS Code with the PlatformIO extension.
-3. Install required library dependencies.
-4. Compile and flash the firmware to your ESP32 board.
-
-### Software Setup
-1. Navigate to the `attendify-software2/` directory.
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Set up your Firebase service account credentials in the `.env` file.
-4. Start the development server:
-   ```bash
-   npm run dev
-   ```
-5. Access the web dashboard at `http://localhost:3000`.
-
----
-
-## 📂 Project Structure
+# 📂 Project Structure
 
 ```text
-📦 Attendify
- ┣ 📂 attendify-hardware2/    # ESP32 C++ Firmware (PlatformIO)
- ┣ 📂 attendify-software2/    # Node.js/Express Backend & Web Dashboard
- ┣ 📂 images/                 # Professional Project Screenshots & IoT Renders
- ┣ 📂 _project_docs/          # Extensive Technical Documentation & Research
- ┣ 📜 COMPREHENSIVE_TESTING_PLAN.md
- ┗ 📜 README.md               # You are here
+📦 Attendify-IoT-Biometric-Attendance-System
+│
+├── 📂 firmware
+│   ├── src
+│   └── platformio.ini
+│
+├── 📂 software
+│   ├── backend
+│   ├── frontend
+│   └── package.json
+│
+├── 📂 docs
+│   ├── Attendify_Project_Report.pdf
+│   ├── Block-Diagram.png
+│   ├── Circuit-Diagram.png
+│   └── System-Architecture.png
+│
+├── 📂 images
+│   ├── Dashboard Images
+│   └── Device Renders
+│
+├── 📄 README.md
+├── 📄 render.yaml
+└── 📄 .gitignore
 ```
 
 ---
 
-<div align="center">
-  <i>Built with passion by a full-stack developer bridging the gap between software and the physical world.</i>
-</div>
+# 📸 Visual Showcase
 
+## 🖥️ Web Dashboard
+
+The web dashboard enables administrators, teachers, GFM coordinators, and students to securely manage attendance records, monitor lectures, and configure devices.
+
+<h3 align="center">🔐 Faculty Login</h3>
+
+<p align="center">
+  <img src="images/dashboard-login.png" width="80%" alt="Faculty Login">
+</p>
+
+<h3 align="center">📊 Dashboard Overview</h3>
+
+<p align="center">
+  <img src="images/dashboard-overview.png" width="80%" alt="Dashboard Overview">
+</p>
+
+<h3 align="center">📝 Enrollment Queue</h3>
+
+<p align="center">
+  <img src="images/enrollment-queue.png" width="80%" alt="Enrollment Queue">
+</p>
+
+---
+
+## 📱 Portable Biometric Device
+
+The Attendify device is designed as a compact handheld attendance system featuring fingerprint authentication, OLED display, Wi-Fi connectivity, offline attendance storage, and cloud synchronization.
+
+### 📷 Device Overview
+
+<p align="center">
+  <img src="images/device-reference.png" width="80%" alt="Device Overview">
+</p>
+
+### 🔧 Internal Hardware Design
+
+<p align="center">
+  <img src="images/hardware-exploded.png" width="80%" alt="Exploded Hardware View">
+</p>
+
+### 👆 Fingerprint Enrollment
+
+<p align="center">
+  <img src="images/fingerprint-enrollment.png" width="80%" alt="Fingerprint Enrollment">
+</p>
+
+## 📟 Embedded Firmware
+
+### 👨‍🏫 Admin Menu
+
+<p align="center">
+  <img src="images/admin-menu.png" width="80%" alt="Admin Menu">
+</p>
+
+### 👩‍🏫 Teacher Menu
+
+<p align="center">
+  <img src="images/teacher-menu.png" width="80%" alt="Teacher Menu">
+</p>
+
+# 📄 Documentation
+
+The project documentation included in this repository provides additional technical details.
+
+| Document | Description |
+|-----------|-------------|
+| 📘 Attendify_Project_Report.pdf | Complete final project report |
+| 🧩 Block-Diagram.png | High-level hardware block diagram |
+| 🔌 Circuit-Diagram.png | Circuit connections |
+| 🏗️ System-Architecture.png | Overall system architecture |
+
+All documents are available inside the **docs** folder.
+
+---
+
+# 🚀 Getting Started
+
+## Prerequisites
+
+Before running the project, make sure you have:
+
+- ESP32 Development Board
+- PlatformIO (VS Code Extension)
+- Node.js (v18 or later)
+- Firebase Project
+- Git
+
+---
+
+## Clone the Repository
+
+```bash
+git clone https://github.com/Purushottam-13/Attendify-IoT-Biometric-Attendance-System.git
+cd Attendify-IoT-Biometric-Attendance-System
+```
+
+---
+
+## Firmware Setup
+
+1. Open the **firmware** folder in Visual Studio Code.
+2. Install the PlatformIO extension.
+3. Configure Wi-Fi credentials and required settings.
+4. Build and upload the firmware to the ESP32.
+
+---
+
+## Software Setup
+
+Install the dependencies.
+
+```bash
+cd software
+npm install
+```
+
+Create your environment file.
+
+```text
+software/.env
+```
+
+using the provided
+
+```text
+software/.env.example
+```
+
+Run the backend.
+
+```bash
+npm start
+```
+
+Open the frontend in your browser after the backend starts successfully.
+
+---
+
+# 🌐 Live Demo
+
+**Live Application**
+
+https://attendify-backend-apha.onrender.com/home.html
+
+---
+
+# 🎥 Demonstration Video
+
+Watch the complete project demonstration here:
+
+https://youtu.be/EVmmJ_ZsfPY?feature=shared
+
+---
+
+# 🚀 Future Improvements
+
+The following enhancements are planned for future versions of Attendify:
+
+- 📱 Mobile application for attendance monitoring
+- 📊 Advanced analytics and attendance insights
+- 📧 Automated email and notification system
+- 📄 PDF and Excel attendance report generation
+- 🔐 Multi-factor authentication for administrators
+- ☁️ Support for additional cloud platforms
+- 🎓 Integration with Learning Management Systems (LMS)
+- 📈 Real-time attendance statistics and dashboards
+
+---
+
+# 👨‍💻 Author
+
+**Purushottam Apte**
+
+Final Year B.E. Electronics & Telecommunication Engineering  
+PES Modern College of Engineering, Pune
+
+📧 **Email:** aptepuru19@gmail.com
+
+💻 **GitHub:**  
+https://github.com/Purushottam-13
+
+💼 **LinkedIn:**  
+https://www.linkedin.com/in/purushottam-apte/
+
+🌐 **Portfolio:**  
+https://portfolio-zeta-murex-cawoef54bd.vercel.app/
+
+---
+
+# 🤝 Project Information
+
+This repository showcases my contribution to the **Attendify – Next-Generation IoT-Based Biometric Attendance System**, developed as a Final Year B.E. Electronics & Telecommunication Engineering team project.
+
+### Team Members
+
+- Purushottam Apte
+- Jay Ganesh Dukare
+- Ojas Vijay Hadgal
+
+---
+
+# 📜 License
+
+This project is shared for **educational and portfolio purposes**.
+
+You are welcome to explore the repository and learn from the implementation.
+
+If you reuse or modify this work, please provide appropriate attribution to the original authors.
+
+---
