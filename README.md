@@ -30,13 +30,15 @@
 
 ---
 
-## 📸 Project Showcase
+## 📸 Device Showcase
 
 A working prototype of the Attendify portable biometric attendance device developed as part of the final-year engineering project.
 
 <p align="center">
   <img src="images/hardware-prototype.png" alt="Attendify Device" width="90%">
 </p>
+
+A fully functional ESP32-based biometric attendance device with cloud synchronization and a web dashboard.
 
 ---
 
@@ -176,7 +178,7 @@ The web dashboard enables administrators, teachers, GFM coordinators, and studen
 <h3 align="center">🔐 Faculty Login</h3>
 
 <p align="center">
-  <img src="images/dashboard-login.png" width="80%" alt="Faculty Login">
+  <img src="images/dashboard-login.png" width="30%" alt="Faculty Login">
 </p>
 
 <h3 align="center">📊 Dashboard Overview</h3>
@@ -233,14 +235,12 @@ The Attendify device is designed as a compact handheld attendance system featuri
 
 The project documentation included in this repository provides additional technical details.
 
-| Document | Description |
-|-----------|-------------|
-| 📘 Attendify_Project_Report.pdf | Complete final project report |
-| 🧩 Block-Diagram.png | High-level hardware block diagram |
-| 🔌 Circuit-Diagram.png | Circuit connections |
-| 🏗️ System-Architecture.png | Overall system architecture |
+- 📘 **Project Report:** [Attendify_Project_Report.pdf](docs/Attendify_Project_Report.pdf)
+- 🧩 **Hardware Block Diagram:** [Block-Diagram.png](docs/Block-Diagram.png)
+- 🔌 **Circuit Diagram:** [Circuit-Diagram.png](docs/Circuit-Diagram.png)
+- 🏗️ **System Architecture:** [System-Architecture.png](docs/System-Architecture.png)
 
-All documents are available inside the **docs** folder.
+All project documentation is available in the **docs**/directory.
 
 ---
 
